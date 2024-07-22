@@ -1,0 +1,23 @@
+[data-theme="light"] {
+  --disabled-bg-color: rgba(26, 137, 23, 0.25);
+}
+
+[data-theme="dark"] {
+  --disabled-bg-color: rgba(26, 137, 23, 0.7);
+}
+
+.button {
+  padding: 0.3rem 0.8rem;
+  background-color: #1a8917;
+  border: none;
+  border-radius: 99em;
+  outline: 0;
+  color: white;
+  cursor: pointer;
+}
+
+.button:disabled,
+.disabled {
+  background-color: var(--disabled-bg-color);
+  outline: 0;
+}

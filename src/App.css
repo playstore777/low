@@ -1,0 +1,14 @@
+.main {
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 5rem;
+}
+/* 
+main {
+  flex: 2;
+}
+
+.sidebar {
+  flex: 1;
+} */

@@ -1,0 +1,26 @@
+[data-theme="light"] {
+  --background-color: #fff;
+  --text-color: #000;
+}
+
+[data-theme="dark"] {
+  --text-color: #fff;
+  --background-color: #000;
+}
+
+.titleField {
+  background-color: var(--background-color);
+  border-radius: 10px;
+  margin-bottom: 0.3rem;
+}
+
+.titleInput {
+  border-radius: 10px;
+  width: 100%;
+  background-color: var(--background-color);
+  padding: 1rem;
+  color: var(--text-color);
+  font-size: 33px;
+  font-weight: bold;
+  border: 1px solid var(--text-color);
+}

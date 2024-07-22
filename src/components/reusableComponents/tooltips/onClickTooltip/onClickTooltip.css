@@ -1,0 +1,26 @@
+.onclick-tooltip-content {
+  position: absolute;
+  top: 150%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--text-color);
+  color: var(--body-bg);
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.onclick-tooltip-arrow {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--text-color);
+}

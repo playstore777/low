@@ -1,0 +1,132 @@
+.headerWrapper {
+  padding: 0.2rem 1.3rem;
+  border-bottom: solid 1px var(--border-color);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s cubic-bezier(1, 0, 0, 1); /* Galti se perfection hogaya ye to, OP bhai OP (tukka lag gaya)*/
+}
+
+.showHeader {
+  position: sticky;
+  top: 0;
+  background-color: var(--body-bg);
+  transform: translateY(0);
+}
+
+.hideHeader {
+  transform: translateY(-100px);
+}
+
+.paddingInlineHeader {
+  padding-inline: 7rem;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  #logo {
+    cursor: pointer;
+  }
+
+  .searchBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--searchbar-bg);
+    border-radius: 50px;
+    padding: 0.3rem 0.8rem;
+
+    [data-theme="light"] {
+      --searchbar-bg: #f9f9f9;
+      --searchbar-text: #000;
+    }
+
+    [data-theme="dark"] {
+      --searchbar-bg: #0e0e0e;
+      --searchbar-text: #fff;
+    }
+
+    & > input {
+      background-color: transparent;
+      color: var(--searchbar-text);
+      border: none;
+      outline: none;
+      font-size: 14px;
+      padding: 10px 20px 10px 0;
+
+      &::placeholder {
+        color: var(--searchbar-text);
+      }
+    }
+  }
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  [data-theme="light"] {
+    --text-color: #6b6b6b;
+  }
+
+  [data-theme="dark"] {
+    --text-color: white;
+  }
+
+  svg {
+    color: var(--text-color);
+  }
+
+  .postButton {
+    display: flex;
+    gap: 0.4rem;
+    cursor: pointer;
+
+    & > .iconCaption {
+      font-size: small;
+    }
+
+    &:hover > .iconCaption {
+      color: var(--text-color);
+    }
+  }
+
+  .buttonStyles {
+    background-color: transparent;
+    border: none;
+  }
+
+  .signInButton {
+    cursor: pointer;
+    font-size: small;
+    color: var(--text-color);
+    opacity: 0.7;
+
+    &:hover {
+      color: var(--text-color);
+      opacity: 1;
+    }
+  }
+
+  .avatar {
+    border-radius: 50%;
+    border: 2px solid var(--text-color);
+    width: 32px;
+    height: 32px;
+
+    .avatarPlaceholder {
+      background-color: #000;
+      border-radius: inherit;
+    }
+
+    img {
+      width: 100%;
+      border-radius: 50%;
+    }
+  }
+}
