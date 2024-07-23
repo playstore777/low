@@ -3,8 +3,8 @@ import ContextMenu, {
   MenuItems,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
-import { PostType } from "../../types/types";
-import { fetchData } from "../../server/server";
+import { Post } from "../../types/types";
+import { fetchPost } from "../../server/server";
 
 type ContextMenuOptions = {
   url: string;
@@ -19,7 +19,7 @@ const appendContent = async (
 ) => {
   const url = element.getAttribute("data-post-url");
   if (url) {
-    const res = await fetchData(url);
+    const res = await fetchPost(url);
 
     const titleElement = element.querySelector(
       ".CollapsibleLink__title > p"
@@ -47,7 +47,7 @@ const HtmlContentDisplay = ({
   post,
   attr,
 }: {
-  post?: PostType;
+  post?: Post;
   attr?: {
     style: null | object;
     className: {
@@ -130,7 +130,7 @@ const HtmlContentDisplay = ({
     if (postContent.content) {
       processElements();
     }
-  }, [fetchData, postContent.content]);
+  }, [fetchPost, postContent.content]);
   //#endregion
 
   return (

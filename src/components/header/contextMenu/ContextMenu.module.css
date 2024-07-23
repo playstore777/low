@@ -1,6 +1,6 @@
 .contextMenu {
   position: absolute;
-  background-color: var(--body-bg);
+  background-color: var(--background-color);
   border: 1px solid #ccc;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   list-style: none;

@@ -27,6 +27,7 @@ import { ImageNode } from "../plugins/nodes/ImageNode";
 import ImagesPlugin from "../plugins/ImagesPlugin";
 import LinkPlugin from "../plugins/LinkPlugin";
 import "./Editor.css";
+import { fetchDataMethod } from "../plugins/types";
 
 const onError = (error: unknown) => {
   console.error("Custom error from Lexical Editor: ", error);
@@ -65,11 +66,13 @@ const Editor = ({
   namespace,
   readonly = false,
   initialEditorState,
+  fetchPost,
   onInputChange,
 }: {
   namespace: string;
   readonly?: boolean;
   initialEditorState?: string;
+  fetchPost: fetchDataMethod;
   onInputChange: (key: string, value: string) => void;
 }) => {
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
@@ -114,7 +117,10 @@ const Editor = ({
   return (
     <>
       <LexicalComposer initialConfig={initialConfig}>
-        <ToolbarPlugin setIsLinkEditMode={setIsLinkEditMode} />
+        <ToolbarPlugin
+          setIsLinkEditMode={setIsLinkEditMode}
+          fetchPost={fetchPost}
+        />
         <RichTextPlugin
           contentEditable={
             <div className="editor" ref={onRef}>

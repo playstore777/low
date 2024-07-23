@@ -26,6 +26,13 @@
   display: flex;
   justify-content: space-between;
 
+  .clap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+  }
+
   .buttonStyles {
     background-color: transparent;
     border: none;

@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 
-import "./Post.css";
+import "./PostPreview.css";
 
 interface PostProps {
   id: string;
@@ -10,7 +10,7 @@ interface PostProps {
   featuredImage?: string;
 }
 
-const Post: React.FC<PostProps> = ({
+const PostPreview: React.FC<PostProps> = ({
   id,
   title,
   content,
@@ -41,4 +41,4 @@ const Post: React.FC<PostProps> = ({
   );
 };
 
-export default Post;
+export default PostPreview;

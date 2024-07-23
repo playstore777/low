@@ -57,6 +57,7 @@ import { InsertCollapsibleLinkUriDialogBody } from "../CollapsibleLink/InsertCol
 import "./toolbarPlugin.css";
 import { INSERT_HORIZONTAL_RULE_COMMAND } from "@lexical/react/LexicalHorizontalRuleNode";
 import { InsertImageDialog } from "../ImagesPlugin";
+import { fetchDataMethod } from "../types";
 
 const blockTypeToBlockName = {
   code: "Code Block",
@@ -216,8 +217,10 @@ function Divider(): JSX.Element {
 }
 
 export default function ToolbarPlugin({
+  fetchPost,
   setIsLinkEditMode,
 }: {
+  fetchPost: fetchDataMethod;
   setIsLinkEditMode: Dispatch<boolean>;
 }): JSX.Element {
   const [editor] = useLexicalComposerContext();
@@ -543,6 +546,7 @@ export default function ToolbarPlugin({
               showModal("Enter the URL", (onClose) => (
                 <InsertCollapsibleLinkUriDialogBody
                   activeEditor={activeEditor}
+                  fetchPost={fetchPost}
                   onClose={onClose}
                 />
               ));

@@ -5,13 +5,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: var(--background-color);
   transition: all 0.3s cubic-bezier(1, 0, 0, 1); /* Galti se perfection hogaya ye to, OP bhai OP (tukka lag gaya)*/
 }
 
 .showHeader {
   position: sticky;
   top: 0;
-  background-color: var(--body-bg);
+  background-color: var(--background-color);
   transform: translateY(0);
 }
 

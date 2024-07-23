@@ -11,6 +11,7 @@ import { useAppSelector } from "../../store/rootReducer";
 import { useAuth } from "../../server/hooks/useAuth";
 import { storeRef } from "../../server/firebase";
 import classes from "./PublishPost.module.css";
+import { addPost } from "../../server/server";
 
 const PublishPost = ({ onClose }: { onClose: () => void }) => {
   const post = useAppSelector((state) => state.post);
@@ -78,14 +79,12 @@ const PublishPost = ({ onClose }: { onClose: () => void }) => {
       tags: topics,
     };
 
-    try {
-      const res = await addDoc(storeRef, document);
+    const response = await addPost(document);
+    if (response) {
       toast("Story has been published!");
-      res.id && navigate(`post/${res.id}`);
-    } catch (error) {
-      console.error("Error writing document: ", error);
-    } finally {
-      onClose();
+      response.id && navigate(`post/${response.id}`);
+    } else {
+      toast("Story is not published due to an error!");
     }
   };
 

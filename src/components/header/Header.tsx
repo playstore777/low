@@ -24,6 +24,7 @@ import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
 import classes from "./Header.module.css";
 import PublishPost from "./PublishPost";
+import { updatePost } from "../../server/server";
 
 const Header = () => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -62,20 +63,6 @@ const Header = () => {
     setPublishPost(false);
   };
 
-  const updateDocument = async (
-    documentId: string,
-    updatedData: { title: string; content: string; featuredImage?: string }
-  ) => {
-    try {
-      const documentRef = doc(storeRef, documentId);
-      await updateDoc(documentRef, updatedData);
-      toast("Story has been updated!");
-    } catch (error) {
-      toast("Error updating the Story!");
-      console.error("Error updating document: ", error);
-    }
-  };
-
   const handleUpdate = async () => {
     const div = document.createElement("div");
     div.innerHTML = post.activePost.content;
@@ -101,7 +88,12 @@ const Header = () => {
       featuredImage: imgElement?.src ?? "",
     };
 
-    await updateDocument(documentId, updatedData);
+    const response = await updatePost(documentId, updatedData);
+    if (response) {
+      toast("Story has been updated!");
+    } else {
+      toast("Error updating the Story!");
+    }
     dispatch(disableEditMode());
     navigate(`post/${documentId}`);
   };

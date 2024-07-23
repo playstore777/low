@@ -4,8 +4,9 @@ import Editor from "../../packages/Editor/Editor";
 import classes from "./ManipulatePost.module.css";
 import { useAppDispatch } from "../../store/rootReducer";
 import { createPost } from "../../store/slices/postSlice";
-import { PostType } from "../../types/types";
+import { Post } from "../../types/types";
 import { useLocation } from "react-router";
+import { fetchPost } from "../../server/server";
 
 const initialPostData = {
   title: "",
@@ -17,7 +18,7 @@ const ManipulatePost = ({
   post,
 }: {
   isNewPost?: boolean;
-  post?: PostType;
+  post?: Post;
 }) => {
   const dispatch = useAppDispatch();
   const { state } = useLocation();
@@ -68,6 +69,7 @@ const ManipulatePost = ({
         <Editor
           namespace="new-post-editor"
           initialEditorState={post?.content}
+          fetchPost={fetchPost}
           onInputChange={onInputChange}
         />
       </div>

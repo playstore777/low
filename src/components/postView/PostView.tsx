@@ -6,7 +6,6 @@ import { toast } from "react-toastify";
 import HtmlContentDisplay from "../../packages/HtmlContentDisplay/HtmlContentDisplay";
 import ThreeDots from "../../assets/images/MediumThreeDots.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
-import { fetchDataMethod, PostType } from "../../types/types";
 import SvgWrapper from "../reusableComponents/svg/SvgWrapper";
 import { enableEditMode } from "../../store/slices/postSlice";
 import Button from "../reusableComponents/button/Button";
@@ -16,34 +15,32 @@ import Clap from "../../assets/images/MediumClap.svg";
 import { useAuth } from "../../server/hooks/useAuth";
 import { deleteDoc, doc } from "firebase/firestore";
 import { storeRef } from "../../server/firebase";
+import { clapPost, fetchPost } from "../../server/server";
 import classes from "./PostView.module.css";
-import { fetchData } from "../../server/server";
+import { Post } from "../../types/types";
 
-const PostView = ({
-  post,
-}: {
-  post?: PostType;
-  fetchData: fetchDataMethod;
-}) => {
-  const { userLoggedIn } = useAuth();
+const PostView = ({ post }: { post?: Post }) => {
+  const { userLoggedIn, currentUser } = useAuth();
   const { postId } = useParams();
   const { state } = useLocation();
   post = state?.post;
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
-  const [postContent, setPostContent] = useState<PostType>({
+  const [postContent, setPostContent] = useState<Post>({
     id: postId!,
     title: post?.title ?? "",
     content: post?.content,
+    claps: post?.claps ?? 0,
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isClapped, setIsClapped] = useState(false);
 
   //#region main/root post fetch using id
   useEffect(() => {
-    const fetchPost = async () => {
+    const getPost = async () => {
       try {
-        const post = await fetchData(postId!);
+        const post = await fetchPost(postId!);
         if (post) {
           setPostContent((prev) => ({
             ...prev,
@@ -57,10 +54,33 @@ const PostView = ({
     };
 
     if (!post?.title) {
-      fetchPost();
+      getPost();
     }
-  }, [fetchData, post?.title, postId]);
+  }, [post?.title, postId]);
   //#endregion
+
+  useEffect(() => {
+    let timer = undefined;
+    if (isClapped && currentUser) {
+      timer = setTimeout(async () => {
+        const body = {
+          claps: postContent.claps,
+          clappers: postContent.clappers,
+        };
+        await clapPost(postContent.id, currentUser?.uid, body);
+        setIsClapped(false);
+      }, 5000);
+    }
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [
+    currentUser,
+    isClapped,
+    postContent.clappers,
+    postContent.claps,
+    postContent.id,
+  ]);
 
   const deleteDocument = async (documentId: string) => {
     try {
@@ -85,6 +105,18 @@ const PostView = ({
 
   const onDeleteHandler = async () => {
     setShowDeleteModal(true);
+  };
+
+  const onClapHandler = () => {
+    !isClapped && setIsClapped(true);
+    setPostContent((prev) => ({
+      ...prev,
+      claps: (prev.claps || 0) + 1,
+      clappers: {
+        [currentUser!.uid]:
+          (prev.clappers ? prev?.clappers[currentUser!.uid] : 0) + 1,
+      },
+    }));
   };
 
   return (
@@ -121,7 +153,14 @@ const PostView = ({
         </div>
       </div>
       <div className={classes.postInteractions}>
-        <SvgWrapper SvgComponent={Clap} width="24px" />
+        <div className={classes.clap}>
+          <SvgWrapper
+            SvgComponent={Clap}
+            width="24px"
+            onClick={onClapHandler}
+          />
+          {postContent.claps}
+        </div>
         <Dropdown buttonStyles={classes.buttonStyles}>
           <SvgWrapper SvgComponent={ThreeDots} width="24px" />
           <div className="dropdownItems">
@@ -152,7 +191,7 @@ const PostView = ({
           </div>
         </Dropdown>
       </div>
-      <HtmlContentDisplay post={postContent} fetchData={fetchData} />
+      <HtmlContentDisplay post={postContent} />
       <PopUp
         isOpen={showDeleteModal}
         onClose={() => {

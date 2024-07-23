@@ -25,7 +25,7 @@ const AppRouter = () => {
         },
         {
           path: "post/:postId",
-          element: <PostView key={location.pathname} fetchData={fetchData} />,
+          element: <PostView key={location.pathname} />,
         },
         {
           path: "post/:postId/edit",

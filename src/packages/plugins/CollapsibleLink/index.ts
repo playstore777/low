@@ -50,7 +50,7 @@ import {
   $isCollapsibleLinkTitleNode,
   CollapsibleLinkTitleNode as CollapsibleLinkTitleNode,
 } from "./CollapsibleLinkTitleNode";
-import { Post } from "../../types";
+import { Post } from "../types";
 
 export const INSERT_COLLAPSIBLE_COMMAND = createCommand<{ url: string }>();
 export const TOGGLE_COLLAPSIBLE_COMMAND = createCommand<NodeKey>();
