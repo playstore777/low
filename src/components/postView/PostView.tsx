@@ -8,14 +8,17 @@ import ThreeDots from "../../assets/images/MediumThreeDots.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
 import SvgWrapper from "../reusableComponents/svg/SvgWrapper";
 import { enableEditMode } from "../../store/slices/postSlice";
+import {
+  clapPost,
+  deletePost,
+  fetchPost,
+  getUserById,
+} from "../../server/server";
 import Button from "../reusableComponents/button/Button";
 import { useAppDispatch } from "../../store/rootReducer";
 import PopUp from "../reusableComponents/popup/PopUp";
 import Clap from "../../assets/images/MediumClap.svg";
 import { useAuth } from "../../server/hooks/useAuth";
-import { deleteDoc, doc } from "firebase/firestore";
-import { storeRef } from "../../server/firebase";
-import { clapPost, fetchPost } from "../../server/server";
 import classes from "./PostView.module.css";
 import { Post } from "../../types/types";
 
@@ -32,8 +35,19 @@ const PostView = ({ post }: { post?: Post }) => {
     title: post?.title ?? "",
     content: post?.content,
     claps: post?.claps ?? 0,
+    userId: post?.userId ?? "",
+    createdAt: post?.createdAt,
+  });
+  const [contentAuthor, setContentAuthor] = useState({
+    name: "",
+    username: "",
+    photoURL: "",
+    id: "",
   });
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isAuthorUser, setIsAuthorUser] = useState(
+    currentUser?.uid === contentAuthor.id
+  );
   const [isClapped, setIsClapped] = useState(false);
 
   //#region main/root post fetch using id
@@ -42,10 +56,23 @@ const PostView = ({ post }: { post?: Post }) => {
       try {
         const post = await fetchPost(postId!);
         if (post) {
+          if (post.userId) {
+            const authorDetails = await getUserById(post.userId);
+            setContentAuthor({
+              id: authorDetails?.uid as string,
+              name: authorDetails?.displayName as string,
+              username: "",
+              photoURL: authorDetails?.photoURL as string,
+            });
+          }
           setPostContent((prev) => ({
             ...prev,
             title: post.title,
             content: post.content,
+            claps: post.claps,
+            clappers: post.clappers,
+            userId: post.userId,
+            createdAt: new Date(post.createdAt!.seconds * 1000),
           }));
         }
       } catch (error) {
@@ -53,26 +80,45 @@ const PostView = ({ post }: { post?: Post }) => {
       }
     };
 
-    if (!post?.title) {
-      getPost();
-    }
+    // if (!post?.title) {
+    getPost();
+    // }
   }, [post?.title, postId]);
   //#endregion
 
   useEffect(() => {
     let timer = undefined;
-    if (isClapped && currentUser) {
+    if (isClapped && currentUser && !timer) {
       timer = setTimeout(async () => {
         const body = {
           claps: postContent.claps,
           clappers: postContent.clappers,
         };
-        await clapPost(postContent.id, currentUser?.uid, body);
+        await clapPost(postContent.id, body);
         setIsClapped(false);
-      }, 5000);
+      }, 3000);
     }
+
     return () => {
       clearTimeout(timer);
+
+      /**
+       * If this clean up function gets triggered before timeout, then API will not be called and that will cause the data to be unsycronised or in simple Backend data will not get updated.
+       *
+       * So we are calling the API if timeout is cleared and also clapped, if new claps data is available to be updated in the backend.
+       */
+      if (isClapped) {
+        /** Increasing claps and clappers by 1, because this is getting executed before state updation*/
+        const clappers = {
+          [currentUser?.uid as string]:
+            postContent.clappers![currentUser?.uid as string] + 1,
+        };
+        const body = {
+          claps: postContent.claps! + 1,
+          clappers: clappers,
+        };
+        clapPost(postContent.id, body);
+      }
     };
   }, [
     currentUser,
@@ -82,16 +128,9 @@ const PostView = ({ post }: { post?: Post }) => {
     postContent.id,
   ]);
 
-  const deleteDocument = async (documentId: string) => {
-    try {
-      const documentRef = doc(storeRef, documentId);
-      await deleteDoc(documentRef);
-      toast("Story has been deleted!");
-    } catch (error) {
-      toast("Error deleting the Story!");
-      console.error("Error deleting document: ", error);
-    }
-  };
+  useEffect(() => {
+    setIsAuthorUser(currentUser?.uid === contentAuthor.id);
+  }, [contentAuthor.id, currentUser?.uid]);
 
   const onEditHandler = () => {
     const content = document.querySelector(".content");
@@ -119,6 +158,16 @@ const PostView = ({ post }: { post?: Post }) => {
     }));
   };
 
+  const onDeletePostHandler = async () => {
+    try {
+      await deletePost(postId!);
+      toast("Story has been deleted!");
+      navigate("/");
+    } catch (e) {
+      toast("Error deleting the Story!");
+    }
+  };
+
   return (
     <>
       {postContent?.title && (
@@ -135,21 +184,18 @@ const PostView = ({ post }: { post?: Post }) => {
       )}
       <div className={classes.authorDetails}>
         <div className={classes.avatar}>
-          {/* {!author?.photoURL && ( */}
-          <div className={classes.avatarPlaceholder}></div>
-          {/* )} */}
-          {/* {author?.photoURL && ( // It should be from the post author not currentUser (earlier used currentUser, now replaced with author, some dummy name, not implemented yet), it was just for testing!!
-            <img
-              alt=""
-              className="s co cj ck cl cp"
-              src={author?.photoURL}
-              loading="lazy"
-            />
-          )} */}
+          {!contentAuthor?.photoURL && (
+            <div className={classes.avatarPlaceholder}></div>
+          )}
+          {contentAuthor?.photoURL && (
+            <img alt="" src={contentAuthor?.photoURL} loading="lazy" />
+          )}
         </div>
         <div>
-          <div className="authorName">Mohammed Adil Sharif</div>
-          <div className="createdDate">Jun 6, 2024</div>
+          <div className="authorName">{contentAuthor.name}</div>
+          <div className="createdDate">
+            {postContent.createdAt && postContent.createdAt.toISOString()}
+          </div>
         </div>
       </div>
       <div className={classes.postInteractions}>
@@ -157,6 +203,7 @@ const PostView = ({ post }: { post?: Post }) => {
           <SvgWrapper
             SvgComponent={Clap}
             width="24px"
+            disabled={isAuthorUser}
             onClick={onClapHandler}
           />
           {postContent.claps}
@@ -164,7 +211,7 @@ const PostView = ({ post }: { post?: Post }) => {
         <Dropdown buttonStyles={classes.buttonStyles}>
           <SvgWrapper SvgComponent={ThreeDots} width="24px" />
           <div className="dropdownItems">
-            {userLoggedIn && (
+            {userLoggedIn && isAuthorUser && (
               <div
                 className="dropdownItem"
                 onClick={onEditHandler}
@@ -173,7 +220,7 @@ const PostView = ({ post }: { post?: Post }) => {
                 Edit
               </div>
             )}
-            {userLoggedIn && (
+            {userLoggedIn && isAuthorUser && (
               <div
                 className="dropdownItem"
                 tabIndex={0}
@@ -202,7 +249,7 @@ const PostView = ({ post }: { post?: Post }) => {
           <header>Delete Story</header>
           <main>
             Deletion is not reversible, and the story will be completely
-            deleted. If you do not want to delete, you can
+            deleted. If you do not want to delete, you can&nbsp;
             <u>unlist the story</u>.
           </main>
           <footer>
@@ -216,10 +263,7 @@ const PostView = ({ post }: { post?: Post }) => {
             <Button
               label="Delete"
               className={classes.deleteBtn}
-              onClick={async () => {
-                await deleteDocument(postId!);
-                navigate("/");
-              }}
+              onClick={onDeletePostHandler}
             />
           </footer>
         </div>

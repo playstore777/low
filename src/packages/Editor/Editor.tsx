@@ -46,6 +46,7 @@ const EditorInitializer = ({
         const parser = new DOMParser();
         const doc = parser.parseFromString(initialEditorState, "text/html");
         const nodes = $generateNodesFromDOM(editor, doc);
+        console.log(nodes);
 
         const root = $getRoot();
         root.clear();

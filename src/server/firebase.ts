@@ -35,6 +35,7 @@ const firestoreSettings: FirestoreSettings = {
 
 const firestore = initializeFirestore(app, firestoreSettings);
 
-const storeRef = collection(firestore, "posts");
+const postStoreRef = collection(firestore, "posts");
+const userStoreRef = collection(firestore, "users");
 
-export { auth, firestore, storeRef };
+export { auth, firestore, postStoreRef, userStoreRef };

@@ -1,27 +1,16 @@
 import { useEffect, useState } from "react";
 
-import { getDocs, orderBy, query } from "firebase/firestore";
-
 import PostPreview from "../reusableComponents/post/PostPreview";
-import { storeRef } from "../../server/firebase";
-import "./Main.css";
 import { Post } from "../../types/types";
-
-const postQuery = query(storeRef, orderBy("createdAt", "desc"));
+import "./Main.css";
+import { fetchAllPosts } from "../../server/server";
 
 const Main = () => {
   const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const fetchArticles = async () => {
-      const querySnapshot = await getDocs(postQuery);
-      const articlesList = querySnapshot.docs.map(
-        (doc) =>
-          ({
-            id: doc.id,
-            ...doc.data(),
-          } as Post)
-      );
+      const articlesList = await fetchAllPosts();
       setPosts(articlesList);
     };
     fetchArticles();

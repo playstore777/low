@@ -18,13 +18,11 @@ import { createElementFromHTML } from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
-import { doc, updateDoc } from "firebase/firestore";
-import { storeRef } from "../../server/firebase";
+import { updatePost } from "../../server/server";
 import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
 import classes from "./Header.module.css";
 import PublishPost from "./PublishPost";
-import { updatePost } from "../../server/server";
 
 const Header = () => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -66,19 +64,24 @@ const Header = () => {
   const handleUpdate = async () => {
     const div = document.createElement("div");
     div.innerHTML = post.activePost.content;
+    // const collapsiblesContainer = div.querySelectorAll(
+    //   "details.CollapsibleLink__container"
+    // );
     const collapsiblesTitles = div.querySelectorAll(".CollapsibleLink__title");
     const collapsiblesContents = div.querySelectorAll(
       ".CollapsibleLink__content"
     );
     collapsiblesTitles.forEach((title) => {
-      title.innerHTML = "<p></p>";
+      title.innerHTML = "<p><br/></p>";
     });
     collapsiblesContents.forEach((content) => {
-      content.innerHTML = "<p></p>";
+      content.innerHTML = "<p><br/></p>";
     });
     const htmlElement = createElementFromHTML(post.activePost.content);
     const imgElement = htmlElement.querySelector("img");
-    dispatch(createPost({ content: div.innerHTML }));
+    const updatedPost = div.innerHTML;
+    console.log(updatedPost);
+    dispatch(createPost({ content: updatedPost }));
     const paths = pathname.split("/");
     const id = paths[paths.length - 2];
     const documentId = id;
@@ -87,11 +90,13 @@ const Header = () => {
       content: post.activePost.content,
       featuredImage: imgElement?.src ?? "",
     };
+    console.log(updatedData);
 
-    const response = await updatePost(documentId, updatedData);
-    if (response) {
+    try {
+      await updatePost(documentId, updatedData);
       toast("Story has been updated!");
-    } else {
+    } catch (e) {
+      console.error(e);
       toast("Error updating the Story!");
     }
     dispatch(disableEditMode());

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
+
 import ContextMenu, {
   MenuItems,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
+import { fetchPost, getUserById } from "../../server/server";
 import { Post } from "../../types/types";
-import { fetchPost } from "../../server/server";
 
 type ContextMenuOptions = {
   url: string;
@@ -13,27 +14,40 @@ type ContextMenuOptions = {
   updatedDate?: string;
 };
 
+type NestedAuthors = {
+  [url: string]: {
+    authorName: string;
+  };
+};
+
 const appendContent = async (
   element: HTMLElement,
-  handleRightClick: (event: MouseEvent, options?: ContextMenuOptions[]) => void
+  handleRightClick: (event: MouseEvent, options?: ContextMenuOptions[]) => void,
+  setNestedAuthors: (value: NestedAuthors) => void
 ) => {
   const url = element.getAttribute("data-post-url");
   if (url) {
     const res = await fetchPost(url);
+    if (res?.userId) {
+      const user = await getUserById(res?.userId as string);
+      user &&
+        setNestedAuthors({ [url]: { authorName: user.displayName as string } });
+    }
 
     const titleElement = element.querySelector(
-      ".CollapsibleLink__title > p"
+      ".CollapsibleLink__title"
     ) as HTMLDivElement;
     const contentElement = element.querySelector(
-      ".CollapsibleLink__content > p"
+      ".CollapsibleLink__content"
     ) as HTMLDivElement;
 
     const title = res?.title;
-    titleElement.innerHTML = `<h3>${title}</h3>`; // .CollapsibleLink__title > p (child of .Collapisble__title class)
+    titleElement.innerHTML = `<p><h3>${title}</h3></p>`; // .CollapsibleLink__title (child of .Collapisble__title class)
 
     const content = res?.content;
-    contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content > p (child of .Collapisble__content class)
+    contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
 
+    console.log(contentElement);
     contentElement.oncontextmenu = (e) =>
       handleRightClick(e, [
         {
@@ -59,6 +73,7 @@ const HtmlContentDisplay = ({
     title: post?.title,
     content: post?.content,
   });
+  const [nestedAuthors, setNestedAuthors] = useState<NestedAuthors>({});
   const [contextMenu, setContextMenu] = useState<null | {
     position: Position;
     menuItems: MenuItems[];
@@ -68,9 +83,22 @@ const HtmlContentDisplay = ({
     event: MouseEvent,
     options?: ContextMenuOptions[]
   ) => {
-    // document.addEventListener("click", () => setContextMenu(null)); // really cool option, but what if this gets overriden by some other feature? then there will be no other way to close the menu!
+    // document.addEventListener("click", () => setContextMenu(null));
+    /**
+     * really cool option, but what if this gets overriden by some other
+     * feature? then there will be no other way to close the menu! (eg, now we
+     * have Three dots menu which also gets removed on "click" of outside, so,
+     * we need to use better approach in both the places).
+     * */
     event.preventDefault();
     event.stopPropagation();
+
+    const authorDetails = nestedAuthors[options?.[0]?.url as string];
+    console.log(nestedAuthors, options?.[0]?.url);
+    const menuItem = { label: "", onClick: () => {} };
+    if (authorDetails) {
+      menuItem.label = authorDetails.authorName;
+    }
     setContextMenu({
       position: {
         x: event.pageX,
@@ -78,10 +106,13 @@ const HtmlContentDisplay = ({
       },
       menuItems: [
         {
-          label: options?.[0]?.url || "Item 1",
+          label: "Post Url: " + options?.[0]?.url || "Unable to show URL",
           onClick: () => (window.location.href = options?.[0]?.url || "#"),
         },
-        { label: "Item 2", onClick: () => alert("Item 2 clicked") },
+        menuItem && {
+          label: "Author: " + menuItem.label,
+          onClick: menuItem.onClick,
+        },
         {
           label: "Close",
           styles: { backgroundColor: "red", color: "white" },
@@ -116,21 +147,26 @@ const HtmlContentDisplay = ({
   useEffect(() => {
     const processElements = async () => {
       const elements = document.querySelectorAll("[data-post-url]");
+      console.log(elements);
       const queue = Array.from(elements);
 
       while (queue.length > 0) {
         const element = queue.shift();
-        await appendContent(element as HTMLElement, handleRightClick);
+        await appendContent(
+          element as HTMLElement,
+          handleRightClick,
+          setNestedAuthors
+        );
 
         const nestedElements = element!.querySelectorAll("[data-post-url]");
         nestedElements.forEach((nestedElement) => queue.push(nestedElement));
       }
     };
-
+    // console.log(postContent.content);
     if (postContent.content) {
       processElements();
     }
-  }, [fetchPost, postContent.content]);
+  }, [postContent.content]);
   //#endregion
 
   return (

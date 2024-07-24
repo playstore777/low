@@ -6,7 +6,8 @@ interface SvgWrapperProps {
   width?: string;
   height?: string;
   className?: string;
-  onClick?: () => void
+  disabled?: boolean;
+  onClick?: () => void;
 }
 
 const SvgWrapper: React.FC<SvgWrapperProps> = ({
@@ -15,13 +16,19 @@ const SvgWrapper: React.FC<SvgWrapperProps> = ({
   width = "100%",
   height = "100%",
   className,
+  disabled,
   onClick,
 }) => {
   return (
     <SvgComponent
       className={className || ""}
-      style={{ width: width, height: height, color: fillColor }}
-      onClick={onClick}
+      style={{
+        width: width,
+        height: height,
+        color: fillColor,
+        cursor: disabled ? "not-allowed" : "pointer",
+      }}
+      onClick={!disabled ? onClick : () => {}}
     />
   );
 };

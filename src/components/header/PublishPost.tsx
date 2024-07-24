@@ -9,7 +9,7 @@ import { createElementFromHTML } from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
 import { useAppSelector } from "../../store/rootReducer";
 import { useAuth } from "../../server/hooks/useAuth";
-import { storeRef } from "../../server/firebase";
+import { postStoreRef } from "../../server/firebase";
 import classes from "./PublishPost.module.css";
 import { addPost } from "../../server/server";
 

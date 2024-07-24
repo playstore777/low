@@ -32,6 +32,7 @@ import invariant from "invariant";
 type SerializedCollapsibleLinkContainerNode = Spread<
   {
     open: boolean;
+    dataPostUrl: string;
   },
   SerializedElementNode
 >;
@@ -135,7 +136,10 @@ export class CollapsibleLinkContainerNode extends ElementNode {
   static importJSON(
     serializedNode: SerializedCollapsibleLinkContainerNode
   ): CollapsibleLinkContainerNode {
-    const node = $createCollapsibleLinkContainerNode(serializedNode.open, "");
+    const node = $createCollapsibleLinkContainerNode(
+      serializedNode.open,
+      serializedNode.dataPostUrl
+    );
     return node;
   }
 
@@ -153,6 +157,7 @@ export class CollapsibleLinkContainerNode extends ElementNode {
       open: this.__open,
       type: "collapsible-container",
       version: 1,
+      dataPostUrl: this.__postUrl,
     };
   }
 

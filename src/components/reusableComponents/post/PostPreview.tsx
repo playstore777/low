@@ -26,6 +26,7 @@ const PostPreview: React.FC<PostProps> = ({
     navigate(`post/${id}`, {
       state: { post: { title, content } },
     });
+    window.scrollTo({ top: 0 });
   };
 
   return (

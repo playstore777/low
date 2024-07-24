@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates. (Original MIT License)
  * Copyright (c) 2024 Mohammed Adil Sharif.
@@ -93,12 +92,11 @@ export class CollapsibleLinkTitleNode extends ElementNode {
   static importJSON(
     serializedNode: SerializedCollapsibleLinkTitleNode
   ): CollapsibleLinkTitleNode {
-    console.error("Error: importJSON() is not implemented!!");
+    console.error("Error: importJSON() is not implemented!!", serializedNode);
     return $createCollapsibleLinkTitleNode("");
   }
 
   exportJSON(): SerializedCollapsibleLinkTitleNode {
-    console.warn(super.exportJSON());
     return {
       ...super.exportJSON(),
       type: "collapsible-title",

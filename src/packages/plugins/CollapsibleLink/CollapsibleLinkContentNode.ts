@@ -117,7 +117,7 @@ export class CollapsibleLinkContentNode extends ElementNode {
   static importJSON(
     serializedNode: SerializedCollapsibleLinkContentNode
   ): CollapsibleLinkContentNode {
-    console.error("Error: importJSON() is not implemented!!");
+    console.error("Error: importJSON() is not implemented!!", serializedNode);
     return $createCollapsibleLinkContentNode("");
   }
 
