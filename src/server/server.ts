@@ -82,7 +82,6 @@ export const updatePost = async (
     console.log("updatePost body: ", updatedData);
     const documentRef = doc(postStoreRef, documentId);
     const res = await updateDoc(documentRef, updatedData);
-    console.log("res from updatePost: ", res);
     return res;
   } catch (error) {
     console.error("Error updating document: ", error);

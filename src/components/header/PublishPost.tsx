@@ -67,8 +67,8 @@ const PublishPost = ({ onClose }: { onClose: () => void }) => {
       );
       return;
     }
-    const title = titleRef?.current?.value ?? post.activePost.title;
-    const description = descriptionRef?.current?.value ?? "";
+    const title = titleRef?.current?.value.trim() || post.activePost.title;
+    const description = descriptionRef?.current?.value || "";
     const document = {
       title,
       description,
@@ -79,9 +79,11 @@ const PublishPost = ({ onClose }: { onClose: () => void }) => {
       tags: topics,
     };
 
+    console.log(document);
     const response = await addPost(document);
     if (response) {
       toast("Story has been published!");
+      onClose();
       response.id && navigate(`post/${response.id}`);
     } else {
       toast("Story is not published due to an error!");

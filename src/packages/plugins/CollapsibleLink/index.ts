@@ -280,7 +280,7 @@ export default function CollapsibleLinkPlugin(): null {
               $createCollapsibleLinkContainerNode(true, payload.url).append(
                 title.append(paragraph),
                 $createCollapsibleLinkContentNode(
-                  payload?.content ?? ""
+                  payload?.content as string
                 ).append($createParagraphNode())
               )
             );

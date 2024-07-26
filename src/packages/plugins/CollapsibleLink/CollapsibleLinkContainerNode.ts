@@ -41,7 +41,10 @@ export function $convertDetailsElement(
   domNode: HTMLDetailsElement
 ): DOMConversionOutput | null {
   const isOpen = domNode.open !== undefined ? domNode.open : true;
-  const node = $createCollapsibleLinkContainerNode(isOpen, "");
+  const node = $createCollapsibleLinkContainerNode(
+    isOpen,
+    domNode.dataset.postUrl!
+  );
   return {
     node,
   };
@@ -128,6 +131,7 @@ export class CollapsibleLinkContainerNode extends ElementNode {
         return {
           conversion: $convertDetailsElement,
           priority: 1,
+          postUrl: domNode.dataset.postUrl,
         };
       },
     };

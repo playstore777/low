@@ -134,12 +134,12 @@ const PostView = ({ post }: { post?: Post }) => {
 
   const onEditHandler = () => {
     const content = document.querySelector(".content");
+    dispatch(enableEditMode());
     navigate("edit", {
       state: {
         post: { title: post?.title, content: content?.innerHTML },
       },
     });
-    dispatch(enableEditMode());
   };
 
   const onDeleteHandler = async () => {

@@ -20,6 +20,7 @@ import {
   LexicalNode,
   NodeKey,
   SerializedElementNode,
+  Spread,
 } from "lexical";
 import { IS_CHROME } from "../utils/environment";
 import invariant from "invariant";
@@ -35,7 +36,7 @@ type SerializedCollapsibleLinkContentNode = SerializedElementNode;
 export function $convertCollapsibleLinkContentElement(
   domNode: HTMLElement
 ): DOMConversionOutput | null {
-  const node = $createCollapsibleLinkContentNode(domNode.innerHTML);
+  const node = $createCollapsibleLinkContentNode(""); // providing content here, causing duplication.
   return {
     node,
   };
@@ -57,9 +58,11 @@ export class CollapsibleLinkContentNode extends ElementNode {
   }
 
   createDOM(config: EditorConfig, editor: LexicalEditor): HTMLElement {
-    const dom = document.createElement("div");
+    let dom = undefined;
+    dom = document.createElement("div");
     dom.classList.add("CollapsibleLink__content");
     dom.innerHTML = this.__content;
+    console.log("content: ", dom);
     dom.style.height = "auto";
     dom.contentEditable = "false";
     if (IS_CHROME) {
@@ -117,7 +120,7 @@ export class CollapsibleLinkContentNode extends ElementNode {
   static importJSON(
     serializedNode: SerializedCollapsibleLinkContentNode
   ): CollapsibleLinkContentNode {
-    console.error("Error: importJSON() is not implemented!!", serializedNode);
+    console.error("Error: importJSON() is not implemented!!");
     return $createCollapsibleLinkContentNode("");
   }
 

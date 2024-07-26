@@ -64,9 +64,6 @@ const Header = () => {
   const handleUpdate = async () => {
     const div = document.createElement("div");
     div.innerHTML = post.activePost.content;
-    // const collapsiblesContainer = div.querySelectorAll(
-    //   "details.CollapsibleLink__container"
-    // );
     const collapsiblesTitles = div.querySelectorAll(".CollapsibleLink__title");
     const collapsiblesContents = div.querySelectorAll(
       ".CollapsibleLink__content"
@@ -87,7 +84,7 @@ const Header = () => {
     const documentId = id;
     const updatedData = {
       title: post.activePost.title,
-      content: post.activePost.content,
+      content: updatedPost,
       featuredImage: imgElement?.src ?? "",
     };
     console.log(updatedData);

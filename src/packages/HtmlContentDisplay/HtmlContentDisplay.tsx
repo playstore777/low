@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import ContextMenu, {
   MenuItems,
@@ -79,48 +79,47 @@ const HtmlContentDisplay = ({
     menuItems: MenuItems[];
   }>(null);
 
-  const handleRightClick = (
-    event: MouseEvent,
-    options?: ContextMenuOptions[]
-  ) => {
-    // document.addEventListener("click", () => setContextMenu(null));
-    /**
-     * really cool option, but what if this gets overriden by some other
-     * feature? then there will be no other way to close the menu! (eg, now we
-     * have Three dots menu which also gets removed on "click" of outside, so,
-     * we need to use better approach in both the places).
-     * */
-    event.preventDefault();
-    event.stopPropagation();
+  const handleRightClick = useCallback(
+    (event: MouseEvent, options?: ContextMenuOptions[]) => {
+      // document.addEventListener("click", () => setContextMenu(null));
+      /**
+       * really cool option, but what if this gets overriden by some other
+       * feature? then there will be no other way to close the menu! (eg, now we
+       * have Three dots menu which also gets removed on "click" of outside, so,
+       * we need to use better approach in both the places).
+       * */
+      event.preventDefault();
+      event.stopPropagation();
 
-    const authorDetails = nestedAuthors[options?.[0]?.url as string];
-    console.log(nestedAuthors, options?.[0]?.url);
-    const menuItem = { label: "", onClick: () => {} };
-    if (authorDetails) {
-      menuItem.label = authorDetails.authorName;
-    }
-    setContextMenu({
-      position: {
-        x: event.pageX,
-        y: event.pageY,
-      },
-      menuItems: [
-        {
-          label: "Post Url: " + options?.[0]?.url || "Unable to show URL",
-          onClick: () => (window.location.href = options?.[0]?.url || "#"),
+      const authorDetails = nestedAuthors[options?.[0]?.url as string];
+      const menuItem = { label: "", onClick: () => {} };
+      if (authorDetails) {
+        menuItem.label = authorDetails.authorName;
+      }
+      setContextMenu({
+        position: {
+          x: event.pageX,
+          y: event.pageY,
         },
-        menuItem && {
-          label: "Author: " + menuItem.label,
-          onClick: menuItem.onClick,
-        },
-        {
-          label: "Close",
-          styles: { backgroundColor: "red", color: "white" },
-          onClick: () => setContextMenu(null),
-        },
-      ],
-    });
-  };
+        menuItems: [
+          {
+            label: "Post Url: " + options?.[0]?.url || "Unable to show URL",
+            onClick: () => (window.location.href = options?.[0]?.url || "#"),
+          },
+          menuItem && {
+            label: "Author: " + menuItem.label,
+            onClick: menuItem.onClick,
+          },
+          {
+            label: "Close",
+            styles: { backgroundColor: "red", color: "white" },
+            onClick: () => setContextMenu(null),
+          },
+        ],
+      });
+    },
+    [nestedAuthors]
+  );
 
   const handleCloseContextMenu = () => {
     setContextMenu(null);
@@ -166,7 +165,7 @@ const HtmlContentDisplay = ({
     if (postContent.content) {
       processElements();
     }
-  }, [postContent.content]);
+  }, [handleRightClick, postContent.content]);
   //#endregion
 
   return (
