@@ -37,7 +37,7 @@ const ManipulatePost = ({
       };
       dispatch(createPost(updatedPost));
       setPostData(updatedPost);
-      console.log(updatedPost);
+      // console.log(updatedPost);
     }
   }, [isNewPost, post]);
 

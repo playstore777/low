@@ -203,7 +203,7 @@ const PostView = ({ post }: { post?: Post }) => {
           <SvgWrapper
             SvgComponent={Clap}
             width="24px"
-            disabled={isAuthorUser}
+            disabled={isAuthorUser || !userLoggedIn}
             onClick={onClapHandler}
           />
           {postContent.claps}

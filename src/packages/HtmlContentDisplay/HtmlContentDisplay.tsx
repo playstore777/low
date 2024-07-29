@@ -46,8 +46,6 @@ const appendContent = async (
 
     const content = res?.content;
     contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
-
-    console.log(contentElement);
     contentElement.oncontextmenu = (e) =>
       handleRightClick(e, [
         {
@@ -146,7 +144,6 @@ const HtmlContentDisplay = ({
   useEffect(() => {
     const processElements = async () => {
       const elements = document.querySelectorAll("[data-post-url]");
-      console.log(elements);
       const queue = Array.from(elements);
 
       while (queue.length > 0) {
@@ -165,7 +162,8 @@ const HtmlContentDisplay = ({
     if (postContent.content) {
       processElements();
     }
-  }, [handleRightClick, postContent.content]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postContent.content]); // adding handleRightClick as deps causing infinite re-rendering!
   //#endregion
 
   return (

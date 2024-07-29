@@ -1,4 +1,11 @@
 .mainWrapper {
   width: 100%;
   padding: 1rem;
+
+  .end-of-list {
+    width: 100%;
+    text-align: center;
+    margin: 2rem 0;
+    color: grey;
+  }
 }

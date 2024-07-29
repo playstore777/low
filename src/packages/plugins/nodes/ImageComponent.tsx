@@ -1,5 +1,6 @@
 /**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates. (Original MIT License)
+ * Copyright (c) 2024 Mohammed Adil Sharif.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -69,6 +70,7 @@ function useSuspenseImage(src: string) {
         resolve(null);
       };
       img.style.display = "block";
+      img.style.margin = "auto";
       img.onerror = () => {
         imageCache.add(src);
       };
@@ -83,7 +85,7 @@ function LazyImage({
   src,
   width,
   height,
-  maxWidth,
+  maxWidth = 379,
   onError,
 }: {
   altText: string;
@@ -104,7 +106,7 @@ function LazyImage({
       ref={imageRef}
       style={{
         height,
-        maxWidth: "379px",
+        maxWidth: maxWidth + "px",
         width,
       }}
       onError={onError}

@@ -12,9 +12,14 @@ import {
 import { Post, User } from "../types/types";
 import { postStoreRef, userStoreRef } from "./firebase";
 
-export const fetchAllPosts = async () => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const fetchAllPosts = async (...options: any[]) => {
   try {
-    const postQuery = query(postStoreRef, orderBy("createdAt", "desc"));
+    const postQuery = query(
+      postStoreRef,
+      orderBy("createdAt", "desc"),
+      ...options
+    );
     const querySnapshot = await getDocs(postQuery);
     const articlesList = querySnapshot.docs.map(
       (doc) =>
@@ -23,12 +28,17 @@ export const fetchAllPosts = async () => {
           ...doc.data(),
         } as Post)
     );
-    return articlesList;
+    // return articlesList;
+    return {
+      articlesList,
+      lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
+    };
   } catch (e) {
     console.error("error in fetching all the posts: ", e);
     throw e;
   }
 };
+
 export const fetchPost = async (
   url: string | null
 ): Promise<Post | undefined> => {

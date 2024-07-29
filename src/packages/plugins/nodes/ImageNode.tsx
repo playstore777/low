@@ -124,6 +124,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     element.setAttribute("width", this.__width.toString());
     element.setAttribute("height", this.__height.toString());
     element.style.display = "block";
+    element.style.margin = "auto";
     return { element };
   }
 
