@@ -129,7 +129,7 @@ function BlockFormatDropDown({
     if (blockType !== "quote") {
       editor.update(() => {
         const selection = $getSelection();
-        console.log("quote -> selection: ", selection);
+        // console.log("quote -> selection: ", selection);
         $setBlocksType(selection, () => $createQuoteNode());
       });
     }

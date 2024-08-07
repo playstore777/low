@@ -1,0 +1,52 @@
+.postCommentWrapper {
+  .postComment {
+    position: relative;
+    padding-bottom: 1rem;
+    padding-top: 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--text-color);
+  }
+
+  .replying {
+    margin-left: 0.75rem;
+    border-left-width: 3px;
+    --tw-border-opacity: 1;
+    border-left-color: rgb(229 229 229 / var(--tw-border-opacity));
+    padding-left: 1.5rem;
+  }
+
+  .reply {
+    margin-bottom: 1.5rem;
+    animation: open 0.56s, fade-in 0.56s;
+  }
+
+  .nestedReply {
+    margin-left: 0.75rem;
+    border-left-width: 3px;
+    border-left-color: var(--background-color);
+    padding-left: 1.5rem;
+  }
+
+  .end {
+    border-bottom-width: 1px;
+    border-color: var(--background-color);
+  }
+}
+
+@keyframes open {
+  0% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

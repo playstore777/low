@@ -1,0 +1,51 @@
+.sidePopupWrapper {
+  width: 100%;
+  max-width: 680px;
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  transform: translate(-50%, 0) rotate(0) skewX(0) skewY(1) scaleX(1) scaleY(1);
+
+  .sidePopup {
+    display: flex;
+    height: 40px;
+    align-items: center;
+    border-radius: 9999px;
+    --bg-opacity: 1;
+    background-color: rgb(255 255 255 / 1);
+    padding-left: 1rem;
+    padding-right: 14px;
+    --text-opacity: 1;
+    color: rgb(117 117 117 / 1);
+    --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-colored: 0 10px 15px -3px var(--shadow-color),
+      0 4px 6px -4px var(--shadow-color);
+    box-shadow: var(--ring-offset-shadow, 0 0 #0000),
+      var(--ring-shadow, 0 0 #0000), var(--shadow);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    transition-duration: 300ms;
+  }
+
+  .visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .invisible {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 680px) {
+  .sidePopupWrapper {
+    left: 50%;
+    transform: translate(-50%, 0) rotate(0) skewX(0) skewY(0) scaleX(1)
+      scaleY(1);
+  }
+}

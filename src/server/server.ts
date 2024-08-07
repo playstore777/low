@@ -6,14 +6,15 @@ import {
   getDocs,
   orderBy,
   query,
+  QueryConstraint,
   updateDoc,
+  where,
 } from "firebase/firestore";
 
-import { Post, User } from "../types/types";
-import { postStoreRef, userStoreRef } from "./firebase";
+import { commentStoreRef, postStoreRef, userStoreRef } from "./firebase";
+import { Comment, Post, User } from "../types/types";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const fetchAllPosts = async (...options: any[]) => {
+export const fetchAllPosts = async (...options: QueryConstraint[]) => {
   try {
     const postQuery = query(
       postStoreRef,
@@ -28,7 +29,6 @@ export const fetchAllPosts = async (...options: any[]) => {
           ...doc.data(),
         } as Post)
     );
-    // return articlesList;
     return {
       articlesList,
       lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
@@ -54,7 +54,7 @@ export const fetchPost = async (
 
     if (postDoc.exists()) {
       const data = postDoc.data();
-      // console.log(data);
+      // // console.log(data);
       return {
         id: postId,
         title: data.title,
@@ -63,9 +63,10 @@ export const fetchPost = async (
         claps: data.claps,
         clappers: data.clappers,
         createdAt: data.createdAt,
+        tags: data?.tags,
       };
     } else {
-      console.log("No such document!");
+      // console.log("No such document!");
       return undefined;
     }
   } catch (error) {
@@ -74,9 +75,9 @@ export const fetchPost = async (
   }
 };
 
-export const addPost = async (document: unknown) => {
+export const addPost = async (postDoc: unknown) => {
   try {
-    const res = await addDoc(postStoreRef, document);
+    const res = await addDoc(postStoreRef, postDoc);
     return res;
   } catch (error) {
     console.error("Error writing document: ", error);
@@ -89,7 +90,7 @@ export const updatePost = async (
   updatedData: Partial<Post>
 ): Promise<void> => {
   try {
-    console.log("updatePost body: ", updatedData);
+    // console.log("updatePost body: ", updatedData);
     const documentRef = doc(postStoreRef, documentId);
     const res = await updateDoc(documentRef, updatedData);
     return res;
@@ -128,14 +129,95 @@ export const getUserById = async (
     const userDoc = await getDoc(userDocRef);
 
     if (userDoc.exists()) {
-      console.log("user details: ", userDoc.data());
+      // console.log("user details: ", userDoc.data());
       return userDoc.data();
     } else {
-      console.log("No such document!");
+      // console.log("No such document!");
       return null;
     }
   } catch (error) {
     console.error("Error getting document: ", error);
+    throw error;
+  }
+};
+
+export const fetchCommentsAndReplies = async (
+  postId: string | null,
+  parentId?: string | null
+) => {
+  try {
+    // Fetch all comments for the specific postId
+    const commentsQuery = parentId
+      ? query(
+          commentStoreRef,
+          where("postId", "==", postId),
+          where("parentId", "==", parentId ?? null)
+          // orderBy("timestamp", "asc")
+        )
+      : query(
+          commentStoreRef,
+          where("postId", "==", postId),
+          where("parentId", "==", "")
+        );
+    // console.log(commentsQuery);
+    const querySnapshot = await getDocs(commentsQuery);
+    // console.log(querySnapshot);
+    const comments = querySnapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as Comment)
+    );
+    // console.log(comments);
+    return comments;
+  } catch (error) {
+    console.error("Error getting document: ", error);
+    throw error;
+  }
+};
+
+export const addCommentOrReply = async (
+  postId: string,
+  commentOrReplyDoc: Record<string, unknown>,
+  parentId = ""
+) => {
+  try {
+    commentOrReplyDoc = { ...commentOrReplyDoc, postId, parentId };
+    const res = await addDoc(commentStoreRef, commentOrReplyDoc);
+    return res;
+  } catch (error) {
+    console.error("Error writing document: ", error);
+    throw error;
+  }
+};
+
+export const editComment = async (
+  postId: string,
+  commentDoc: Partial<Comment>
+) => {
+  try {
+    commentDoc = { ...commentDoc, postId };
+    const docRef = doc(commentStoreRef, commentDoc.id);
+    const res = await updateDoc(docRef, commentDoc);
+    return res;
+  } catch (error) {
+    console.error("Error writing document: ", error);
+    throw error;
+  }
+};
+
+export const deleteComment = async (commentId: string) => {
+  /**
+   * Only deletes the specified comment, will not touch the children, as they
+   * will get orphan and should bother much till we fetch with constraints such
+   * as postId and parentId...
+   */
+  try {
+    const docRef = doc(commentStoreRef, commentId);
+    await deleteDoc(docRef);
+  } catch (error) {
+    console.error("Error deleting document: ", error);
     throw error;
   }
 };

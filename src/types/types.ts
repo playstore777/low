@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export type Post = {
   id: string;
   title: string;
@@ -6,11 +8,14 @@ export type Post = {
   description?: string;
   claps?: number;
   clappers?: { [userId: string]: number };
-  createdAt?: Date;
+  createdAt?: Timestamp;
   userId: string;
+  tags?: string[];
+  comments?: Comment[];
 };
 
 export type User = {
+  username?: string;
   photoURL?: string;
   bio?: string;
   followers?: [];
@@ -18,6 +23,18 @@ export type User = {
   following?: [];
   uid: string;
   displayName: string;
+};
+
+export type Comment = {
+  id: string;
+  authorUid: string;
+  postId?: string;
+  parentId?: string; // parentComment Id
+  text: string;
+  timestamp: Timestamp;
+  edited?: boolean;
+  clapsCount: number;
+  replies?: Comment[];
 };
 
 export type fetchDataMethod = (postId: string) => Promise<Post | undefined>;

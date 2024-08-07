@@ -165,7 +165,7 @@ export function InsertImageDialog({
 
   const onClick = (payload: InsertImagePayload) => {
     activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
-    console.log("onClick from InsertImageDialog payload: ", payload);
+    // console.log("onClick from InsertImageDialog payload: ", payload);
     onClose();
   };
 
@@ -228,7 +228,7 @@ export default function ImagesPlugin({
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
-          console.log("INSERT_IMAGE_COMMAND payload: ", payload);
+          // console.log("INSERT_IMAGE_COMMAND payload: ", payload);
           const imageNode = $createImageNode(payload);
           $insertNodes([imageNode]);
           if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {

@@ -40,7 +40,7 @@ const appendContent = async (
   const url = element.getAttribute("data-post-url");
   if (url) {
     const res = await fetchPost(url);
-    console.log(res);
+    // console.log(res);
 
     const title = res?.title;
     (

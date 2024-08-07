@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "react-toastify";
@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { createPost, disableEditMode } from "../../store/slices/postSlice";
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import MediumWriteIcon from "../../assets/images/MediumWriteIcon.svg";
+import TextButton from "../reusableComponents/textButton/TextButton";
 import MediumBellIcon from "../../assets/images/MediumBellIcon.svg";
 import ThreeDots from "../../assets/images/MediumThreeDots.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
@@ -18,36 +19,41 @@ import { createElementFromHTML } from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
+import useScreenSize from "../hooks/useScreenSize";
 import { updatePost } from "../../server/server";
 import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
 import classes from "./Header.module.css";
+import { Post } from "../../types/types";
 import PublishPost from "./PublishPost";
+import SearchPopUp from "./SearchPopUp";
 
 const Header = () => {
   const { userLoggedIn, currentUser } = useAuth();
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const post = useAppSelector((state) => state.post);
+  const state = useAppSelector((state) => state.post);
   const scrollDirection = useScrollDirection();
   const dispatch = useAppDispatch();
+  const { isMobile } = useScreenSize();
 
   const [showModal, setShowModal] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [dataAvailable, setDataAvailable] = useState(false);
   const [publishPost, setPublishPost] = useState(false);
+  const [filteredPost, setFilteredPost] = useState<Post[]>([]);
 
   const goTo = (path: string) => {
     navigate(path);
   };
 
   useEffect(() => {
-    if (post.activePost.title || post.activePost.content) {
+    if (state.activePost.title || state.activePost.content) {
       setDataAvailable(true);
     } else {
       setDataAvailable(false);
     }
-  }, [post]);
+  }, [state]);
 
   const handlePublish = () => {
     setPublishPost(true);
@@ -63,7 +69,7 @@ const Header = () => {
 
   const handleUpdate = async () => {
     const div = document.createElement("div");
-    div.innerHTML = post.activePost.content;
+    div.innerHTML = state.activePost.content;
     const collapsiblesTitles = div.querySelectorAll(".CollapsibleLink__title");
     const collapsiblesContents = div.querySelectorAll(
       ".CollapsibleLink__content"
@@ -74,20 +80,20 @@ const Header = () => {
     collapsiblesContents.forEach((content) => {
       content.innerHTML = "<p><br/></p>";
     });
-    const htmlElement = createElementFromHTML(post.activePost.content);
+    const htmlElement = createElementFromHTML(state.activePost.content);
     const imgElement = htmlElement.querySelector("img");
     const updatedPost = div.innerHTML;
-    console.log(updatedPost);
+    // console.log(updatedPost);
     dispatch(createPost({ content: updatedPost }));
     const paths = pathname.split("/");
     const id = paths[paths.length - 2];
     const documentId = id;
     const updatedData = {
-      title: post.activePost.title,
+      title: state.activePost.title,
       content: updatedPost,
       featuredImage: imgElement?.src ?? "",
     };
-    console.log(updatedData);
+    // console.log(updatedData);
 
     try {
       await updatePost(documentId, updatedData);
@@ -95,9 +101,21 @@ const Header = () => {
     } catch (e) {
       console.error(e);
       toast("Error updating the Story!");
+    } finally {
+      dispatch(disableEditMode());
+      window.location.href = `http://localhost:5173/post/${documentId}`; // work around for navigate(`post/${documentId}`);
     }
-    dispatch(disableEditMode());
-    navigate(`post/${documentId}`);
+    // navigate(`post/${documentId}`); // Not working!
+  };
+
+  const onSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const matches = state.allPosts.filter((post) =>
+      post.title.includes(value.trim())
+    );
+    matches.length > 0 && value.trim()
+      ? setFilteredPost(matches)
+      : setFilteredPost([]);
   };
 
   return (
@@ -113,22 +131,38 @@ const Header = () => {
       <div className={classes.left}>
         <div id={classes.logo}>
           <a href="/">
-            <SvgWrapper SvgComponent={MediumLogo} fillColor="" />
+            <SvgWrapper SvgComponent={MediumLogo} />
           </a>{" "}
           {/** Medium logo used only for testing */}
         </div>
-        {!pathname.includes("new") && (
-          <div className={classes.searchBar}>
-            <SvgWrapper SvgComponent={SearchIcon} />
-            <input type="text" placeholder="Search" />
-          </div>
+        {!pathname.includes("new") && !isMobile && (
+          <SearchPopUp searchWidth="200px">
+            <div className={classes.searchBar}>
+              <SvgWrapper
+                SvgComponent={SearchIcon}
+                width="24px"
+                height="24px"
+              />
+              <input
+                type="text"
+                placeholder="Search"
+                onChange={onSearchHandler}
+              />
+            </div>
+            <div>
+              {filteredPost.map((match: Post) => (
+                <div>{match.title}</div>
+              ))}
+            </div>
+          </SearchPopUp>
         )}
       </div>
       <div className={classes.right}>
         <ThemeToggle />
         {userLoggedIn &&
           !pathname.includes("new") &&
-          !pathname.includes("edit") && (
+          !pathname.includes("edit") &&
+          !isMobile && (
             <div
               className={classes.postButton}
               onClick={() => {
@@ -144,11 +178,11 @@ const Header = () => {
             <div className={classes.postButton}>
               <Button
                 label={
-                  post.activePost.isEditMode ? "Save and Publish" : "Publish"
+                  state.activePost.isEditMode ? "Save and Publish" : "Publish"
                 }
                 style={{ color: "white", fontWeight: "bold" }}
                 onClick={
-                  post.activePost.isEditMode ? handleUpdate : handlePublish
+                  state.activePost.isEditMode ? handleUpdate : handlePublish
                 }
                 disabledClass={!dataAvailable}
                 tooltipMessage="Publishing will become available after you start writing."
@@ -183,7 +217,7 @@ const Header = () => {
             <SvgWrapper SvgComponent={MediumBellIcon} />
           </div>
         )}
-        {!userLoggedIn && (
+        {!userLoggedIn && !isMobile && (
           <Button
             label="Sign up"
             onClick={() => {
@@ -192,16 +226,14 @@ const Header = () => {
             }}
           />
         )}
-        {!userLoggedIn && (
-          <span
-            className={classes.signInButton}
+        {!userLoggedIn && !isMobile && (
+          <TextButton
+            label="Sign in"
             onClick={() => {
               setIsSignUp(false);
               setShowModal(true);
             }}
-          >
-            Sign in
-          </span>
+          />
         )}
         <Dropdown buttonStyles={classes.buttonStyles}>
           <div className={classes.avatar}>
@@ -217,6 +249,20 @@ const Header = () => {
             )}
           </div>
           <div className="dropdownItems">
+            {userLoggedIn &&
+              !pathname.includes("new") &&
+              !pathname.includes("edit") &&
+              isMobile && (
+                <div
+                  className={`${classes.postButton} dropdownItem`}
+                  onClick={() => {
+                    goTo("/new");
+                  }}
+                >
+                  <SvgWrapper SvgComponent={MediumWriteIcon} />
+                  <div className={classes.iconCaption}>Write</div>
+                </div>
+              )}
             {userLoggedIn && (
               <div className="dropdownItem" onClick={() => {}}>
                 Settings

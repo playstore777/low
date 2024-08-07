@@ -1,0 +1,60 @@
+.newCommentWrapper {
+  padding-block: 14px;
+  --tw-shadow: rgb(0, 0, 0, 0.12) 0px 2px 8px;
+  --tw-shadow-colored: 0px 2px 8px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+
+  .user {
+    margin: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+
+    img {
+      border-radius: 50%;
+      border: 2px solid var(--text-color);
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .comment {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    transition-duration: 300ms;
+  }
+
+  .allowComment {
+    min-height: 100px;
+    padding: 14px;
+  }
+
+  .dontAllowComment {
+    padding-inline: 14px;
+    display: flex;
+  }
+
+  .commentArea {
+    background-color: transparent;
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    outline: none;
+    resize: none;
+    color: var(--text-color);
+  }
+
+  .actions {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-inline: 14px;
+    gap: 1rem;
+  }
+}

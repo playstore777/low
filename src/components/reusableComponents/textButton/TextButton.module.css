@@ -1,0 +1,11 @@
+.textButton {
+  cursor: pointer;
+  font-size: small;
+  color: var(--text-color);
+  opacity: 0.7;
+
+  &:hover {
+    color: var(--text-color);
+    opacity: 1;
+  }
+}

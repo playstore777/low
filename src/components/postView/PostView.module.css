@@ -26,6 +26,11 @@
   display: flex;
   justify-content: space-between;
 
+  .leftInteractions {
+    display: flex;
+    gap: 1rem;
+  }
+
   .clap {
     display: flex;
     align-items: center;
@@ -110,4 +115,24 @@
       }
     }
   }
+}
+
+.tags {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
+
+  .tag {
+    padding: 0.2rem 1rem;
+    background-color: #ccc;
+    color: #000;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+}
+
+.footerInteractions {
+  display: flex;
+  gap: 1rem;
+  margin: 2rem 0;
 }

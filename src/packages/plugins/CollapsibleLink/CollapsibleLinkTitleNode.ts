@@ -111,7 +111,7 @@ export class CollapsibleLinkTitleNode extends ElementNode {
 
   insertNewAfter(_: RangeSelection, restoreSelection = true): ElementNode {
     const containerNode = this.getParentOrThrow();
-    console.log("title from inserNewAfter: ", this.__title);
+    // console.log("title from inserNewAfter: ", this.__title);
     const textNode = $createTextNode(this.__title);
 
     if (!$isCollapsibleLinkContainerNode(containerNode)) {

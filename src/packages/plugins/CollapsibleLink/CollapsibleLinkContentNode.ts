@@ -62,7 +62,7 @@ export class CollapsibleLinkContentNode extends ElementNode {
     dom = document.createElement("div");
     dom.classList.add("CollapsibleLink__content");
     dom.innerHTML = this.__content;
-    console.log("content: ", dom);
+    // console.log("content: ", dom);
     dom.style.height = "auto";
     dom.contentEditable = "false";
     if (IS_CHROME) {

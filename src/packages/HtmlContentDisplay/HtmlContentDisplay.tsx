@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 
+import { fetchPost, getUserById } from "../../server/server";
 import ContextMenu, {
   MenuItems,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
-import { fetchPost, getUserById } from "../../server/server";
 import { Post } from "../../types/types";
 
 type ContextMenuOptions = {
@@ -158,7 +158,7 @@ const HtmlContentDisplay = ({
         nestedElements.forEach((nestedElement) => queue.push(nestedElement));
       }
     };
-    // console.log(postContent.content);
+    // // console.log(postContent.content);
     if (postContent.content) {
       processElements();
     }

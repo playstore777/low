@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import InfiniteScroll from "react-infinite-scroller";
 import {
   startAfter,
   endBefore,
@@ -7,15 +8,17 @@ import {
   QueryDocumentSnapshot,
   DocumentData,
 } from "firebase/firestore";
-import InfiniteScroll from "react-infinite-scroller";
 
+import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import PostPreview from "../reusableComponents/post/PostPreview";
+import { updateAllPosts } from "../../store/slices/postSlice";
 import { fetchAllPosts } from "../../server/server";
-import { Post } from "../../types/types";
-import "./Main.css";
+import "./Home.css";
 
-const Main = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
+const Home = () => {
+  const { allPosts } = useAppSelector((state) => state.post);
+  const dispatch = useAppDispatch();
+
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
     DocumentData,
     DocumentData
@@ -33,14 +36,7 @@ const Main = () => {
       setHasMore(false);
     } else {
       setLastDoc(lastArticle);
-      // Avoid duplication
-      setPosts((prevPosts) => {
-        const newPostIds = articlesList.map((post) => post.id);
-        const filteredPrevPosts = prevPosts.filter(
-          (post) => !newPostIds.includes(post.id)
-        );
-        return [...filteredPrevPosts, ...articlesList];
-      });
+      dispatch(updateAllPosts(articlesList));
     }
   };
 
@@ -48,11 +44,11 @@ const Main = () => {
     fetchNewPosts();
   }, []);
 
-  if (posts == null && !hasMore) {
+  if (allPosts.length === 0 && !hasMore) {
     return <p className="text-grey text-center my-4">No stories found..</p>;
   }
 
-  if (posts == null) return null;
+  if (allPosts.length === 0) return null;
 
   return (
     <main className="mainWrapper">
@@ -61,8 +57,8 @@ const Main = () => {
         hasMore={hasMore}
         loader={<div key={0}>Loading...</div>}
       >
-        {posts?.length > 0 &&
-          posts.map((post) => (
+        {allPosts?.length > 0 &&
+          allPosts.map((post) => (
             <PostPreview
               key={post.id}
               id={post.id}
@@ -79,4 +75,4 @@ const Main = () => {
   );
 };
 
-export default Main;
+export default Home;

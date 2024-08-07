@@ -1,0 +1,43 @@
+.commentWrapper {
+  display: flex;
+  justify-content: space-between;
+
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+
+    .username {
+      display: flex;
+      flex-direction: column;
+
+      .userHeader {
+        padding: 1px 6px;
+        font-size: 11px;
+        color: var(--text-color);
+        margin-left: 0.75rem;
+        background-color: rgb(26 137 23 / 1);
+        text-transform: uppercase;
+      }
+
+      .edited {
+        color: rgb(117 117 117 / 1);
+      }
+    }
+
+    .actions {
+      color: rgb(117 117 117 / 1);
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+  }
+}
+
+.commentBody {
+  padding-top: 2rem;
+  padding-bottom: 5px;
+  word-break: break-all;
+  white-space: pre;
+  max-height: 96%;
+  overflow-y: auto;
+}

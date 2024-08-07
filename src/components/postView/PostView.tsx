@@ -3,24 +3,26 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 
+import CommentsSection from "./comments/commentsSection/CommentsSection";
+import CommentsIcon from "../reusableComponents/commentIcon/commentIcon";
 import HtmlContentDisplay from "../../packages/HtmlContentDisplay/HtmlContentDisplay";
 import ThreeDots from "../../assets/images/MediumThreeDots.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
+import ClapIcon from "../reusableComponents/clapIcon/ClapIcon";
 import SvgWrapper from "../reusableComponents/svg/SvgWrapper";
 import { enableEditMode } from "../../store/slices/postSlice";
+import Button from "../reusableComponents/button/Button";
+import { useAppDispatch } from "../../store/rootReducer";
+import PopUp from "../reusableComponents/popup/PopUp";
+import { useAuth } from "../../server/hooks/useAuth";
+import classes from "./PostView.module.css";
+import { Post } from "../../types/types";
 import {
   clapPost,
   deletePost,
   fetchPost,
   getUserById,
 } from "../../server/server";
-import Button from "../reusableComponents/button/Button";
-import { useAppDispatch } from "../../store/rootReducer";
-import PopUp from "../reusableComponents/popup/PopUp";
-import Clap from "../../assets/images/MediumClap.svg";
-import { useAuth } from "../../server/hooks/useAuth";
-import classes from "./PostView.module.css";
-import { Post } from "../../types/types";
 
 const PostView = ({ post }: { post?: Post }) => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -33,10 +35,12 @@ const PostView = ({ post }: { post?: Post }) => {
   const [postContent, setPostContent] = useState<Post>({
     id: postId!,
     title: post?.title ?? "",
-    content: post?.content,
+    content: post?.content ?? "",
     claps: post?.claps ?? 0,
     userId: post?.userId ?? "",
     createdAt: post?.createdAt,
+    comments: post?.comments ?? [],
+    tags: post?.tags ?? [],
   });
   const [contentAuthor, setContentAuthor] = useState({
     name: "",
@@ -49,6 +53,7 @@ const PostView = ({ post }: { post?: Post }) => {
     currentUser?.uid === contentAuthor.id
   );
   const [isClapped, setIsClapped] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
 
   //#region main/root post fetch using id
   useEffect(() => {
@@ -72,18 +77,18 @@ const PostView = ({ post }: { post?: Post }) => {
             claps: post.claps,
             clappers: post.clappers,
             userId: post.userId,
-            createdAt: new Date(post.createdAt!.seconds * 1000),
+            createdAt: post.createdAt,
+            tags: post.tags,
           }));
         }
       } catch (error) {
         console.error("Error fetching post:", error);
       }
     };
-
     // if (!post?.title) {
     getPost();
     // }
-  }, [post?.title, postId]);
+  }, [postId]);
   //#endregion
 
   useEffect(() => {
@@ -108,13 +113,17 @@ const PostView = ({ post }: { post?: Post }) => {
        * So we are calling the API if timeout is cleared and also clapped, if new claps data is available to be updated in the backend.
        */
       if (isClapped) {
-        /** Increasing claps and clappers by 1, because this is getting executed before state updation*/
+        const currUserClapCount = postContent.clappers![
+          currentUser?.uid as string
+        ]
+          ? postContent.clappers![currentUser?.uid as string]
+          : 0;
         const clappers = {
-          [currentUser?.uid as string]:
-            postContent.clappers![currentUser?.uid as string] + 1,
+          ...postContent.clappers,
+          [currentUser?.uid as string]: currUserClapCount,
         };
         const body = {
-          claps: postContent.claps! + 1,
+          claps: postContent.claps!,
           clappers: clappers,
         };
         clapPost(postContent.id, body);
@@ -158,6 +167,10 @@ const PostView = ({ post }: { post?: Post }) => {
     }));
   };
 
+  const onCommentHandler = () => {
+    setCommentsOpen((prev) => !prev);
+  };
+
   const onDeletePostHandler = async () => {
     try {
       await deletePost(postId!);
@@ -194,19 +207,19 @@ const PostView = ({ post }: { post?: Post }) => {
         <div>
           <div className="authorName">{contentAuthor.name}</div>
           <div className="createdDate">
-            {postContent.createdAt && postContent.createdAt.toISOString()}
+            {postContent.createdAt &&
+              postContent.createdAt.toDate().toDateString()}
           </div>
         </div>
       </div>
       <div className={classes.postInteractions}>
-        <div className={classes.clap}>
-          <SvgWrapper
-            SvgComponent={Clap}
-            width="24px"
+        <div className={classes.leftInteractions}>
+          <ClapIcon
+            label={postContent.claps ?? 0}
             disabled={isAuthorUser || !userLoggedIn}
             onClick={onClapHandler}
           />
-          {postContent.claps}
+          <CommentsIcon onClick={onCommentHandler} />
         </div>
         <Dropdown buttonStyles={classes.buttonStyles}>
           <SvgWrapper SvgComponent={ThreeDots} width="24px" />
@@ -238,7 +251,22 @@ const PostView = ({ post }: { post?: Post }) => {
           </div>
         </Dropdown>
       </div>
-      <HtmlContentDisplay post={postContent} />
+      {postContent?.content && <HtmlContentDisplay post={postContent} />}
+      <div className={classes.tags}>
+        {postContent.tags &&
+          postContent.tags?.length > 0 &&
+          postContent.tags?.map((tag) => (
+            <div className={classes.tag}>{tag}</div>
+          ))}
+      </div>
+      <div className={classes.footerInteractions}>
+        <ClapIcon
+          label={postContent.claps ?? 0}
+          disabled={isAuthorUser || !userLoggedIn}
+          onClick={onClapHandler}
+        />
+        <CommentsIcon onClick={onCommentHandler} />
+      </div>
       <PopUp
         isOpen={showDeleteModal}
         onClose={() => {
@@ -268,6 +296,11 @@ const PostView = ({ post }: { post?: Post }) => {
           </footer>
         </div>
       </PopUp>
+      <CommentsSection
+        onClose={() => setCommentsOpen(false)}
+        post={postContent}
+        isOpen={commentsOpen}
+      />
     </>
   );
 };

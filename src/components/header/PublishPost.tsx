@@ -79,7 +79,7 @@ const PublishPost = ({ onClose }: { onClose: () => void }) => {
       tags: topics,
     };
 
-    console.log(document);
+    // console.log(document);
     const response = await addPost(document);
     if (response) {
       toast("Story has been published!");

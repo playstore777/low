@@ -5,6 +5,7 @@ import Tooltip from "../tooltips/tooltip/Tooltip";
 import classes from "./Button.module.css";
 
 const Button = ({
+  type,
   className,
   disabled,
   disabledClass,
@@ -14,6 +15,7 @@ const Button = ({
   tooltipMessage,
   tooltipType = "hover",
 }: {
+  type?: "button" | "submit" | "reset" | undefined;
   className?: string;
   disabled?: boolean;
   disabledClass?: boolean;
@@ -21,7 +23,7 @@ const Button = ({
   style?: CSSProperties;
   tooltipMessage?: string;
   tooltipType?: string;
-  onClick: () => void;
+  onClick?: () => void;
 }) => {
   const [tooltip, setTooltip] = useState(true);
   const showHoverTooltip = tooltipMessage && tooltipType === "hover";
@@ -48,6 +50,7 @@ const Button = ({
         className={`${disabledClass ? classes.disabled : ""} ${
           className ?? classes.button
         }`}
+        type={type ?? "button"}
         style={style}
         onClick={disabledClass && showClickTooltip ? disabledClick : onClick}
         disabled={disabled}

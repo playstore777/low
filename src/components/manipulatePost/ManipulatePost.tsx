@@ -1,12 +1,12 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
+import { createPost } from "../../store/slices/postSlice";
+import { useAppDispatch } from "../../store/rootReducer";
 import Editor from "../../packages/Editor/Editor";
 import classes from "./ManipulatePost.module.css";
-import { useAppDispatch } from "../../store/rootReducer";
-import { createPost } from "../../store/slices/postSlice";
-import { Post } from "../../types/types";
-import { useLocation } from "react-router";
 import { fetchPost } from "../../server/server";
+import { useLocation } from "react-router";
+import { Post } from "../../types/types";
 
 const initialPostData = {
   title: "",
@@ -37,7 +37,7 @@ const ManipulatePost = ({
       };
       dispatch(createPost(updatedPost));
       setPostData(updatedPost);
-      // console.log(updatedPost);
+      // // console.log(updatedPost);
     }
   }, [isNewPost, post]);
 
