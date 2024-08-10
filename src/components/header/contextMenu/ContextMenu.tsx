@@ -1,4 +1,5 @@
-import { useRef, useEffect, CSSProperties } from "react";
+import { CSSProperties } from "react";
+
 import classes from "./ContextMenu.module.css";
 
 export type Position = {
@@ -22,32 +23,6 @@ const ContextMenu = ({
   onClose: () => void;
 }) => {
   const { x, y } = position;
-  const menuRef = useRef<null | HTMLElement>(null);
-
-  const handleClickOutside = (event: MouseEvent) => {
-    if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-      onClose();
-    }
-  };
-
-  useEffect(() => {
-    // Add the event listener to the ref element
-    const currentMenuRef = menuRef.current;
-    if (currentMenuRef) {
-      currentMenuRef.addEventListener("mousedown", handleClickOutside, true);
-    }
-
-    return () => {
-      // Clean up the event listener when the component unmounts
-      if (currentMenuRef) {
-        currentMenuRef.removeEventListener(
-          "mousedown",
-          handleClickOutside,
-          true
-        );
-      }
-    };
-  }, []);
 
   return (
     <ul

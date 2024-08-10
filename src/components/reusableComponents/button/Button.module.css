@@ -14,10 +14,47 @@
   outline: 0;
   color: white;
   cursor: pointer;
+
+  --show-tip-arrow: none;
 }
 
 .button:disabled,
 .disabled {
   background-color: var(--disabled-bg-color);
   outline: 0;
+}
+
+[data-title]:after {
+  display: var(--show-tip-arrow);
+  content: attr(data-title);
+  position: absolute;
+  top: 150%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--text-color);
+  color: var(--background-color);
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+[data-title]:before {
+  display: var(--show-tip-arrow);
+  content: "";
+  position: absolute;
+  bottom: -50%;
+  left: 50%;
+  transform: translateX(-50%) rotate(180deg);
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--text-color);
+}
+
+[data-title]:hover {
+  --show-tip-arrow: block;
 }

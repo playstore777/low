@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 
 import { doSignInWithGoogle, doSignUpWithGoogle } from "../../server/auth";
 import GoogleG from "../../assets/images/MediumGoogleGLogo.svg";
-import SvgWrapper from "../reusableComponents/svg/SvgWrapper";
+import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import classes from "./Authentication.module.css";
 
 const Authentication = ({

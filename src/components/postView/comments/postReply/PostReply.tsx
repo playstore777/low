@@ -1,5 +1,5 @@
+import PostComment from "../../../reusableComponents/postComment/postComment";
 import { Comment, Post } from "../../../../types/types";
-import PostComment from "../postComment/postComment";
 
 const PostReply = ({
   replies,

@@ -4,12 +4,12 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 
 import CommentsSection from "./comments/commentsSection/CommentsSection";
-import CommentsIcon from "../reusableComponents/commentIcon/commentIcon";
+import CommentIcon from "../reusableComponents/commentIcon/commentIcon";
+import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import HtmlContentDisplay from "../../packages/HtmlContentDisplay/HtmlContentDisplay";
 import ThreeDots from "../../assets/images/MediumThreeDots.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
 import ClapIcon from "../reusableComponents/clapIcon/ClapIcon";
-import SvgWrapper from "../reusableComponents/svg/SvgWrapper";
 import { enableEditMode } from "../../store/slices/postSlice";
 import Button from "../reusableComponents/button/Button";
 import { useAppDispatch } from "../../store/rootReducer";
@@ -22,7 +22,7 @@ import {
   deletePost,
   fetchPost,
   getUserById,
-} from "../../server/server";
+} from "../../server/services";
 
 const PostView = ({ post }: { post?: Post }) => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -219,7 +219,7 @@ const PostView = ({ post }: { post?: Post }) => {
             disabled={isAuthorUser || !userLoggedIn}
             onClick={onClapHandler}
           />
-          <CommentsIcon onClick={onCommentHandler} />
+          <CommentIcon onClick={onCommentHandler} />
         </div>
         <Dropdown buttonStyles={classes.buttonStyles}>
           <SvgWrapper SvgComponent={ThreeDots} width="24px" />
@@ -265,7 +265,7 @@ const PostView = ({ post }: { post?: Post }) => {
           disabled={isAuthorUser || !userLoggedIn}
           onClick={onClapHandler}
         />
-        <CommentsIcon onClick={onCommentHandler} />
+        <CommentIcon onClick={onCommentHandler} />
       </div>
       <PopUp
         isOpen={showDeleteModal}

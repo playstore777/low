@@ -1,20 +1,20 @@
 import { serverTimestamp } from "firebase/firestore";
 import { useEffect, useState } from "react";
-
-import { Comment, Post, User } from "../../../../types/types";
-import { useAuth } from "../../../../server/hooks/useAuth";
-import CommentBody from "../commentBody/CommentBody";
-import NewComment from "../newComment/NewComment";
-import PostReply from "../postReply/PostReply";
-import classes from "./postComment.module.css";
-import useUser from "../../../hooks/useUser";
 import { toast } from "react-toastify";
+
+import CommentBody from "../../../reusableComponents/commentBody/CommentBody";
+import NewComment from "../../../reusableComponents/newComment/NewComment";
+import { useAuth } from "../../../../server/hooks/useAuth";
+import { Comment, Post, User } from "../../../../types/types";
+import classes from "./postComment.module.css";
+import PostReply from "../postReply/PostReply";
+import useUser from "../../../hooks/useUser";
 import {
-  addCommentOrReply,
-  deleteComment,
-  editComment,
   fetchCommentsAndReplies,
-} from "../../../../server/server";
+  addCommentOrReply,
+  editComment,
+  deleteComment,
+} from "../../../../server/services";
 
 const PostComment = ({
   post,

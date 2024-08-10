@@ -21,6 +21,10 @@ export default defineConfig({
     // Vitest-specific configuration
     environment: "jsdom",
     globals: true,
-    setupFiles: ["./src/setupTests.ts"],
+    setupFiles: ["./src/setupTests.tsx"],
+    coverage: {
+      enabled: true,
+      reporter: ["html"],
+    },
   },
 });

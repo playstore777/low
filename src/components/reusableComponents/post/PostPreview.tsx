@@ -26,7 +26,10 @@ const PostPreview: React.FC<PostProps> = ({
     navigate(`post/${id}`, {
       state: { post: { title, content } },
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (typeof window !== "undefined" && window.scrollTo) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (

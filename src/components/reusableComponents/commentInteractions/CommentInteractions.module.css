@@ -1,0 +1,19 @@
+.commentInteractionsWrapper {
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+
+  .commentInteractions {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .replyBtn {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(41 41 41 / 1);
+  }
+}

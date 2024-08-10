@@ -1,7 +1,7 @@
 import Comment from "../../../assets/images/MediumComments.svg";
-import SvgWrapper from "../svg/SvgWrapper";
+import SvgWrapper from "../svgWrapper/SvgWrapper";
 
-const CommentsIcon = ({
+const CommentIcon = ({
   disabled = false,
   onClick,
 }: {
@@ -27,4 +27,4 @@ const CommentsIcon = ({
   );
 };
 
-export default CommentsIcon;
+export default CommentIcon;

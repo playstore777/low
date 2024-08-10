@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { fetchPost, getUserById } from "../../server/server";
+import { fetchPost, getUserById } from "../../server/services";
 import ContextMenu, {
   MenuItems,
   Position,

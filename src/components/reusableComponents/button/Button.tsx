@@ -1,65 +1,64 @@
 import { CSSProperties, useState } from "react";
 
-import OnClickTooltip from "../tooltips/onClickTooltip/onClickTooltip";
-import Tooltip from "../tooltips/tooltip/Tooltip";
+import OnClickTooltip from "../onClickTooltip/onClickTooltip";
 import classes from "./Button.module.css";
 
 const Button = ({
-  type,
+  type = "button",
   className,
   disabled,
-  disabledClass,
+  disabledWithMessage,
   label,
   style,
   onClick,
   tooltipMessage,
   tooltipType = "hover",
 }: {
-  type?: "button" | "submit" | "reset" | undefined;
+  type?: "button" | "submit" | "reset";
   className?: string;
   disabled?: boolean;
-  disabledClass?: boolean;
+  disabledWithMessage?: boolean;
   label: string;
   style?: CSSProperties;
   tooltipMessage?: string;
   tooltipType?: string;
   onClick?: () => void;
 }) => {
-  const [tooltip, setTooltip] = useState(true);
-  const showHoverTooltip = tooltipMessage && tooltipType === "hover";
-  const showClickTooltip = tooltipMessage && tooltipType === "click";
+  const [tooltip, setTooltip] = useState(false);
+  const hoverCondition = tooltipType === "hover";
+  const clickCondition = tooltipType === "click";
   const disabledClick = () => {
     setTooltip((prev) => !prev);
   };
 
   return (
     <div style={{ position: "relative" }}>
-      {tooltip && showClickTooltip && (
+      {tooltip && clickCondition && (
         <OnClickTooltip
-          text={tooltipMessage ?? "No tooltip message provided!"}
+          text={
+            tooltipMessage?.trim()
+              ? tooltipMessage?.trim()
+              : "No tooltip message provided!"
+          }
           visible={tooltip}
         />
       )}
-      {tooltip && showHoverTooltip && (
-        <Tooltip
-          text={tooltipMessage ?? "No tooltip message provided!"}
-          triggerTime={1000}
-        />
-      )}
       <button
-        className={`${disabledClass ? classes.disabled : ""} ${
+        className={`${disabledWithMessage ? classes.disabled : ""} ${
           className ?? classes.button
         }`}
-        type={type ?? "button"}
+        type={type}
         style={style}
-        onClick={disabledClass && showClickTooltip ? disabledClick : onClick}
+        onClick={
+          disabledWithMessage && clickCondition ? disabledClick : onClick
+        }
         disabled={disabled}
         onMouseEnter={() => {
-          showHoverTooltip && setTooltip(true);
+          hoverCondition && setTooltip(true);
         }}
         onMouseLeave={() => setTooltip(false)}
       >
-        {label}
+        <span data-title={hoverCondition ? tooltipMessage : null}>{label}</span>
       </button>
     </div>
   );

@@ -1,5 +1,5 @@
 import GoogleG from "../../assets/images/MediumGoogleGLogo.svg";
-import SvgWrapper from "../reusableComponents/svg/SvgWrapper";
+import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import "./Login.css";
 
 const Login = () => {

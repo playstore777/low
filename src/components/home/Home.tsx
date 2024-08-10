@@ -12,7 +12,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import PostPreview from "../reusableComponents/post/PostPreview";
 import { updateAllPosts } from "../../store/slices/postSlice";
-import { fetchAllPosts } from "../../server/server";
+import { fetchAllPosts } from "../../server/services";
 import "./Home.css";
 
 const Home = () => {

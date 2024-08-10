@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getUserById } from "../../server/server";
+import { getUserById } from "../../server/services";
 import { User } from "../../types/types";
 
 export default function useUser(uid: string) {

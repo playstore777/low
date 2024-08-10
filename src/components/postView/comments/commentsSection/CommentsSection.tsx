@@ -2,15 +2,15 @@ import { serverTimestamp } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 
 import MediumModalCross from "../../../../assets/images/MediumModalCross.svg";
-import SvgWrapper from "../../../reusableComponents/svg/SvgWrapper";
+import PostComment from "../../../reusableComponents/postComment/postComment";
+import SvgWrapper from "../../../reusableComponents/svgWrapper/SvgWrapper";
+import NewComment from "../../../reusableComponents/newComment/NewComment";
 import { Comment, Post } from "../../../../types/types";
-import PostComment from "../postComment/postComment";
 import classes from "./CommentsSection.module.css";
-import NewComment from "../newComment/NewComment";
 import {
   addCommentOrReply,
   fetchCommentsAndReplies,
-} from "../../../../server/server";
+} from "../../../../server/services";
 
 const CommentsSection = ({
   isOpen,
@@ -82,12 +82,7 @@ const CommentsSection = ({
           {comments.length ? (
             <div className={classes.comments}>
               {comments.map((comment) => (
-                <PostComment
-                  post={post}
-                  comment={comment}
-                  key={comment.id}
-                  getComments={getComments}
-                />
+                <PostComment post={post} comment={comment} key={comment.id} />
               ))}
             </div>
           ) : (

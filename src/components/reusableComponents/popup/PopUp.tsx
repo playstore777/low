@@ -1,8 +1,8 @@
 import { ReactNode, useEffect, useRef } from "react";
 
-import classes from "./PopUp.module.css";
 import MediumModalCross from "../../../assets/images/MediumModalCross.svg";
-import SvgWrapper from "../svg/SvgWrapper";
+import SvgWrapper from "../svgWrapper/SvgWrapper";
+import classes from "./PopUp.module.css";
 
 const PopUp = ({
   children,

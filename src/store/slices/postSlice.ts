@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../configureStore";
 import { Post } from "../../types/types";
 
-type InitialState = {
+export type InitialState = {
   activePost: {
     title: string;
     content: string;

@@ -1,5 +1,5 @@
 import Clap from "../../../assets/images/MediumClap.svg";
-import SvgWrapper from "../svg/SvgWrapper";
+import SvgWrapper from "../svgWrapper/SvgWrapper";
 
 const ClapIcon = ({
   disabled,
