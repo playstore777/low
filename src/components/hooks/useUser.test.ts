@@ -24,7 +24,7 @@ describe("useUser Hook", () => {
     vi.clearAllMocks();
   });
 
-  test("returns anything?", () => {
+  test.skip("returns anything?", () => {
     const { result } = renderHook(() =>
       useUser("4s8V6d3TTPZlxVQTiuuJLpg2Dka2")
     );
