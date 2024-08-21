@@ -6,7 +6,13 @@ import {
   serverTimestamp,
   startAfter,
 } from "firebase/firestore";
-import { useEffect, useRef, useState } from "react";
+import {
+  FunctionComponent,
+  SVGProps,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import MediumModalCross from "../../../../assets/images/MediumModalCross.svg";
 import PostComment from "../../../reusableComponents/postComment/postComment";
@@ -47,7 +53,8 @@ const CommentsSection = ({
       post.id,
       null,
       {
-        queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+        // queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+        queries: [lastDoc ? startAfter(lastDoc) : limit(3)],
       }
     );
 
@@ -91,7 +98,11 @@ const CommentsSection = ({
           <h2 className={classes.headerTitle}>Responses ({comments.length})</h2>
           <button onClick={onClose}>
             <SvgWrapper
-              SvgComponent={MediumModalCross}
+              SvgComponent={
+                MediumModalCross as unknown as FunctionComponent<
+                  SVGProps<string>
+                >
+              }
               className={classes.mediumCross}
               width="29px"
             />

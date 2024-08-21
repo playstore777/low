@@ -145,44 +145,44 @@ export const getUserById = async (
   }
 };
 
-export const fetchCommentsAndReplies = async (
-  postId: string | null,
-  parentId?: string | null,
-  options?: { queries: QueryConstraint[] }
-) => {
-  try {
-    // Fetch all comments for the specific postId
-    const commentsQuery = parentId
-      ? query(
-          commentStoreRef,
-          where("postId", "==", postId),
-          where("parentId", "==", parentId ?? null),
-          ...(options?.queries ?? [])
-          // orderBy("timestamp", "asc")
-        )
-      : query(
-          commentStoreRef,
-          where("postId", "==", postId),
-          where("parentId", "==", ""),
-          ...(options?.queries ?? [])
-        );
-    // console.log(commentsQuery);
-    const querySnapshot = await getDocs(commentsQuery);
-    // console.log(querySnapshot);
-    const comments = querySnapshot.docs.map(
-      (doc) =>
-        ({
-          id: doc.id,
-          ...doc.data(),
-        } as Comment)
-    );
-    // console.log(comments);
-    return comments;
-  } catch (error) {
-    console.error("Error getting document: ", error);
-    throw error;
-  }
-};
+// export const fetchCommentsAndReplies = async (
+//   postId: string | null,
+//   parentId?: string | null,
+//   options?: { queries: QueryConstraint[] }
+// ) => {
+//   try {
+//     // Fetch all comments for the specific postId
+//     const commentsQuery = parentId
+//       ? query(
+//           commentStoreRef,
+//           where("postId", "==", postId),
+//           where("parentId", "==", parentId ?? null),
+//           ...(options?.queries ?? [])
+//           // orderBy("timestamp", "asc")
+//         )
+//       : query(
+//           commentStoreRef,
+//           where("postId", "==", postId),
+//           where("parentId", "==", ""),
+//           ...(options?.queries ?? [])
+//         );
+//     // console.log(commentsQuery);
+//     const querySnapshot = await getDocs(commentsQuery);
+//     // console.log(querySnapshot);
+//     const comments = querySnapshot.docs.map(
+//       (doc) =>
+//         ({
+//           id: doc.id,
+//           ...doc.data(),
+//         } as Comment)
+//     );
+//     // console.log(comments);
+//     return comments;
+//   } catch (error) {
+//     console.error("Error getting document: ", error);
+//     throw error;
+//   }
+// };
 
 export const fetchPaginatedCommentsAndReplies = async (
   postId: string | null,
@@ -197,8 +197,8 @@ export const fetchPaginatedCommentsAndReplies = async (
           commentStoreRef,
           where("postId", "==", postId),
           where("parentId", "==", parentId ?? null),
+          // orderBy("timestamp", "asc"),
           ...(options?.queries ?? [])
-          // orderBy("timestamp", "asc")
         )
       : query(
           commentStoreRef,
@@ -208,7 +208,7 @@ export const fetchPaginatedCommentsAndReplies = async (
         );
     // console.log(commentsQuery);
     const querySnapshot = await getDocs(commentsQuery);
-    // console.log(querySnapshot);
+    console.log(querySnapshot.size);
     const comments = querySnapshot.docs.map(
       (doc) =>
         ({

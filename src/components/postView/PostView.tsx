@@ -256,7 +256,9 @@ const PostView = ({ post }: { post?: Post }) => {
         {postContent.tags &&
           postContent.tags?.length > 0 &&
           postContent.tags?.map((tag) => (
-            <div className={classes.tag}>{tag}</div>
+            <div key={tag} className={classes.tag}>
+              {tag}
+            </div>
           ))}
       </div>
       <div className={classes.footerInteractions}>

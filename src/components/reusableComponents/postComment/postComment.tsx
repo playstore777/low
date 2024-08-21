@@ -53,9 +53,10 @@ const PostComment = ({
   const getReplies = async () => {
     const { comments, lastComment } = await fetchPaginatedCommentsAndReplies(
       post.id,
-      null,
+      comment.id,
       {
-        queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+        // queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+        queries: [lastDoc ? startAfter(lastDoc) : limit(3)],
       }
     );
 
