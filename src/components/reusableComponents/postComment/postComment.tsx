@@ -1,19 +1,26 @@
-import { serverTimestamp } from "firebase/firestore";
+import InfiniteScroll from "react-infinite-scroller";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  DocumentData,
+  endBefore,
+  limit,
+  QueryDocumentSnapshot,
+  serverTimestamp,
+  startAfter,
+} from "firebase/firestore";
 
 import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
 import CommentBody from "../commentBody/CommentBody";
 import NewComment from "../newComment/NewComment";
-import PostReply from "../../postView/comments/postReply/PostReply";
 import classes from "./postComment.module.css";
 import useUser from "../../hooks/useUser";
-import { toast } from "react-toastify";
 import {
   addCommentOrReply,
   deleteComment,
   editComment,
-  fetchCommentsAndReplies,
+  fetchPaginatedCommentsAndReplies,
 } from "../../../server/services";
 
 const PostComment = ({
@@ -28,6 +35,11 @@ const PostComment = ({
   const { currentUser } = useAuth();
 
   const [replies, setReplies] = useState<Comment[]>([]);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
+    DocumentData,
+    DocumentData
+  > | null>(null);
+  const [hasMore, setHasMore] = useState(true);
   const [replying, setReplying] = useState(false);
   const [editingComment, setEditing] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
@@ -39,8 +51,21 @@ const PostComment = ({
   }, []);
 
   const getReplies = async () => {
-    const comments = await fetchCommentsAndReplies(post.id, comment.id);
-    comments && setReplies(comments);
+    const { comments, lastComment } = await fetchPaginatedCommentsAndReplies(
+      post.id,
+      null,
+      {
+        queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+      }
+    );
+
+    if (!comments.length) {
+      // if no more posts
+      setHasMore(false);
+    } else {
+      comments && setReplies(comments);
+      setLastDoc(lastComment);
+    }
   };
 
   async function replyToComment(commentText: string) {
@@ -126,12 +151,22 @@ const PostComment = ({
       )}
 
       {showReplies && (
-        <PostReply
-          currentNestedLvl={nestedLvl}
-          post={post}
-          replies={(replies || []) as Comment[]}
-          className={classes.reply + (nestedLvl < 3 && classes.nestedReply)}
-        />
+        <div className={classes.reply + (nestedLvl < 3 && classes.nestedReply)}>
+          <InfiniteScroll
+            loadMore={getReplies}
+            hasMore={hasMore}
+            loader={<div key={0}>Loading...</div>}
+          >
+            {((replies || []) as Comment[])?.map((reply) => (
+              <PostComment
+                comment={reply as Comment}
+                post={post}
+                nestedLvl={nestedLvl + 1}
+                key={reply.id}
+              />
+            ))}
+          </InfiniteScroll>
+        </div>
       )}
 
       <div className={classes.end} />

@@ -29,6 +29,10 @@ export const fetchAllPosts = async (...options: QueryConstraint[]) => {
           ...doc.data(),
         } as Post)
     );
+    console.log({
+      articlesList,
+      lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
+    });
     return {
       articlesList,
       lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
@@ -143,7 +147,8 @@ export const getUserById = async (
 
 export const fetchCommentsAndReplies = async (
   postId: string | null,
-  parentId?: string | null
+  parentId?: string | null,
+  options?: { queries: QueryConstraint[] }
 ) => {
   try {
     // Fetch all comments for the specific postId
@@ -151,13 +156,15 @@ export const fetchCommentsAndReplies = async (
       ? query(
           commentStoreRef,
           where("postId", "==", postId),
-          where("parentId", "==", parentId ?? null)
+          where("parentId", "==", parentId ?? null),
+          ...(options?.queries ?? [])
           // orderBy("timestamp", "asc")
         )
       : query(
           commentStoreRef,
           where("postId", "==", postId),
-          where("parentId", "==", "")
+          where("parentId", "==", ""),
+          ...(options?.queries ?? [])
         );
     // console.log(commentsQuery);
     const querySnapshot = await getDocs(commentsQuery);
@@ -174,6 +181,52 @@ export const fetchCommentsAndReplies = async (
   } catch (error) {
     console.error("Error getting document: ", error);
     throw error;
+  }
+};
+
+export const fetchPaginatedCommentsAndReplies = async (
+  postId: string | null,
+  parentId?: string | null,
+  options?: { queries: QueryConstraint[] }
+) => {
+  try {
+    // Fetch all comments for the specific postId
+    console.log(options);
+    const commentsQuery = parentId
+      ? query(
+          commentStoreRef,
+          where("postId", "==", postId),
+          where("parentId", "==", parentId ?? null),
+          ...(options?.queries ?? [])
+          // orderBy("timestamp", "asc")
+        )
+      : query(
+          commentStoreRef,
+          where("postId", "==", postId),
+          where("parentId", "==", ""),
+          ...(options?.queries ?? [])
+        );
+    // console.log(commentsQuery);
+    const querySnapshot = await getDocs(commentsQuery);
+    // console.log(querySnapshot);
+    const comments = querySnapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as Comment)
+    );
+    console.log({
+      comments,
+      lastComment: querySnapshot.docs[querySnapshot.docs.length - 1],
+    });
+    return {
+      comments,
+      lastComment: querySnapshot.docs[querySnapshot.docs.length - 1],
+    };
+  } catch (e) {
+    console.error("error in fetching comments: ", e);
+    throw e;
   }
 };
 
@@ -210,8 +263,9 @@ export const editComment = async (
 export const deleteComment = async (commentId: string) => {
   /**
    * Only deletes the specified comment, will not touch the children, as they
-   * will get orphan and should bother much till we fetch with constraints such
+   * will get orphan and should not bother much till we fetch with constraints such
    * as postId and parentId...
+   * Reason: deleting every comment even the children will cost more calls!
    */
   try {
     const docRef = doc(commentStoreRef, commentId);

@@ -1,13 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 import { RootState } from "../configureStore";
-import { Post } from "../../types/types";
+import { Comment, Post } from "../../types/types";
 
 export type InitialState = {
   activePost: {
     title: string;
     content: string;
     isEditMode?: boolean;
+    comments?: Comment[];
   };
   allPosts: Post[];
 };
@@ -31,7 +32,7 @@ const PostSlice = createSlice({
     deletePost: (state) => {
       state.activePost = { ...initialState.activePost };
     },
-    updateAllPosts: (state, action) => {
+    uploadAllPosts: (state, action) => {
       // Avoid duplication
       const newPostIds = action.payload.map((post: Post) => post.id);
       const filteredPrevPosts = state.allPosts.filter(
@@ -39,6 +40,9 @@ const PostSlice = createSlice({
       );
       state.allPosts = [...filteredPrevPosts, ...action.payload];
     },
+    // updateCommentsAndReplies: (state, action) => {
+    //   state.activePost = { ...state.activePost, ...action.payload };
+    // },
     enableEditMode: (state) => {
       state.activePost.isEditMode = true;
     },
@@ -51,7 +55,7 @@ const PostSlice = createSlice({
 export const {
   createPost,
   deletePost,
-  updateAllPosts,
+  uploadAllPosts,
   enableEditMode,
   disableEditMode,
 } = PostSlice.actions;

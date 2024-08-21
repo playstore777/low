@@ -1,4 +1,4 @@
-export const createElementFromHTML = (htmlString: string) => {
+export const createElementFromHTML = (htmlString: string): HTMLElement => {
   const div = document.createElement("div");
   div.innerHTML = htmlString.trim();
 

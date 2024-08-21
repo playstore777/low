@@ -10,8 +10,8 @@ import {
 } from "firebase/firestore";
 
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
-import PostPreview from "../reusableComponents/post/PostPreview";
-import { updateAllPosts } from "../../store/slices/postSlice";
+import PostPreview from "../reusableComponents/postPreview/PostPreview";
+import { uploadAllPosts } from "../../store/slices/postSlice";
 import { fetchAllPosts } from "../../server/services";
 import "./Home.css";
 
@@ -36,7 +36,7 @@ const Home = () => {
       setHasMore(false);
     } else {
       setLastDoc(lastArticle);
-      dispatch(updateAllPosts(articlesList));
+      dispatch(uploadAllPosts(articlesList));
     }
   };
 
@@ -49,7 +49,6 @@ const Home = () => {
   }
 
   if (allPosts.length === 0) return null;
-
   return (
     <main className="mainWrapper">
       <InfiniteScroll

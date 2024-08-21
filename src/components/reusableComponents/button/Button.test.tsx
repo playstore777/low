@@ -88,5 +88,5 @@ describe("Reusable Button Component", () => {
     expect(tooltip).toBeNull();
   });
 
-  // On hover and Un hover is not considered as it has CSS Style changes rather than HTML, so it is not easy or possible as this is for behavior changes.
+  // On hover and Un-hover is not considered as it has CSS Style changes rather than HTML, so it is not easy or possible as this is for behavior changes.
 });

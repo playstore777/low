@@ -1,4 +1,11 @@
-import { serverTimestamp } from "firebase/firestore";
+import {
+  DocumentData,
+  endBefore,
+  limit,
+  QueryDocumentSnapshot,
+  serverTimestamp,
+  startAfter,
+} from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 
 import MediumModalCross from "../../../../assets/images/MediumModalCross.svg";
@@ -9,8 +16,9 @@ import { Comment, Post } from "../../../../types/types";
 import classes from "./CommentsSection.module.css";
 import {
   addCommentOrReply,
-  fetchCommentsAndReplies,
+  fetchPaginatedCommentsAndReplies,
 } from "../../../../server/services";
+import InfiniteScroll from "react-infinite-scroller";
 
 const CommentsSection = ({
   isOpen,
@@ -24,14 +32,32 @@ const CommentsSection = ({
   const commentModalRef = useRef(null);
 
   const [comments, setComments] = useState<Comment[]>([]);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
+    DocumentData,
+    DocumentData
+  > | null>(null);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     getComments();
   }, []);
 
   const getComments = async () => {
-    const comments = await fetchCommentsAndReplies(post.id);
-    comments && setComments(comments);
+    const { comments, lastComment } = await fetchPaginatedCommentsAndReplies(
+      post.id,
+      null,
+      {
+        queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+      }
+    );
+
+    if (!comments.length) {
+      // if no more posts
+      setHasMore(false);
+    } else {
+      comments && setComments(comments);
+      setLastDoc(lastComment);
+    }
   };
 
   const onSubmitHandler = async (commentText: string, authorUid: string) => {
@@ -78,19 +104,24 @@ const CommentsSection = ({
           </div>
 
           <div className={classes.separator} />
-
-          {comments.length ? (
-            <div className={classes.comments}>
-              {comments.map((comment) => (
-                <PostComment post={post} comment={comment} key={comment.id} />
-              ))}
-            </div>
-          ) : (
-            <div className={classes.noComments}>
-              <p>There are currently no responses for this story.</p>
-              <p>Be the first to respond.</p>
-            </div>
-          )}
+          <InfiniteScroll
+            loadMore={getComments}
+            hasMore={hasMore}
+            loader={<div key={0}>Loading...</div>}
+          >
+            {comments.length ? (
+              <div className={classes.comments}>
+                {comments.map((comment) => (
+                  <PostComment post={post} comment={comment} key={comment.id} />
+                ))}
+              </div>
+            ) : (
+              <div className={classes.noComments}>
+                <p>There are currently no responses for this story.</p>
+                <p>Be the first to respond.</p>
+              </div>
+            )}
+          </InfiniteScroll>
         </div>
       </aside>
     </div>

@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import PostSlice, { InitialState } from "./slices/postSlice";
+
 import ThemeSlice from "./slices/themeSlice";
-import { Post } from "../types/types";
+import PostSlice from "./slices/postSlice";
 
 const combinedReducer = combineReducers({
   post: PostSlice.reducer,
