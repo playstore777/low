@@ -20,7 +20,7 @@ export type User = {
   bio?: string;
   followers?: [];
   notifications?: [];
-  following?: [];
+  following?: string[];
   uid: string;
   displayName: string;
 };
@@ -33,7 +33,8 @@ export type Comment = {
   text: string;
   timestamp: Timestamp;
   edited?: boolean;
-  clapsCount: number;
+  claps: number;
+  clappers?: { [userId: string]: number };
   replies?: Comment[];
 };
 

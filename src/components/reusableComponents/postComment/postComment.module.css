@@ -19,6 +19,21 @@
   .reply {
     margin-bottom: 1.5rem;
     animation: open 0.56s, fade-in 0.56s;
+    border-left: 1px solid var(--text-color);
+    padding-left: 0.7rem;
+  }
+
+  .nestedReplyLevel1 {
+    border-left: 1px solid var(--text-color);
+    margin-left: 1rem;
+  }
+
+  .nestedReplyLevel2 {
+    margin-left: 2rem;
+  }
+
+  .nestedReplyLevel3 {
+    margin-left: 3rem;
   }
 
   .nestedReply {

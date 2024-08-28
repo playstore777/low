@@ -3,13 +3,17 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   DocumentData,
-  endBefore,
   limit,
   QueryDocumentSnapshot,
   serverTimestamp,
   startAfter,
 } from "firebase/firestore";
 
+import {
+  updateComments,
+  deleteComment as deleteCommentFromRedux,
+} from "../../../store/slices/postSlice";
+import { useAppDispatch, useAppSelector } from "../../../store/rootReducer";
 import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
 import CommentBody from "../commentBody/CommentBody";
@@ -33,8 +37,13 @@ const PostComment = ({
   nestedLvl?: number;
 }) => {
   const { currentUser } = useAuth();
+  const dispatch = useAppDispatch();
+  const replies =
+    useAppSelector((state) =>
+      state.post.activePost.comments?.filter((x) => x.parentId === comment.id)
+    ) ?? [];
 
-  const [replies, setReplies] = useState<Comment[]>([]);
+  // const [replies, setReplies] = useState<Comment[]>([]);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
     DocumentData,
     DocumentData
@@ -51,20 +60,18 @@ const PostComment = ({
   }, []);
 
   const getReplies = async () => {
-    const { comments, lastComment } = await fetchPaginatedCommentsAndReplies(
-      post.id,
-      comment.id,
-      {
-        // queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
+    const { comments: replies, lastComment } =
+      await fetchPaginatedCommentsAndReplies(post.id, comment.id, {
         queries: [lastDoc ? startAfter(lastDoc) : limit(3)],
-      }
-    );
+      });
 
-    if (!comments.length) {
+    if (replies.length === 0 || !lastComment) {
       // if no more posts
       setHasMore(false);
     } else {
-      comments && setReplies(comments);
+      // replies && setReplies(replies);
+      console.log("replies: ", comment.id, replies);
+      dispatch(updateComments(replies));
       setLastDoc(lastComment);
     }
   };
@@ -74,14 +81,16 @@ const PostComment = ({
     if (!currentUser) return;
 
     const reply = {
-      likes: {},
-      likeCount: 0,
+      claps: 0,
+      clappers: {},
       text: commentText,
       authorUid: currentUser.uid,
       timestamp: serverTimestamp(),
     };
 
     await addCommentOrReply(post.id, reply, comment.id);
+    await getReplies();
+    dispatch(updateComments([reply]));
 
     setReplying(false);
     setShowReplies(true);
@@ -95,6 +104,7 @@ const PostComment = ({
     };
     await editComment(post.id, commentDoc);
     await getReplies();
+    dispatch(updateComments([commentDoc]));
 
     setEditing(false);
   };
@@ -102,6 +112,7 @@ const PostComment = ({
   const onDeleteCommentHandler = async (commentId: string) => {
     try {
       await deleteComment(commentId);
+      dispatch(deleteCommentFromRedux(commentId));
       toast("Comment deleted successfully!");
     } catch (error) {
       console.error(error);
@@ -152,7 +163,11 @@ const PostComment = ({
       )}
 
       {showReplies && (
-        <div className={classes.reply + (nestedLvl < 3 && classes.nestedReply)}>
+        <div
+          className={`${classes.reply} ${
+            nestedLvl < 3 ? classes[`nestedReplyLevel${nestedLvl}`] : ""
+          }`}
+        >
           <InfiniteScroll
             loadMore={getReplies}
             hasMore={hasMore}

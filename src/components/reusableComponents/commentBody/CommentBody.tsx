@@ -6,6 +6,7 @@ import Button from "../button/Button";
 import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
 import classes from "./CommentBody.module.css";
+import { Timestamp } from "firebase/firestore";
 
 const CommentBody = ({
   comment,
@@ -30,9 +31,13 @@ const CommentBody = ({
   onToggleOpenReplies: () => void;
   isRepliesOpen: boolean;
 }) => {
-  const commentTimestamp = comment.timestamp
-    ? comment.timestamp.toDate()
-    : new Date(0);
+  const commentTimestamp =
+    comment.timestamp instanceof Timestamp
+      ? comment.timestamp.toDate()
+      : new Date(
+          (comment.timestamp as { seconds: number; nanoseconds: number })
+            ?.seconds * 1000 || 0
+        );
 
   const { currentUser } = useAuth();
 

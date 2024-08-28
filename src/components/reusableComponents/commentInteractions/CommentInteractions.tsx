@@ -23,7 +23,7 @@ const CommentInteractions = ({
     <div className={classes.commentInteractionsWrapper}>
       <div className={classes.commentInteractions}>
         <ClapIcon
-          label={comment.clapsCount}
+          label={comment.claps}
           disabled={currentUser?.uid === comment.authorUid || !userLoggedIn}
           onClick={onClap}
         />

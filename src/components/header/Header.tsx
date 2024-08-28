@@ -1,7 +1,12 @@
-import { ChangeEvent, useEffect, useState } from "react";
-
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import {
+  ChangeEvent,
+  FunctionComponent,
+  SVGProps,
+  useEffect,
+  useState,
+} from "react";
 
 import { createPost, disableEditMode } from "../../store/slices/postSlice";
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
@@ -131,7 +136,11 @@ const Header = () => {
       <div className={classes.left}>
         <div id={classes.logo}>
           <a href="/">
-            <SvgWrapper SvgComponent={MediumLogo} />
+            <SvgWrapper
+              SvgComponent={
+                MediumLogo as unknown as FunctionComponent<SVGProps<string>>
+              }
+            />
           </a>{" "}
           {/** Medium logo used only for testing */}
         </div>
@@ -139,7 +148,9 @@ const Header = () => {
           <SearchPopUp searchWidth="200px">
             <div className={classes.searchBar}>
               <SvgWrapper
-                SvgComponent={SearchIcon}
+                SvgComponent={
+                  SearchIcon as unknown as FunctionComponent<SVGProps<string>>
+                }
                 width="24px"
                 height="24px"
               />
@@ -169,7 +180,13 @@ const Header = () => {
                 goTo("/new");
               }}
             >
-              <SvgWrapper SvgComponent={MediumWriteIcon} />
+              <SvgWrapper
+                SvgComponent={
+                  MediumWriteIcon as unknown as FunctionComponent<
+                    SVGProps<string>
+                  >
+                }
+              />
               <div className={classes.iconCaption}>Write</div>
             </div>
           )}
@@ -193,7 +210,12 @@ const Header = () => {
         {userLoggedIn &&
           (pathname.includes("new") || pathname.includes("edit")) && (
             <Dropdown buttonStyles={classes.buttonStyles}>
-              <SvgWrapper SvgComponent={ThreeDots} width="24px" />
+              <SvgWrapper
+                SvgComponent={
+                  ThreeDots as unknown as FunctionComponent<SVGProps<string>>
+                }
+                width="24px"
+              />
               <div className="dropdownItems">
                 <div
                   className="dropdownItem"
@@ -203,10 +225,6 @@ const Header = () => {
                   Change Feature Image
                 </div>
                 <div className="dropdownItem" tabIndex={0}>
-                  3asdfasdfq34535325532453253sdf asfasdf
-                  asflasfjasldfkasfasflas;fjlasdfa sfasfdll;
-                </div>
-                <div className="dropdownItem" tabIndex={0}>
                   4
                 </div>
               </div>
@@ -214,7 +232,11 @@ const Header = () => {
           )}
         {userLoggedIn && (
           <div>
-            <SvgWrapper SvgComponent={MediumBellIcon} />
+            <SvgWrapper
+              SvgComponent={
+                MediumBellIcon as unknown as FunctionComponent<SVGProps<string>>
+              }
+            />
           </div>
         )}
         {!userLoggedIn && !isMobile && (
@@ -242,7 +264,8 @@ const Header = () => {
             )}
             {currentUser?.photoURL && (
               <img
-                alt={currentUser?.displayName as string}
+                title={currentUser.displayName?.toString()}
+                alt=""
                 src={currentUser?.photoURL?.toString()}
                 loading="lazy"
               />
@@ -259,7 +282,13 @@ const Header = () => {
                     goTo("/new");
                   }}
                 >
-                  <SvgWrapper SvgComponent={MediumWriteIcon} />
+                  <SvgWrapper
+                    SvgComponent={
+                      MediumWriteIcon as unknown as FunctionComponent<
+                        SVGProps<string>
+                      >
+                    }
+                  />
                   <div className={classes.iconCaption}>Write</div>
                 </div>
               )}

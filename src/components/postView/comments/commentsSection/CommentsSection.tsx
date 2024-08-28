@@ -1,6 +1,6 @@
+import InfiniteScroll from "react-infinite-scroller";
 import {
   DocumentData,
-  endBefore,
   limit,
   QueryDocumentSnapshot,
   serverTimestamp,
@@ -14,17 +14,18 @@ import {
   useState,
 } from "react";
 
+import { useAppDispatch, useAppSelector } from "../../../../store/rootReducer";
 import MediumModalCross from "../../../../assets/images/MediumModalCross.svg";
 import PostComment from "../../../reusableComponents/postComment/postComment";
 import SvgWrapper from "../../../reusableComponents/svgWrapper/SvgWrapper";
 import NewComment from "../../../reusableComponents/newComment/NewComment";
+import { updateComments } from "../../../../store/slices/postSlice";
 import { Comment, Post } from "../../../../types/types";
 import classes from "./CommentsSection.module.css";
 import {
   addCommentOrReply,
   fetchPaginatedCommentsAndReplies,
 } from "../../../../server/services";
-import InfiniteScroll from "react-infinite-scroller";
 
 const CommentsSection = ({
   isOpen,
@@ -36,8 +37,12 @@ const CommentsSection = ({
   onClose: () => void;
 }) => {
   const commentModalRef = useRef(null);
+  const dispatch = useAppDispatch();
+  const comments = useAppSelector((state) =>
+    state.post.activePost.comments?.filter((comment) => comment.parentId === "")
+  ) as Comment[];
 
-  const [comments, setComments] = useState<Comment[]>([]);
+  // const [comments, setComments] = useState<Comment[]>([]);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
     DocumentData,
     DocumentData
@@ -49,34 +54,33 @@ const CommentsSection = ({
   }, []);
 
   const getComments = async () => {
-    const { comments, lastComment } = await fetchPaginatedCommentsAndReplies(
-      post.id,
-      null,
-      {
+    const { comments: newComments, lastComment } =
+      await fetchPaginatedCommentsAndReplies(post.id, null, {
         // queries: [lastDoc ? startAfter(lastDoc) : endBefore(null), limit(3)],
         queries: [lastDoc ? startAfter(lastDoc) : limit(3)],
-      }
-    );
+      });
 
-    if (!comments.length) {
+    if (!newComments.length) {
       // if no more posts
       setHasMore(false);
     } else {
-      comments && setComments(comments);
+      // comments && setComments(comments);
+      dispatch(updateComments(newComments));
       setLastDoc(lastComment);
     }
   };
 
   const onSubmitHandler = async (commentText: string, authorUid: string) => {
     const comment = {
-      claps: {},
-      clapCount: 0,
+      claps: 0,
+      clappers: {},
       text: commentText,
       authorUid,
       timestamp: serverTimestamp(),
     };
     await addCommentOrReply(post.id, comment);
     await getComments();
+    dispatch(updateComments([comment]));
   };
 
   if (!isOpen) return null;
