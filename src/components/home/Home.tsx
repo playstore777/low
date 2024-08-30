@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import {
   startAfter,
-  endBefore,
   limit,
   QueryDocumentSnapshot,
   DocumentData,
@@ -28,8 +27,7 @@ const Home = () => {
   const fetchNewPosts = async () => {
     // if reached bottom, fetch new posts.
     const { articlesList, lastArticle } = await fetchAllPosts(
-      lastDoc ? startAfter(lastDoc) : endBefore(null),
-      limit(3)
+      lastDoc ? startAfter(lastDoc) : limit(3)
     );
     // if no more posts
     if (!articlesList.length) {
@@ -42,6 +40,9 @@ const Home = () => {
 
   useEffect(() => {
     fetchNewPosts();
+    return () => {
+      dispatch(uploadAllPosts([]));
+    };
   }, []);
 
   if (allPosts.length === 0 && !hasMore) {

@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import ManipulatePost from "../components/manipulatePost/ManipulatePost";
-import Login from "../components/authentication/Login";
+import UserProfile from "../components/userProfile/userProfile";
 import PostView from "../components/postView/PostView";
 import { useAppSelector } from "../store/rootReducer";
 import Layout from "../layout/Layout";
@@ -10,7 +10,6 @@ import App from "../App";
 const AppRouter = () => {
   const { activePost } = useAppSelector((state) => state.post);
   const router = createBrowserRouter([
-    { path: "/login", element: <Login /> },
     {
       path: "/",
       element: <Layout />,
@@ -37,6 +36,10 @@ const AppRouter = () => {
           ),
         },
       ],
+    },
+    {
+      path: "/:name",
+      element: <UserProfile />,
     },
   ]);
 

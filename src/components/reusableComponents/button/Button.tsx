@@ -5,6 +5,7 @@ import classes from "./Button.module.css";
 
 const Button = ({
   type = "button",
+  inlineButton,
   className,
   disabled,
   disabledWithMessage,
@@ -14,7 +15,8 @@ const Button = ({
   tooltipMessage,
   tooltipType = "hover",
 }: {
-  type?: "button" | "submit" | "reset";
+  type?: "button" | "submit" | "reset" | "text";
+  inlineButton?: boolean;
   className?: string;
   disabled?: boolean;
   disabledWithMessage?: boolean;
@@ -32,7 +34,12 @@ const Button = ({
   };
 
   return (
-    <div style={{ position: "relative" }}>
+    <div
+      style={{
+        position: "relative",
+        display: inlineButton ? "inline" : "block",
+      }}
+    >
       {tooltip && clickCondition && (
         <OnClickTooltip
           text={
@@ -46,8 +53,8 @@ const Button = ({
       <button
         className={`${disabledWithMessage ? classes.disabled : ""} ${
           className ?? classes.button
-        }`}
-        type={type}
+        } ${type === "text" && classes.textBtn}`}
+        type={type === "text" ? "button" : type}
         style={style}
         onClick={
           disabledWithMessage && clickCondition ? disabledClick : onClick

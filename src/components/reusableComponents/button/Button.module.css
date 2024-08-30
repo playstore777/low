@@ -1,21 +1,27 @@
 [data-theme="light"] {
   --disabled-bg-color: rgba(26, 137, 23, 0.25);
+  --primary-bg-color: #1a8917;
 }
 
 [data-theme="dark"] {
   --disabled-bg-color: rgba(26, 137, 23, 0.7);
+  --primary-bg-color: #24b11f;
 }
 
 .button {
+  --show-tip-arrow: none;
   padding: 0.3rem 0.8rem;
-  background-color: #1a8917;
+  background-color: var(--primary-bg-color);
   border: none;
   border-radius: 99em;
   outline: 0;
   color: white;
   cursor: pointer;
+}
 
-  --show-tip-arrow: none;
+.textBtn {
+  background-color: transparent;
+  color: var(--primary-bg-color);
 }
 
 .button:disabled,

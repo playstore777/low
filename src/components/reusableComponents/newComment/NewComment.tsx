@@ -4,6 +4,7 @@ import Button from "../../reusableComponents/button/Button";
 import { useAuth } from "../../../server/hooks/useAuth";
 import TextButton from "../textButton/TextButton";
 import classes from "./NewComment.module.css";
+import Avatar from "../avatar/Avatar";
 
 const NewComment = ({
   onSubmit,
@@ -46,10 +47,9 @@ const NewComment = ({
     <form className={classes.newCommentWrapper} onSubmit={onSubmitHandler}>
       {hideUserInfo || !expanded ? null : (
         <div className={classes.user}>
-          <img
-            alt="user-fotu" // intentional!!
-            src={currentUser?.photoURL as string}
-            loading="lazy"
+          <Avatar
+            imgSrc={currentUser?.photoURL as string}
+            imgTitle="user-fotu" // intentional!!
           />
           <span>{currentUser?.displayName}</span>
         </div>

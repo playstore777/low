@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { FunctionComponent, SVGProps, useEffect, useState } from "react";
 
 import { useLocation, useNavigate, useParams } from "react-router";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import CommentsSection from "./comments/commentsSection/CommentsSection";
@@ -13,14 +14,16 @@ import ClapIcon from "../reusableComponents/clapIcon/ClapIcon";
 import { enableEditMode } from "../../store/slices/postSlice";
 import Button from "../reusableComponents/button/Button";
 import { useAppDispatch } from "../../store/rootReducer";
+import Avatar from "../reusableComponents/avatar/Avatar";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
+import { Post, User } from "../../types/types";
 import classes from "./PostView.module.css";
-import { Post } from "../../types/types";
 import {
   clapPost,
   deletePost,
   fetchPost,
+  updateUserDetails,
   getUserById,
 } from "../../server/services";
 
@@ -48,6 +51,9 @@ const PostView = ({ post }: { post?: Post }) => {
     photoURL: "",
     id: "",
   });
+  const [isFollowing, setIsFollowing] = useState(
+    currentUser?.following?.includes(contentAuthor.id)
+  );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isAuthorUser, setIsAuthorUser] = useState(
     currentUser?.uid === contentAuthor.id
@@ -66,9 +72,12 @@ const PostView = ({ post }: { post?: Post }) => {
             setContentAuthor({
               id: authorDetails?.uid as string,
               name: authorDetails?.displayName as string,
-              username: "",
+              username: authorDetails?.username as string,
               photoURL: authorDetails?.photoURL as string,
             });
+            setIsFollowing(
+              currentUser?.following?.includes(authorDetails?.uid as string)
+            );
           }
           setPostContent((prev) => ({
             ...prev,
@@ -88,7 +97,7 @@ const PostView = ({ post }: { post?: Post }) => {
     // if (!post?.title) {
     getPost();
     // }
-  }, [postId]);
+  }, [currentUser, postId]);
   //#endregion
 
   useEffect(() => {
@@ -181,6 +190,22 @@ const PostView = ({ post }: { post?: Post }) => {
     }
   };
 
+  const onFollowHandler = async () => {
+    const userFollowing = [...(currentUser?.following ?? []), contentAuthor.id];
+    const updatedUser = { ...currentUser, following: userFollowing };
+    await updateUserDetails(currentUser?.uid as string, updatedUser as User);
+    setIsFollowing(true);
+  };
+
+  const onFollowingHandler = async () => {
+    const userFollowing = currentUser?.following?.filter(
+      (uid) => uid !== contentAuthor.id
+    );
+    const updatedUser = { ...currentUser, following: userFollowing };
+    await updateUserDetails(currentUser?.uid as string, updatedUser as User);
+    setIsFollowing(false);
+  };
+
   return (
     <>
       {postContent?.title && (
@@ -196,16 +221,25 @@ const PostView = ({ post }: { post?: Post }) => {
         </h1>
       )}
       <div className={classes.authorDetails}>
-        <div className={classes.avatar}>
-          {!contentAuthor?.photoURL && (
-            <div className={classes.avatarPlaceholder}></div>
-          )}
-          {contentAuthor?.photoURL && (
-            <img alt="" src={contentAuthor?.photoURL} loading="lazy" />
-          )}
-        </div>
+        <Avatar imgSrc={contentAuthor?.photoURL} />
         <div>
-          <div className="authorName">{contentAuthor.name}</div>
+          <span className={classes.authorName}>
+            <Link to={`/@${contentAuthor.username}`}>{contentAuthor.name}</Link>
+          </span>
+          {currentUser?.uid !== contentAuthor.id && (
+            <span style={{ color: "var(--text-color)" }}>
+              {"  "}·{"  "}
+            </span>
+          )}
+          {currentUser?.uid !== contentAuthor.id && (
+            <Button
+              type="text"
+              inlineButton={true}
+              style={{ paddingLeft: 0 }}
+              label={isFollowing ? "Following" : "Follow"}
+              onClick={isFollowing ? onFollowingHandler : onFollowHandler}
+            />
+          )}
           <div className="createdDate">
             {postContent.createdAt &&
               postContent.createdAt.toDate().toDateString()}
@@ -222,7 +256,12 @@ const PostView = ({ post }: { post?: Post }) => {
           <CommentIcon onClick={onCommentHandler} />
         </div>
         <Dropdown buttonStyles={classes.buttonStyles}>
-          <SvgWrapper SvgComponent={ThreeDots} width="24px" />
+          <SvgWrapper
+            SvgComponent={
+              ThreeDots as unknown as FunctionComponent<SVGProps<string>>
+            }
+            width="24px"
+          />
           <div className="dropdownItems">
             {userLoggedIn && isAuthorUser && (
               <div

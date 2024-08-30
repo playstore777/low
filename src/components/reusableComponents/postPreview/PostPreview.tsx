@@ -23,7 +23,7 @@ const PostPreview: React.FC<PostProps> = ({
   const navigate = useNavigate();
 
   const goTo = () => {
-    navigate(`post/${id}`, {
+    navigate(`/post/${id}`, {
       state: { post: { title, content } },
     });
     if (typeof window !== "undefined" && window?.scrollTo) {

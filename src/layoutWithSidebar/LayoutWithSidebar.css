@@ -1,0 +1,38 @@
+.layout-with-sidebar-wrapper {
+  height: 92vh;
+  box-sizing: border-box;
+}
+
+.layout-with-sidebar {
+  height: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  box-sizing: border-box;
+}
+
+.layout-main {
+  /* flex: 2; */
+  flex: 1 1 auto;
+  padding-block: 3.5rem 1rem;
+  padding-inline: 2.7rem 1rem;
+  /* background-color: skyblue; */
+}
+
+.layout-sidebar {
+  /* flex: 1; */
+  padding-block: 2.8rem;
+  padding-inline: 2.5rem 0.5rem;
+  /* background-color: pink; */
+  border-left: 1px solid var(--border-color);
+}
+
+@media (min-width: 1080px) {
+  .layout-main {
+    min-width: 728px;
+    max-width: 728px;
+  }
+
+  .layout-sidebar {
+    min-width: 368px;
+  }
+}

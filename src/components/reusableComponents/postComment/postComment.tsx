@@ -43,7 +43,6 @@ const PostComment = ({
       state.post.activePost.comments?.filter((x) => x.parentId === comment.id)
     ) ?? [];
 
-  // const [replies, setReplies] = useState<Comment[]>([]);
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
     DocumentData,
     DocumentData

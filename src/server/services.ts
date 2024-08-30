@@ -191,7 +191,6 @@ export const fetchPaginatedCommentsAndReplies = async (
 ) => {
   try {
     // Fetch all comments for the specific postId
-    console.log(options);
     const commentsQuery = parentId
       ? query(
           commentStoreRef,
@@ -204,11 +203,10 @@ export const fetchPaginatedCommentsAndReplies = async (
           commentStoreRef,
           where("postId", "==", postId),
           where("parentId", "==", ""),
+          orderBy("timestamp", "asc"),
           ...(options?.queries ?? [])
         );
-    // console.log(commentsQuery);
     const querySnapshot = await getDocs(commentsQuery);
-    console.log(querySnapshot.size);
     const comments = querySnapshot.docs.map(
       (doc) =>
         ({
@@ -273,5 +271,47 @@ export const deleteComment = async (commentId: string) => {
   } catch (error) {
     console.error("Error deleting document: ", error);
     throw error;
+  }
+};
+
+export const updateUserDetails = async (
+  userId: string,
+  updatedUserData: Partial<User>
+) => {
+  try {
+    const body = {
+      username: updatedUserData.username ?? "",
+      photoURL: updatedUserData.photoURL ?? "",
+      bio: updatedUserData.bio ?? "",
+      followers: updatedUserData.followers ?? [],
+      notifications: updatedUserData.notifications ?? [],
+      following: updatedUserData.following ?? [],
+      uid: updatedUserData.uid ?? "",
+      displayName: updatedUserData.displayName ?? "",
+    };
+    const documentRef = doc(userStoreRef, userId);
+    const res = await updateDoc(documentRef, body);
+    return res;
+  } catch (error) {
+    console.error("Error: failed to follow user. ", error);
+    throw error;
+  }
+};
+
+export const getUserByUsername = async (username: string) => {
+  const q = query(userStoreRef, where("username", "==", username));
+
+  try {
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      // If there's a matching document, get the first one
+      const userDoc = querySnapshot.docs[0].data();
+      return userDoc;
+    } else {
+      console.log("No user found with that username.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user by username: ", error);
   }
 };

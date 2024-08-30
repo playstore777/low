@@ -7,6 +7,7 @@ import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
 import classes from "./CommentBody.module.css";
 import { Timestamp } from "firebase/firestore";
+import Avatar from "../avatar/Avatar";
 
 const CommentBody = ({
   comment,
@@ -48,13 +49,7 @@ const CommentBody = ({
     <>
       <div className={classes.commentWrapper}>
         <div className={classes.user}>
-          <img
-            width="8px"
-            height="8px"
-            alt="user"
-            src={currentUser?.photoURL as string}
-            loading="lazy"
-          />
+          <Avatar imgSrc={currentUser?.photoURL as string} imgTitle="user" />
           <div className={classes.username}>
             <div>
               <Link to={`/u/${author.username}`}>{author.displayName}</Link>

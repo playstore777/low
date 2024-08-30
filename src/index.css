@@ -22,18 +22,27 @@
   -moz-osx-font-smoothing: grayscale;
   --background-color: #ffffff;
   --text-color: #000000;
+  --grey-text-color: #ccc;
+  --primary-color: #1a8917;
+  --danger-color: red;
 }
 
 [data-theme="light"] {
   --background-color: #fff;
   --text-color: #000;
   --border-color: #f2f2f2;
+  --primary-color: #1a8917;
+  --danger-color: red;
+  --grey-text-color: #757575;
 }
 
 [data-theme="dark"] {
   --background-color: #000000;
   --text-color: #ffffff;
   --border-color: rgb(63, 63, 63);
+  --primary-color: #24b11f;
+  --danger-color: red;
+  --grey-text-color: #999999;
 }
 
 a {

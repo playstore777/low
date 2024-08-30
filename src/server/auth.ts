@@ -1,7 +1,5 @@
 import { signInWithPopup, User, UserCredential } from "firebase/auth";
 import { GoogleAuthProvider } from "firebase/auth";
-
-import { auth } from "./firebase";
 import {
   getDoc,
   doc,
@@ -10,15 +8,16 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-async function getUserEmail(email: string) {
+import { auth } from "./firebase";
+
+async function getUser(userId: string) {
   const document = await getDoc(
-    doc(getFirestore(), "emails", email.toLowerCase())
+    doc(getFirestore(), "users", userId.toLowerCase())
   );
   return document;
 }
 
-const emailExists = async (email: string) =>
-  (await getUserEmail(email)).exists();
+const userExists = async (userId: string) => (await getUser(userId)).exists();
 
 async function addNewUser(user: User) {
   if (!user?.email || !user?.displayName) return;
@@ -26,7 +25,7 @@ async function addNewUser(user: User) {
   const { uid, displayName, photoURL, email } = user;
 
   try {
-    if (await emailExists(email)) return;
+    if (await userExists(uid)) return;
     const userDetails = {
       uid,
       username: "", // need to set a random username, till user updates it in settings
@@ -51,7 +50,7 @@ async function addNewUser(user: User) {
     );
 
     // for checking if email is unique
-    await setDoc(doc(getFirestore(), `emails`, email), { uid });
+    // await setDoc(doc(getFirestore(), `emails`, email), { uid });
   } catch (error) {
     //implement logger later
     console.error("Error while inserting data to the DB", error);
@@ -62,26 +61,27 @@ export const doSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   provider.addScope("email");
   const userCredential: UserCredential = await signInWithPopup(auth, provider);
-  const userExists = await emailExists(userCredential.user.email as string);
-  if (!userExists) {
-    console.error("User does not exists");
-    doSignOut();
+  const isUserExists = await userExists(userCredential.user.email as string);
+  if (!isUserExists) {
+    await addNewUser(userCredential.user);
+    // console.error("User does not exists");
+    // doSignOut();
   }
-  return { user: userCredential.user, userExists };
+  return { user: userCredential.user, userExists: isUserExists };
 };
 
 export const doSignUpWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   provider.addScope("email");
   const userCredential: UserCredential = await signInWithPopup(auth, provider);
-  const userExists = await emailExists(userCredential.user.email as string);
-  if (!userExists) {
+  const isUserExists = await userExists(userCredential.user.email as string);
+  if (!isUserExists) {
     await addNewUser(userCredential.user);
-  } else {
-    console.error("User already exists");
-    doSignOut();
+    // } else {
+    //   console.error("User already exists");
+    //   doSignOut();
   }
-  return { user: userCredential.user, userExists };
+  return { user: userCredential.user, userExists: isUserExists };
 };
 
 export const doSignOut = () => {

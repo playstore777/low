@@ -184,18 +184,6 @@
 
       .action {
         display: flex;
-        .publishBtn {
-          border-radius: 9999px;
-          color: var(--text-color);
-          transition-property: color, background-color, border-color,
-            text-decoration-color, fill, stroke;
-          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-          transition-duration: 150ms;
-          transition-duration: 100ms;
-          background-color: #1a8917;
-          border: none;
-          outline: none;
-        }
       }
     }
   }

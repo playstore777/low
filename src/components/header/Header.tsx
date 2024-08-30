@@ -32,6 +32,7 @@ import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
 import classes from "./Header.module.css";
 import { Post } from "../../types/types";
+import Avatar from "../reusableComponents/avatar/Avatar";
 
 const Header = () => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -258,19 +259,10 @@ const Header = () => {
           />
         )}
         <Dropdown buttonStyles={classes.buttonStyles}>
-          <div className={classes.avatar}>
-            {!currentUser?.photoURL && (
-              <div className={classes.avatarPlaceholder}></div>
-            )}
-            {currentUser?.photoURL && (
-              <img
-                title={currentUser.displayName?.toString()}
-                alt=""
-                src={currentUser?.photoURL?.toString()}
-                loading="lazy"
-              />
-            )}
-          </div>
+          <Avatar
+            imgSrc={currentUser?.photoURL?.toString()}
+            imgTitle={currentUser?.displayName?.toString()}
+          />
           <div className="dropdownItems">
             {userLoggedIn &&
               !pathname.includes("new") &&

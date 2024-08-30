@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { FunctionComponent, SVGProps, useState } from "react";
 
 import { useNavigate } from "react-router";
 
@@ -20,7 +20,7 @@ const Authentication = ({
 
   const signInHandler = async () => {
     const response = await doSignInWithGoogle();
-    if (response.userExists) {
+    if (response) {
       onClose();
       navigate("/");
     }
@@ -28,7 +28,7 @@ const Authentication = ({
 
   const signUpHandler = async () => {
     const response = await doSignUpWithGoogle();
-    if (!response.userExists) {
+    if (response) {
       onClose();
       navigate("/");
     }
@@ -49,7 +49,12 @@ const Authentication = ({
                 onClick={signInHandler}
               >
                 <span>
-                  <SvgWrapper SvgComponent={GoogleG} width={"24px"} />{" "}
+                  <SvgWrapper
+                    SvgComponent={
+                      GoogleG as unknown as FunctionComponent<SVGProps<string>>
+                    }
+                    width={"24px"}
+                  />{" "}
                   <span>Sign in with Google</span>
                   <div className="dummy3rd-element"></div>
                 </span>
@@ -61,7 +66,12 @@ const Authentication = ({
                 onClick={signUpHandler}
               >
                 <span>
-                  <SvgWrapper SvgComponent={GoogleG} width={"24px"} />{" "}
+                  <SvgWrapper
+                    SvgComponent={
+                      GoogleG as unknown as FunctionComponent<SVGProps<string>>
+                    }
+                    width={"24px"}
+                  />{" "}
                   <span>Sign up with Google</span>
                   <div className="dummy3rd-element"></div>
                 </span>

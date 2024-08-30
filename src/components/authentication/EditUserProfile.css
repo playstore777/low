@@ -1,0 +1,102 @@
+.edit-user-profile-wrapper {
+  padding: 2rem;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+
+  form {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .user-profile-header {
+      width: 100%;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      font-family: sohne-bold, Helvetica Neue, Helvetica, Arial, sans-serif;
+      font-size: 22px;
+    }
+
+    .user-profile-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+
+      .hide {
+        display: none;
+      }
+
+      .photo-text {
+        margin-bottom: 10px;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--grey-text-color);
+      }
+
+      .upload-photo-wrapper {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .upload-photo-actions {
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .update-label {
+          cursor: pointer;
+          font-size: 0.875rem;
+          line-height: 1.25rem;
+          color: var(--primary-color);
+        }
+      }
+
+      .upload-info {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: var(--grey-text-color);
+      }
+
+      .name-wrapper {
+        display: flex;
+        flex-direction: column;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+
+        .name-label {
+          margin-bottom: 0.5rem;
+          color: var(--grey-text-color);
+        }
+
+        .name-info {
+          margin-top: 0.25rem;
+          display: flex;
+          justify-content: space-between;
+          font-size: 13px;
+        }
+      }
+
+      .limit {
+        color: var(--grey-text-color);
+      }
+    }
+
+    .footer-actions {
+      margin-top: 2.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+
+    .text-danger {
+      color: var(--danger-color);
+    }
+
+    .text-grey {
+      color: var(--grey-text-color);
+    }
+  }
+}
