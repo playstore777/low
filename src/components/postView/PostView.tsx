@@ -94,9 +94,7 @@ const PostView = ({ post }: { post?: Post }) => {
         console.error("Error fetching post:", error);
       }
     };
-    // if (!post?.title) {
     getPost();
-    // }
   }, [currentUser, postId]);
   //#endregion
 
@@ -191,7 +189,11 @@ const PostView = ({ post }: { post?: Post }) => {
   };
 
   const onFollowHandler = async () => {
-    const userFollowing = [...(currentUser?.following ?? []), contentAuthor.id];
+    const userFollowing = [...(currentUser?.following ?? [])];
+
+    if (userFollowing.includes(contentAuthor.id)) return;
+
+    userFollowing.push(contentAuthor.id);
     const updatedUser = { ...currentUser, following: userFollowing };
     await updateUserDetails(currentUser?.uid as string, updatedUser as User);
     setIsFollowing(true);
@@ -221,7 +223,7 @@ const PostView = ({ post }: { post?: Post }) => {
         </h1>
       )}
       <div className={classes.authorDetails}>
-        <Avatar imgSrc={contentAuthor?.photoURL} />
+        <Avatar width="42px" height="42px" imgSrc={contentAuthor?.photoURL} />
         <div>
           <span className={classes.authorName}>
             <Link to={`/@${contentAuthor.username}`}>{contentAuthor.name}</Link>

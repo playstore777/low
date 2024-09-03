@@ -25,9 +25,9 @@ import CollapsibleLinkPlugin from "../plugins/CollapsibleLink";
 import AutoLinkPlugin from "../plugins/AutoLinkPlugin";
 import { ImageNode } from "../plugins/nodes/ImageNode";
 import ImagesPlugin from "../plugins/ImagesPlugin";
+import { fetchDataMethod } from "../plugins/types";
 import LinkPlugin from "../plugins/LinkPlugin";
 import "./Editor.css";
-import { fetchDataMethod } from "../plugins/types";
 
 const onError = (error: unknown) => {
   console.error("Custom error from Lexical Editor: ", error);

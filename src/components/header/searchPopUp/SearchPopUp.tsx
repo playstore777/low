@@ -1,4 +1,6 @@
 import { ReactNode, useRef, useState } from "react";
+
+import Portal from "../../reusableComponents/portal/Portal";
 import classes from "./SearchPopUp.module.css";
 
 const SearchPopUp = ({
@@ -15,25 +17,34 @@ const SearchPopUp = ({
       <div
         onClick={(e) => {
           e.nativeEvent.stopImmediatePropagation();
-          setIsSearchOpen(!isSearchOpen);
+          setIsSearchOpen(true);
         }}
       >
         {children[0]}
       </div>
       {isSearchOpen && (
-        <div className={classes.search}>
-          <h3>Search</h3>
-          <hr />
-          <div></div>
+        <Portal>
           <div
-            ref={searchRef}
-            style={{
-              width: searchWidth,
+            className={classes.backdrop}
+            onClick={() => {
+              console.log("clicked");
+              setIsSearchOpen(false);
             }}
-          >
-            {children[1]}
+          ></div>
+          <div className={classes.search}>
+            <h3>Search</h3>
+            <hr />
+            <div></div>
+            <div
+              ref={searchRef}
+              style={{
+                width: searchWidth,
+              }}
+            >
+              {children[1]}
+            </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );

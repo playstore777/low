@@ -1,5 +1,3 @@
-import { useLocation, useNavigate } from "react-router";
-import { toast } from "react-toastify";
 import {
   ChangeEvent,
   FunctionComponent,
@@ -7,6 +5,9 @@ import {
   useEffect,
   useState,
 } from "react";
+
+import { useLocation, useNavigate } from "react-router";
+import { toast } from "react-toastify";
 
 import { createPost, disableEditMode } from "../../store/slices/postSlice";
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
@@ -22,6 +23,7 @@ import MediumLogo from "../../assets/images/MediumLogo.svg";
 import SearchIcon from "../../assets/images/SearchIcon.svg";
 import { createElementFromHTML } from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
+import Avatar from "../reusableComponents/avatar/Avatar";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
 import PublishPost from "./publishPost/PublishPost";
@@ -30,9 +32,9 @@ import useScreenSize from "../hooks/useScreenSize";
 import { updatePost } from "../../server/services";
 import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
+import FontType from "../fontType/fontType";
 import classes from "./Header.module.css";
 import { Post } from "../../types/types";
-import Avatar from "../reusableComponents/avatar/Avatar";
 
 const Header = () => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -117,7 +119,7 @@ const Header = () => {
   const onSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const matches = state.allPosts.filter((post) =>
-      post.title.includes(value.trim())
+      post.title.toLowerCase().includes(value.trim().toLowerCase())
     );
     matches.length > 0 && value.trim()
       ? setFilteredPost(matches)
@@ -163,7 +165,20 @@ const Header = () => {
             </div>
             <div>
               {filteredPost.map((match: Post) => (
-                <div>{match.title}</div>
+                <div
+                  style={{
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    navigate(`post/${match.id}`, {
+                      state: {
+                        post: { title: match.title, content: match.content },
+                      },
+                    });
+                  }}
+                >
+                  {match.title}
+                </div>
               ))}
             </div>
           </SearchPopUp>
@@ -289,6 +304,7 @@ const Header = () => {
                 Settings
               </div>
             )}
+            {/* <FontType /> */} {/* has bug with Header, can't use */}
             {userLoggedIn && (
               <div className="dropdownItem" onClick={doSignOut}>
                 Sign Out

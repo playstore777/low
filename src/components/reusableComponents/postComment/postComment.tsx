@@ -22,6 +22,7 @@ import classes from "./postComment.module.css";
 import useUser from "../../hooks/useUser";
 import {
   addCommentOrReply,
+  clapComment,
   deleteComment,
   editComment,
   fetchPaginatedCommentsAndReplies,
@@ -59,18 +60,20 @@ const PostComment = ({
   }, []);
 
   const getReplies = async () => {
-    const { comments: replies, lastComment } =
-      await fetchPaginatedCommentsAndReplies(post.id, comment.id, {
-        queries: [lastDoc ? startAfter(lastDoc) : limit(3)],
-      });
+    const { comments, lastComment } = await fetchPaginatedCommentsAndReplies(
+      post.id,
+      comment.id,
+      {
+        queries: [lastDoc ? startAfter(lastDoc) : limit(5)],
+      }
+    );
 
-    if (replies.length === 0 || !lastComment) {
+    if (comments.length === 0 || !lastComment) {
       // if no more posts
       setHasMore(false);
     } else {
-      // replies && setReplies(replies);
-      console.log("replies: ", comment.id, replies);
-      dispatch(updateComments(replies));
+      console.log("replies: ", comment.id, comments);
+      dispatch(updateComments(comments));
       setLastDoc(lastComment);
     }
   };
@@ -87,10 +90,8 @@ const PostComment = ({
       timestamp: serverTimestamp(),
     };
 
-    await addCommentOrReply(post.id, reply, comment.id);
-    await getReplies();
-    dispatch(updateComments([reply]));
-
+    const response = await addCommentOrReply(post.id, reply, comment.id);
+    dispatch(updateComments([response]));
     setReplying(false);
     setShowReplies(true);
   }
@@ -119,7 +120,17 @@ const PostComment = ({
   };
 
   async function onClapHandler() {
-    // await clapComment(commentPath, currentUser?.uid);
+    const commentDoc = {
+      ...comment,
+      claps: (comment.claps || 0) + 1,
+      clappers: {
+        [currentUser!.uid]:
+          (comment.clappers ? comment?.clappers[currentUser!.uid] : 0) + 1,
+      },
+    };
+    await clapComment(comment.id, commentDoc);
+    await getReplies();
+    dispatch(updateComments([commentDoc]));
   }
 
   if (commentAuthor == null) return null;

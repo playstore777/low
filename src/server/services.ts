@@ -14,6 +14,9 @@ import {
 import { commentStoreRef, postStoreRef, userStoreRef } from "./firebase";
 import { Comment, Post, User } from "../types/types";
 
+const Access_Key = import.meta.env.UNSPLASH_ACCESS_KEY;
+
+//#region Post services
 export const fetchAllPosts = async (...options: QueryConstraint[]) => {
   try {
     const postQuery = query(
@@ -124,7 +127,9 @@ export const clapPost = async (postId: string, post: Partial<Post>) => {
     throw error;
   }
 };
+//#endregion
 
+//#region User services
 export const getUserById = async (
   userId: string
 ): Promise<Partial<User> | null> => {
@@ -145,6 +150,50 @@ export const getUserById = async (
   }
 };
 
+export const updateUserDetails = async (
+  userId: string,
+  updatedUserData: Partial<User>
+) => {
+  try {
+    const body = {
+      username: updatedUserData.username ?? "",
+      photoURL: updatedUserData.photoURL ?? "",
+      bio: updatedUserData.bio ?? "",
+      followers: updatedUserData.followers ?? [],
+      following: updatedUserData.following ?? [],
+      notifications: updatedUserData.notifications ?? [],
+      uid: updatedUserData.uid ?? "",
+      displayName: updatedUserData.displayName ?? "",
+    };
+    const documentRef = doc(userStoreRef, userId);
+    const res = await updateDoc(documentRef, body);
+    return res;
+  } catch (error) {
+    console.error("Error: failed to follow user. ", error);
+    throw error;
+  }
+};
+
+export const getUserByUsername = async (username: string) => {
+  const q = query(userStoreRef, where("username", "==", username));
+
+  try {
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      // If there's a matching document, get the first one
+      const userDoc = querySnapshot.docs[0].data();
+      return userDoc;
+    } else {
+      console.log("No user found with that username.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching user by username: ", error);
+  }
+};
+//#endregion
+
+//#region Comment services
 // export const fetchCommentsAndReplies = async (
 //   postId: string | null,
 //   parentId?: string | null,
@@ -196,7 +245,7 @@ export const fetchPaginatedCommentsAndReplies = async (
           commentStoreRef,
           where("postId", "==", postId),
           where("parentId", "==", parentId ?? null),
-          // orderBy("timestamp", "asc"),
+          orderBy("timestamp", "asc"),
           ...(options?.queries ?? [])
         )
       : query(
@@ -214,10 +263,6 @@ export const fetchPaginatedCommentsAndReplies = async (
           ...doc.data(),
         } as Comment)
     );
-    console.log({
-      comments,
-      lastComment: querySnapshot.docs[querySnapshot.docs.length - 1],
-    });
     return {
       comments,
       lastComment: querySnapshot.docs[querySnapshot.docs.length - 1],
@@ -236,7 +281,11 @@ export const addCommentOrReply = async (
   try {
     commentOrReplyDoc = { ...commentOrReplyDoc, postId, parentId };
     const res = await addDoc(commentStoreRef, commentOrReplyDoc);
-    return res;
+    const savedCommentOrReply = await getDoc(res);
+    return {
+      id: savedCommentOrReply.id,
+      ...savedCommentOrReply.data(),
+    };
   } catch (error) {
     console.error("Error writing document: ", error);
     throw error;
@@ -274,44 +323,40 @@ export const deleteComment = async (commentId: string) => {
   }
 };
 
-export const updateUserDetails = async (
-  userId: string,
-  updatedUserData: Partial<User>
+export const clapComment = async (
+  commentId: string,
+  post: Partial<Comment>
 ) => {
   try {
-    const body = {
-      username: updatedUserData.username ?? "",
-      photoURL: updatedUserData.photoURL ?? "",
-      bio: updatedUserData.bio ?? "",
-      followers: updatedUserData.followers ?? [],
-      notifications: updatedUserData.notifications ?? [],
-      following: updatedUserData.following ?? [],
-      uid: updatedUserData.uid ?? "",
-      displayName: updatedUserData.displayName ?? "",
-    };
-    const documentRef = doc(userStoreRef, userId);
-    const res = await updateDoc(documentRef, body);
+    const documentRef = doc(commentStoreRef, commentId);
+    const res = await updateDoc(documentRef, post);
     return res;
   } catch (error) {
-    console.error("Error: failed to follow user. ", error);
+    console.error("Error while trying to clap the comment: ", error);
     throw error;
   }
 };
+//#endregion
 
-export const getUserByUsername = async (username: string) => {
-  const q = query(userStoreRef, where("username", "==", username));
+//#region misc
+export const getDefFromDict = async (word: string) => {
+  if (!word.trim()) return;
+  const response = await fetch(
+    `https://api.dictionaryapi.dev/api/v2/entries/en/${word.trim()}`
+  );
+  const body = await response.json();
+  return body;
+};
 
+export const getPhotosFromUnsplash = async (query: string) => {
   try {
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
-      // If there's a matching document, get the first one
-      const userDoc = querySnapshot.docs[0].data();
-      return userDoc;
-    } else {
-      console.log("No user found with that username.");
-      return null;
-    }
+    const response = await fetch(
+      `https://api.unsplash.com/search?query=${query}&&client_id=${Access_Key}`
+    );
+    console.log(response);
   } catch (error) {
-    console.error("Error fetching user by username: ", error);
+    console.error("Error in fetching photos from Unsplash: ", error);
+    throw error;
   }
 };
+//#endregion

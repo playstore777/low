@@ -12,6 +12,7 @@ const Button = ({
   label,
   style,
   onClick,
+  tabIndex,
   tooltipMessage,
   tooltipType = "hover",
 }: {
@@ -22,6 +23,7 @@ const Button = ({
   disabledWithMessage?: boolean;
   label: string;
   style?: CSSProperties;
+  tabIndex?: number;
   tooltipMessage?: string;
   tooltipType?: string;
   onClick?: () => void;
@@ -64,6 +66,7 @@ const Button = ({
           hoverCondition && setTooltip(true);
         }}
         onMouseLeave={() => setTooltip(false)}
+        tabIndex={tabIndex}
       >
         <span data-title={hoverCondition ? tooltipMessage : null}>{label}</span>
       </button>

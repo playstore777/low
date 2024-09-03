@@ -99,7 +99,7 @@ const CommentsSection = ({
     >
       <aside className={classes.aside}>
         <div className={classes.header}>
-          <h2 className={classes.headerTitle}>Responses ({comments.length})</h2>
+          <h2 className={classes.headerTitle}>Responses</h2>
           <button onClick={onClose}>
             <SvgWrapper
               SvgComponent={

@@ -81,6 +81,7 @@ const NewComment = ({
             label="Respond"
             type="submit"
             disabled={loading || !commentText}
+            tabIndex={0}
           />
         </div>
       )}

@@ -114,23 +114,6 @@
       opacity: 1;
     }
   }
-
-  .avatar {
-    border-radius: 50%;
-    border: 2px solid var(--text-color);
-    width: 32px;
-    height: 32px;
-
-    .avatarPlaceholder {
-      background-color: #000;
-      border-radius: inherit;
-    }
-
-    img {
-      width: 100%;
-      border-radius: 50%;
-    }
-  }
 }
 
 @media (max-width: 768px) {

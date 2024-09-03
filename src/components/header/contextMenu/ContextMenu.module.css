@@ -1,19 +1,28 @@
-.contextMenu {
-  position: absolute;
-  background-color: var(--background-color);
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  z-index: 1000;
-}
+.contextMenuWrapper {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(40, 40, 40, 0.3);
 
-.menuItem {
-  padding: 8px 12px;
-  cursor: pointer;
-}
+  .contextMenu {
+    position: fixed;
+    background-color: var(--background-color);
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 99;
+  }
 
-.menuItem:hover {
-  background-color: #eee;
+  .menuItem {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+
+  .menuItem:hover {
+    background-color: #eee;
+  }
 }

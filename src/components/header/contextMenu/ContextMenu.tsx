@@ -10,7 +10,7 @@ export type Position = {
 export type MenuItems = {
   label: string;
   styles?: CSSProperties;
-  onClick: () => void;
+  onClick?: () => void;
 };
 
 const ContextMenu = ({
@@ -25,22 +25,24 @@ const ContextMenu = ({
   const { x, y } = position;
 
   return (
-    <ul
-      className={classes.contextMenu}
-      style={{ top: y, left: x }}
-      onClick={onClose}
-    >
-      {menuItems.map((item, index) => (
-        <li
-          key={index}
-          className={classes.menuItem}
-          style={item?.styles}
-          onClick={item.onClick}
-        >
-          {item.label}
-        </li>
-      ))}
-    </ul>
+    <div className={classes.contextMenuWrapper} onClick={onClose}>
+      <ul
+        className={classes.contextMenu}
+        style={{ top: y, left: x }}
+        onClick={onClose}
+      >
+        {menuItems.map((item, index) => (
+          <li
+            key={index}
+            className={classes.menuItem}
+            style={item?.styles}
+            onClick={item.onClick}
+          >
+            {item.label}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 

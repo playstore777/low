@@ -13,7 +13,8 @@ export default function useUser(uid: string) {
 
   useEffect(() => {
     getUser();
-  }, [uid]);
+  }, []);
 
+  console.log("user: ", user);
   return user;
 }

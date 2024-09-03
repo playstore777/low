@@ -88,7 +88,12 @@ const UserProfile = () => {
   };
 
   const onFollowHandler = async () => {
-    const userFollowing = [...(currentUser?.following ?? []), profile?.uid];
+    if (!profile) return;
+    const userFollowing = [...(currentUser?.following ?? [])];
+    if (userFollowing.includes(profile?.uid)) {
+      return;
+    }
+    userFollowing.push(profile?.uid);
     const updatedUser = { ...currentUser, following: userFollowing };
     await updateUserDetails(currentUser?.uid as string, updatedUser as User);
     setIsFollowing(true);
@@ -128,16 +133,18 @@ const UserProfile = () => {
           loader={<div key={0}>Loading...</div>}
         >
           {allPosts?.length > 0 &&
-            allPosts.map((post) => (
-              <PostPreview
-                key={post.id}
-                id={post.id}
-                title={post.title || ""}
-                content={post.content || ""}
-                description={post.description || ""}
-                featuredImage={post.featuredImage || ""}
-              />
-            ))}
+            allPosts
+              .filter((post) => post.userId === profile.uid) // sometimes redux doesn't get updated, this filter is important!
+              .map((post) => (
+                <PostPreview
+                  key={post.id}
+                  id={post.id}
+                  title={post.title || ""}
+                  content={post.content || ""}
+                  description={post.description || ""}
+                  featuredImage={post.featuredImage || ""}
+                />
+              ))}
         </InfiniteScroll>
       </div>
       <div className={classes.right}>

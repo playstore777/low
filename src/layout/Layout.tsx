@@ -1,9 +1,9 @@
-import { Outlet } from "react-router";
-import "react-toastify/dist/ReactToastify.css";
 import { Slide, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Outlet } from "react-router";
 
-import "./Layout.css";
 import Header from "../components/header/Header";
+import "./Layout.css";
 
 const Layout = () => {
   return (

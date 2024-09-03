@@ -65,11 +65,11 @@
       cursor: pointer;
       font-family: sohne-bold, Helvetica Neue, Helvetica, Arial, sans-serif;
       line-height: 1.5rem;
-      --tw-text-opacity: 0.8;
-      color: rgb(15 115 12 / var(--tw-text-opacity));
+      --text-opacity: 0.8;
+      color: rgb(15 115 12 / var(--text-opacity));
 
       &:hover {
-        --tw-text-opacity: 1;
+        --text-opacity: 1;
       }
     }
   }

@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { fetchPost, getUserById } from "../../server/services";
+import { fetchPost, getDefFromDict, getUserById } from "../../server/services";
+import AsideSection from "../../components/reusableComponents/asideSection/AsideSection";
+import Portal from "../../components/reusableComponents/portal/Portal";
 import ContextMenu, {
   MenuItems,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
+import { getSelectedWord } from "../../utils/utils";
 import { Post } from "../../types/types";
 
 type ContextMenuOptions = {
@@ -20,6 +23,20 @@ type NestedAuthors = {
   };
 };
 
+type Definition = {
+  partOfSpeech: string;
+  definitions: {
+    definition: string;
+    synonyms: [];
+    antonyms: [];
+    example: string;
+  }[];
+};
+
+const click = () => {
+  console.log("trigger nested content!");
+}
+
 const appendContent = async (
   element: HTMLElement,
   handleRightClick: (event: MouseEvent, options?: ContextMenuOptions[]) => void,
@@ -27,32 +44,39 @@ const appendContent = async (
 ) => {
   const url = element.getAttribute("data-post-url");
   if (url) {
-    const res = await fetchPost(url);
-    if (res?.userId) {
-      const user = await getUserById(res?.userId as string);
-      user &&
-        setNestedAuthors({ [url]: { authorName: user.displayName as string } });
-    }
-
-    const titleElement = element.querySelector(
-      ".CollapsibleLink__title"
-    ) as HTMLDivElement;
-    const contentElement = element.querySelector(
-      ".CollapsibleLink__content"
-    ) as HTMLDivElement;
-
-    const title = res?.title;
-    titleElement.innerHTML = `<p><h3>${title}</h3></p>`; // .CollapsibleLink__title (child of .Collapisble__title class)
-
-    const content = res?.content;
-    contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
-    contentElement.oncontextmenu = (e) =>
-      handleRightClick(e, [
-        {
-          url: url,
-        },
-      ]);
+    const button = document.createElement("button");
+    button.setAttribute("data-post-url", url);
+    button.textContent = "Show story";
+    element.outerHTML = button.outerHTML;
+    console.log(button.outerHTML)
   }
+  // if (url) {
+  //   const res = await fetchPost(url);
+  //   if (res?.userId) {
+  //     const user = await getUserById(res?.userId as string);
+  //     user &&
+  //       setNestedAuthors({ [url]: { authorName: user.displayName as string } });
+  //   }
+
+  //   const titleElement = element.querySelector(
+  //     ".CollapsibleLink__title"
+  //   ) as HTMLDivElement;
+  //   const contentElement = element.querySelector(
+  //     ".CollapsibleLink__content"
+  //   ) as HTMLDivElement;
+
+  //   const title = res?.title;
+  //   titleElement.innerHTML = `<p><h3>${title}</h3></p>`; // .CollapsibleLink__title (child of .Collapisble__title class)
+
+  //   const content = res?.content;
+  //   contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
+  //   contentElement.oncontextmenu = (e) =>
+  //     handleRightClick(e, [
+  //       {
+  //         url: url,
+  //       },
+  //     ]);
+  // }
 };
 
 const HtmlContentDisplay = ({
@@ -76,6 +100,8 @@ const HtmlContentDisplay = ({
     position: Position;
     menuItems: MenuItems[];
   }>(null);
+  const [showAsideSection, setShowAsideSection] = useState(false);
+  const [definitions, setDefinitions] = useState<Definition[] | null>(null);
 
   const handleRightClick = useCallback(
     (event: MouseEvent, options?: ContextMenuOptions[]) => {
@@ -96,8 +122,8 @@ const HtmlContentDisplay = ({
       }
       setContextMenu({
         position: {
-          x: event.pageX,
-          y: event.pageY,
+          x: event.clientX,
+          y: event.clientY,
         },
         menuItems: [
           {
@@ -121,6 +147,44 @@ const HtmlContentDisplay = ({
 
   const handleCloseContextMenu = () => {
     setContextMenu(null);
+  };
+
+  const getDefinition = async (selectedWord?: string) => {
+    const dictionaryRes = await getDefFromDict(selectedWord ?? "");
+    setShowAsideSection(true);
+    const defs: Definition[] = [];
+    dictionaryRes.forEach((res: { meanings: Definition[] }) => {
+      res.meanings?.forEach((meaning: Definition) => {
+        const means = {
+          partOfSpeech: meaning.partOfSpeech,
+          definitions: meaning.definitions,
+        };
+        defs.push(means);
+      });
+    });
+    setDefinitions(defs);
+  };
+
+  const handleDoubleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
+    const x = event.clientX;
+    const y = event.clientY;
+
+    const selectedWord = getSelectedWord(event);
+
+    const menuItems = [
+      { label: `Selected word is: ${selectedWord}` },
+      {
+        label: "Find the definition in dictionary",
+        onClick: () => getDefinition(selectedWord),
+      },
+    ];
+
+    setContextMenu({ position: { x, y }, menuItems });
+  };
+
+  const closeDefinitionSection = () => {
+    setShowAsideSection(false);
+    setDefinitions(null);
   };
 
   // //#region main/root post fetch using id
@@ -176,14 +240,49 @@ const HtmlContentDisplay = ({
             __html:
               postContent.content || "<h1>Error: content not provided</h1>",
           }}
+          onDoubleClick={handleDoubleClick}
         ></div>
       )}
       {contextMenu && (
-        <ContextMenu
-          position={contextMenu.position}
-          menuItems={contextMenu.menuItems}
-          onClose={handleCloseContextMenu}
-        />
+        <Portal>
+          <ContextMenu
+            position={contextMenu.position}
+            menuItems={contextMenu.menuItems}
+            onClose={handleCloseContextMenu}
+          />
+        </Portal>
+      )}
+      {showAsideSection && (
+        <AsideSection onClose={closeDefinitionSection}>
+          {definitions ? (
+            definitions?.map((definition) => (
+              <div key={definition.partOfSpeech}>
+                <h2>{definition.partOfSpeech}</h2>
+                <ul>
+                  {definition.definitions.map((def) => (
+                    <li key={def.definition}>
+                      <div>
+                        <b>Definition:</b> {def.definition}
+                      </div>
+                      {def.example && (
+                        <>
+                          <br />
+                          <div>
+                            <b>Example:</b> {def.example}
+                          </div>
+                        </>
+                      )}
+                      <hr />
+                      <br />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))
+          ) : (
+            <>Sorry, we are also unaware of this word!</>
+          )}
+        </AsideSection>
       )}
     </>
   );

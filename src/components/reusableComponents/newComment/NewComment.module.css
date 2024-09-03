@@ -1,9 +1,9 @@
 .newCommentWrapper {
   padding-block: 14px;
-  --tw-shadow: rgb(0, 0, 0, 0.12) 0px 2px 8px;
-  --tw-shadow-colored: 0px 2px 8px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  --shadow: rgb(0, 0, 0, 0.12) 0px 2px 8px;
+  --shadow-colored: 0px 2px 8px var(--shadow-color);
+  box-shadow: var(--ring-offset-shadow, 0 0 #0000),
+    var(--ring-shadow, 0 0 #0000), var(--shadow);
 
   .user {
     margin: 0.5rem;

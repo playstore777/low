@@ -2,10 +2,12 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
 import ThemeSlice from "./slices/themeSlice";
 import PostSlice from "./slices/postSlice";
+import FontTypeSlice from "./slices/fontTypeSlice";
 
 const combinedReducer = combineReducers({
   post: PostSlice.reducer,
   theme: ThemeSlice.reducer,
+  fontType: FontTypeSlice.reducer,
 });
 
 export const store = configureStore({

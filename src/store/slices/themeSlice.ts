@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { RootState } from "../configureStore";
 
 type InitialState = {
   theme: string;
@@ -20,6 +19,5 @@ const ThemeSlice = createSlice({
 });
 
 export const { changeTheme } = ThemeSlice.actions;
-export const showPost = (state: RootState) => state.post;
 
 export default ThemeSlice;

@@ -1,3 +1,27 @@
+@font-face {
+  font-family: "CharterRegular";
+  src: url("assets/fonts/charter/ttf/Charter\ Regular.ttf") format("truetype"),
+    url("assets/fonts/charter/otf/Charter\ Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "HelveticaNeue";
+  src: url("assets/fonts/helvetica-neue-5/HelveticaNeueMedium.otf")
+    format("opentype");
+}
+
+@font-face {
+  font-family: "GomePixel";
+  src: url("assets/fonts/gome-pixel-font/GomePixel-DYJX1.otf")
+    format("opentype");
+}
+
+@font-face {
+  font-family: "MinecraftRegular";
+  src: url("assets/fonts/minecraft-font/MinecraftRegular-Bmg3.otf")
+    format("opentype");
+}
+
 * {
   padding: 0;
   margin: 0;
@@ -5,10 +29,30 @@
   transition: background-color 1s, color 0.1s;
 }
 
+.live-text {
+  animation: idleAnimation 1s steps(2) infinite;
+  font-family: "MinecraftRegular";
+}
+
+@keyframes idleAnimation {
+  0% {
+    font-size: 1rem;
+    /* transform: translateY(0rem); */ /* Default position */
+  }
+  50% {
+    font-size: 0.999rem;
+    /* transform: translateY(-0.02rem); */ /* Slightly move up */
+  }
+  100% {
+    font-size: 1rem;
+    /* transform: translateY(0rem); */ /* Move back to original position */
+  }
+}
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  /* font-size: 0.7rem; */
 
   color-scheme: light dark;
   /* color: rgba(255, 255, 255, 0.87);
@@ -60,6 +104,7 @@ body {
   min-height: 100vh;
   background-color: var(--background-color);
   color: var(--text-color);
+  /* font-family: "HelveticaNeue" "CharterRegular"; */
 
   svg {
     color: var(--text-color);
