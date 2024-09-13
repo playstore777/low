@@ -1,0 +1,30 @@
+.header {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 3rem;
+
+  .inputField {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border-color: var(--text-color);
+    outline: none;
+    font-size: 1rem;
+    margin-right: 1rem;
+  }
+}
+
+.submitBtn {
+  padding: 0.5rem 0.7rem;
+  background: var(--primary-bg-color);
+  border-color: var(--background-color);
+  border-radius: 6px;
+}
+
+.imageGrid {
+  column-count: 3;
+  width: 77vw;
+}
+
+.actions {
+  text-align: center;
+}

@@ -1,11 +1,12 @@
 import { ChangeEvent, useEffect, useState } from "react";
 
+import { useLocation } from "react-router";
+
 import { createPost } from "../../store/slices/postSlice";
 import { useAppDispatch } from "../../store/rootReducer";
 import Editor from "../../packages/Editor/Editor";
 import classes from "./ManipulatePost.module.css";
 import { fetchPost } from "../../server/services";
-import { useLocation } from "react-router";
 import { Post } from "../../types/types";
 
 const initialPostData = {

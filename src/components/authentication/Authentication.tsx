@@ -2,10 +2,17 @@ import { FunctionComponent, SVGProps, useState } from "react";
 
 import { useNavigate } from "react-router";
 
-import { doSignInWithGoogle, doSignUpWithGoogle } from "../../server/auth";
-import GoogleG from "../../assets/images/MediumGoogleGLogo.svg";
+import {
+  doSignInWithGoogle,
+  doSignOut,
+  doSignUpWithGoogle,
+} from "../../server/auth";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
+import GoogleG from "../../assets/images/MediumGoogleGLogo.svg";
 import classes from "./Authentication.module.css";
+import PopUp from "../reusableComponents/popup/PopUp";
+import EditUserProfile from "./EditUserProfile";
+import { User } from "../../types/types";
 
 const Authentication = ({
   isSignUp = false,
@@ -17,6 +24,8 @@ const Authentication = ({
   const navigate = useNavigate();
 
   const [isSignUpPage, setIsSignUpPage] = useState(isSignUp);
+  const [isAddNewUser, setIsAddNewUser] = useState(false);
+  const [userData, setUserData] = useState<User | null>(null);
 
   const signInHandler = async () => {
     const response = await doSignInWithGoogle();
@@ -28,10 +37,25 @@ const Authentication = ({
 
   const signUpHandler = async () => {
     const response = await doSignUpWithGoogle();
-    if (response) {
+    if (response.userExists) {
       onClose();
       navigate("/");
+    } else {
+      setUserData(response.user as User);
+      console.log(response.user);
+      setIsAddNewUser(true);
     }
+  };
+
+  const onSaveNewUser = () => {
+    setIsAddNewUser(false);
+    navigate("/");
+  };
+
+  const onCloseNewUser = async () => {
+    await doSignOut();
+    setIsAddNewUser(false);
+    onClose();
   };
 
   return (
@@ -99,6 +123,13 @@ const Authentication = ({
         <span className={classes.underlinePointer}>Privacy Policy</span> applies
         to you.
       </p>
+      <PopUp isOpen={isAddNewUser} onClose={onCloseNewUser}>
+        <EditUserProfile
+          onCancel={onCloseNewUser}
+          onSave={onSaveNewUser}
+          userData={{ uid: userData?.uid } as User}
+        />
+      </PopUp>
     </div>
   );
 };

@@ -5,6 +5,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * This file is a modified version of the original.
+ * (Original file: https://github.com/facebook/lexical/blob/main/packages/lexical-playground/src/nodes/ImageComponent.tsx)
  */
 
 import type {
@@ -71,6 +73,7 @@ function useSuspenseImage(src: string) {
       };
       img.style.display = "block";
       img.style.margin = "auto";
+      img.style.maxWidth = "800px";
       img.onerror = () => {
         imageCache.add(src);
       };
@@ -140,6 +143,7 @@ export default function ImageComponent({
   showCaption,
   caption,
   captionsEnabled,
+  unsplashCaption,
 }: {
   altText: string;
   caption: LexicalEditor;
@@ -151,6 +155,7 @@ export default function ImageComponent({
   src: string;
   width: "inherit" | number;
   captionsEnabled: boolean;
+  unsplashCaption?: string;
 }): JSX.Element {
   const imageRef = useRef<null | HTMLImageElement>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -369,6 +374,9 @@ export default function ImageComponent({
             />
           )}
         </div>
+        {unsplashCaption && (
+          <div dangerouslySetInnerHTML={{ __html: unsplashCaption }}></div>
+        )}
 
         {showCaption && (
           <div className="image-caption-container">

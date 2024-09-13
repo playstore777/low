@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getUserByUsername, updateUserDetails } from "../../server/services";
 import Avatar from "../reusableComponents/avatar/Avatar";
 import Button from "../reusableComponents/button/Button";
+import { useAuth } from "../../server/hooks/useAuth";
 import { User } from "../../types/types";
 import "./EditUserProfile.css";
 
@@ -24,6 +25,7 @@ const EditUserProfile = ({
   onSave?: () => void;
   userData?: User;
 }) => {
+  const { currentUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [isEdited, setIsEdited] = useState(false);
   const [errors, setErrors] = useState<Errors | null>(null);
@@ -31,8 +33,10 @@ const EditUserProfile = ({
   useEffect(() => {
     if (userData) {
       setUser(userData);
+    } else if (currentUser) {
+      setUser(currentUser);
     }
-  }, []);
+  }, [currentUser, userData]);
 
   const isValid = (key: string, value: string) => {
     switch (key) {
@@ -52,7 +56,7 @@ const EditUserProfile = ({
     }
   };
 
-  const updateUser = (key: string, value: string | File | undefined) => {
+  const updateUser = (key: string, value: string | undefined) => {
     setIsEdited(true);
     if (key) {
       if (key === "username") {
@@ -62,6 +66,7 @@ const EditUserProfile = ({
         );
       } else {
         setUser((prev) => ({ ...prev, [key]: value } as User));
+        console.log("key: value", { [key]: value });
       }
     }
     isValid(key, value as string);
@@ -79,6 +84,7 @@ const EditUserProfile = ({
 
   const saveUserData = async () => {
     if (user) {
+      console.log(user);
       const res = await updateUserDetails(user?.uid, user);
       console.log("User data updated: ", res);
     }
@@ -111,8 +117,25 @@ const EditUserProfile = ({
               id="photo-file"
               className="hide"
               onChange={(e) => {
+                // not working :(
                 const selectedFile = e.target.files?.[0];
-                updateUser("photoURL", selectedFile);
+
+                if (selectedFile) {
+                  const reader = new FileReader();
+
+                  reader.readAsDataURL(selectedFile);
+
+                  reader.onload = function () {
+                    const base64String = reader.result as string;
+                    // console.log("Base64 String:", base64String);
+
+                    updateUser("photoURL", base64String);
+                  };
+
+                  reader.onerror = function () {
+                    console.log("There was an error reading the file.");
+                  };
+                }
               }}
             />
             <p className="photo-text">Photo</p>
@@ -158,7 +181,7 @@ const EditUserProfile = ({
                     : "border-neutral-300 focus:border-grey"
                 }`}
                 maxLength={50}
-                value={user?.displayName}
+                value={user?.displayName ?? ""}
                 onChange={(e) => updateUser("displayName", e.target.value)}
                 required
               />
@@ -182,7 +205,7 @@ const EditUserProfile = ({
                       errors?.nameTooLong ? "text-danger" : "text-lighterblack"
                     }
                   >
-                    {user?.displayName.length}
+                    {user?.displayName?.length}
                   </span>
                   /50
                 </span>
@@ -196,12 +219,12 @@ const EditUserProfile = ({
                 type="text"
                 id="change-user-name"
                 className={`py-1 outline-none border-b ${
-                  errors?.nameTooLong || errors?.nameEmpty
+                  errors?.usernameTooLong || errors?.usernameEmpty
                     ? "border-red-700"
                     : "border-neutral-300 focus:border-grey"
                 }`}
                 maxLength={30}
-                value={user?.username}
+                value={user?.username ?? ""}
                 onChange={(e) => updateUser("username", e.target.value)}
                 required
               />

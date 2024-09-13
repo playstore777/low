@@ -1,27 +1,14 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { fetchPost, getDefFromDict, getUserById } from "../../server/services";
+import { getDefFromDict } from "../../server/services";
 import AsideSection from "../../components/reusableComponents/asideSection/AsideSection";
 import Portal from "../../components/reusableComponents/portal/Portal";
 import ContextMenu, {
   MenuItems,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
-import { getSelectedWord } from "../../utils/utils";
-import { Post } from "../../types/types";
-
-type ContextMenuOptions = {
-  url: string;
-  author?: string;
-  createdDate?: string;
-  updatedDate?: string;
-};
-
-type NestedAuthors = {
-  [url: string]: {
-    authorName: string;
-  };
-};
+import { appendContent, getSelectedWord } from "../../utils/utils";
+import { ContextMenuOptions, NestedAuthors, Post } from "../../types/types";
 
 type Definition = {
   partOfSpeech: string;
@@ -31,52 +18,6 @@ type Definition = {
     antonyms: [];
     example: string;
   }[];
-};
-
-const click = () => {
-  console.log("trigger nested content!");
-}
-
-const appendContent = async (
-  element: HTMLElement,
-  handleRightClick: (event: MouseEvent, options?: ContextMenuOptions[]) => void,
-  setNestedAuthors: (value: NestedAuthors) => void
-) => {
-  const url = element.getAttribute("data-post-url");
-  if (url) {
-    const button = document.createElement("button");
-    button.setAttribute("data-post-url", url);
-    button.textContent = "Show story";
-    element.outerHTML = button.outerHTML;
-    console.log(button.outerHTML)
-  }
-  // if (url) {
-  //   const res = await fetchPost(url);
-  //   if (res?.userId) {
-  //     const user = await getUserById(res?.userId as string);
-  //     user &&
-  //       setNestedAuthors({ [url]: { authorName: user.displayName as string } });
-  //   }
-
-  //   const titleElement = element.querySelector(
-  //     ".CollapsibleLink__title"
-  //   ) as HTMLDivElement;
-  //   const contentElement = element.querySelector(
-  //     ".CollapsibleLink__content"
-  //   ) as HTMLDivElement;
-
-  //   const title = res?.title;
-  //   titleElement.innerHTML = `<p><h3>${title}</h3></p>`; // .CollapsibleLink__title (child of .Collapisble__title class)
-
-  //   const content = res?.content;
-  //   contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
-  //   contentElement.oncontextmenu = (e) =>
-  //     handleRightClick(e, [
-  //       {
-  //         url: url,
-  //       },
-  //     ]);
-  // }
 };
 
 const HtmlContentDisplay = ({
@@ -95,7 +36,9 @@ const HtmlContentDisplay = ({
     title: post?.title,
     content: post?.content,
   });
-  const [nestedAuthors, setNestedAuthors] = useState<NestedAuthors>({});
+  const [nestedAuthors, setNestedAuthors] = useState<NestedAuthors>(
+    new Map<string, { authorName: string }>()
+  );
   const [contextMenu, setContextMenu] = useState<null | {
     position: Position;
     menuItems: MenuItems[];
@@ -103,47 +46,40 @@ const HtmlContentDisplay = ({
   const [showAsideSection, setShowAsideSection] = useState(false);
   const [definitions, setDefinitions] = useState<Definition[] | null>(null);
 
-  const handleRightClick = useCallback(
-    (event: MouseEvent, options?: ContextMenuOptions[]) => {
-      // document.addEventListener("click", () => setContextMenu(null));
-      /**
-       * really cool option, but what if this gets overriden by some other
-       * feature? then there will be no other way to close the menu! (eg, now we
-       * have Three dots menu which also gets removed on "click" of outside, so,
-       * we need to use better approach in both the places).
-       * */
-      event.preventDefault();
-      event.stopPropagation();
+  const handleRightClick = (
+    event: MouseEvent,
+    options?: ContextMenuOptions[]
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
 
-      const authorDetails = nestedAuthors[options?.[0]?.url as string];
-      const menuItem = { label: "", onClick: () => {} };
+    const url = options?.[0]?.url as string;
+    const menuItem = { label: "", onClick: () => {} };
+
+    if (nestedAuthors.has(url)) {
+      const authorDetails = nestedAuthors.get(url);
       if (authorDetails) {
         menuItem.label = authorDetails.authorName;
       }
-      setContextMenu({
-        position: {
-          x: event.clientX,
-          y: event.clientY,
+    }
+
+    setContextMenu({
+      position: {
+        x: event.clientX,
+        y: event.clientY,
+      },
+      menuItems: [
+        {
+          label: "Post Url: " + options?.[0]?.url || "Unable to show URL",
+          onClick: () => (window.location.href = options?.[0]?.url || "#"),
         },
-        menuItems: [
-          {
-            label: "Post Url: " + options?.[0]?.url || "Unable to show URL",
-            onClick: () => (window.location.href = options?.[0]?.url || "#"),
-          },
-          menuItem && {
-            label: "Author: " + menuItem.label,
-            onClick: menuItem.onClick,
-          },
-          {
-            label: "Close",
-            styles: { backgroundColor: "red", color: "white" },
-            onClick: () => setContextMenu(null),
-          },
-        ],
-      });
-    },
-    [nestedAuthors]
-  );
+        menuItem && {
+          label: "Author: " + menuItem.label,
+          onClick: menuItem.onClick,
+        },
+      ],
+    });
+  };
 
   const handleCloseContextMenu = () => {
     setContextMenu(null);
@@ -222,9 +158,30 @@ const HtmlContentDisplay = ({
         nestedElements.forEach((nestedElement) => queue.push(nestedElement));
       }
     };
+
+    const processImages = () => {
+      const imagesWithCaptions = document.querySelectorAll("img[data-caption]");
+
+      imagesWithCaptions.forEach((img) => {
+        const captionHtml = img.getAttribute("data-caption");
+
+        const captionDiv = document.createElement("div");
+        // captionDiv.className = "caption";
+        captionDiv.style.marginBlock = "1rem";
+        captionDiv.style.fontSize = "14px";
+        captionDiv.style.color = "var(--text-color)";
+        captionDiv.style.textAlign = "center";
+
+        captionDiv.innerHTML = captionHtml ?? "error with caption";
+
+        // Insert the caption <div> right after the <img> element
+        img.insertAdjacentElement("afterend", captionDiv);
+      });
+    };
     // // console.log(postContent.content);
     if (postContent.content) {
       processElements();
+      processImages();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [postContent.content]); // adding handleRightClick as deps causing infinite re-rendering!

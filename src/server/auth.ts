@@ -10,16 +10,16 @@ import {
 
 import { auth } from "./firebase";
 
-async function getUser(userId: string) {
-  const document = await getDoc(
-    doc(getFirestore(), "users", userId.toLowerCase())
-  );
-  return document;
-}
+const getUser = async (userId: string) =>
+  await getDoc(doc(getFirestore(), "users", userId));
 
-const userExists = async (userId: string) => (await getUser(userId)).exists();
+const userExists = async (userId: string) => {
+  const user = await getUser(userId);
+  const uName = user.data()?.username;
+  return user.exists() && uName !== "";
+};
 
-async function addNewUser(user: User) {
+export async function addNewUser(user: User) {
   if (!user?.email || !user?.displayName) return;
 
   const { uid, displayName, photoURL, email } = user;
@@ -28,7 +28,7 @@ async function addNewUser(user: User) {
     if (await userExists(uid)) return;
     const userDetails = {
       uid,
-      username: "", // need to set a random username, till user updates it in settings
+      username: "",
       creationTime: serverTimestamp(),
       bio: "",
       displayName,
@@ -61,11 +61,11 @@ export const doSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   provider.addScope("email");
   const userCredential: UserCredential = await signInWithPopup(auth, provider);
-  const isUserExists = await userExists(userCredential.user.email as string);
+  const isUserExists = await userExists(userCredential.user.uid);
   if (!isUserExists) {
-    await addNewUser(userCredential.user);
-    // console.error("User does not exists");
-    // doSignOut();
+    // await addNewUser(userCredential.user);
+    console.error("User does not exists");
+    doSignOut();
   }
   return { user: userCredential.user, userExists: isUserExists };
 };
@@ -74,12 +74,12 @@ export const doSignUpWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   provider.addScope("email");
   const userCredential: UserCredential = await signInWithPopup(auth, provider);
-  const isUserExists = await userExists(userCredential.user.email as string);
+  const isUserExists = await userExists(userCredential.user.uid);
   if (!isUserExists) {
     await addNewUser(userCredential.user);
     // } else {
     //   console.error("User already exists");
-    //   doSignOut();
+    // doSignOut();
   }
   return { user: userCredential.user, userExists: isUserExists };
 };

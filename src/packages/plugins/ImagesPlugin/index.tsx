@@ -1,15 +1,18 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
+ * Copyright (c) 2024 Mohammed Adil Sharif.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
+ * This file is a modified version of the original.
+ * (Original file: https://github.com/facebook/lexical/blob/main/packages/lexical-playground/src/plugins/ImagesPlugin/index.tsx)
  */
 
 import { useEffect, useRef, useState } from "react";
 
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $wrapNodeInElement, mergeRegister } from "@lexical/utils";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import {
   $createParagraphNode,
   $createRangeSelection,
@@ -29,23 +32,65 @@ import {
   LexicalEditor,
 } from "lexical";
 
+import { getPhotosFromUnsplash } from "../../../server/services";
+import { DialogActions, DialogButtonsList } from "../ui/Dialog";
 import { CAN_USE_DOM } from "../utils/canUseDOM";
-
-import landscapeImage from "../images/landscape.jpg";
-import yellowFlowerImage from "../images/yellow-flower.jpg";
+import classes from "./index.module.css";
+import FileInput from "../ui/FileInput";
+import TextInput from "../ui/TextInput";
+import Button from "../ui/Button";
 import {
   $createImageNode,
   $isImageNode,
   ImageNode,
   ImagePayload,
 } from "../nodes/ImageNode";
-import Button from "../ui/Button";
-import { DialogActions, DialogButtonsList } from "../ui/Dialog";
-import FileInput from "../ui/FileInput";
-import TextInput from "../ui/TextInput";
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
+type UnsplashImageResponse = {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  width: number;
+  height: number;
+  description: string | null;
+  alt_description: string;
+  urls: {
+    raw: string;
+    full: string;
+    regular: string;
+    small: string;
+    thumb: string;
+    small_s3: string;
+  };
+  links: {
+    self: string;
+    html: string;
+    download: string;
+    download_location: string;
+  };
+  user: {
+    id: string;
+    updated_at: string;
+    username: string;
+    name: string;
+    first_name: string;
+    last_name: string;
+    twitter_username: string;
+    portfolio_url: string;
+    bio: string;
+    links: {
+      self: string;
+      html: string;
+      photos: string;
+      likes: string;
+      portfolio: string;
+      following: string;
+      followers: string;
+    };
+  };
+};
 const getDOMSelection = (targetWindow: Window | null): Selection | null =>
   CAN_USE_DOM ? (targetWindow || window).getSelection() : null;
 
@@ -142,6 +187,82 @@ export function InsertImageUploadedDialogBody({
   );
 }
 
+export const InsertImageFromUnsplash = ({
+  onClick,
+}: {
+  onClick: (payload: InsertImagePayload) => void;
+}) => {
+  const [images, setImages] = useState<UnsplashImageResponse[] | null>(null);
+  const [query, setQuery] = useState("");
+  const [currentPageNumber, setCurrentPageNumber] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
+
+  const fetchQueryImages = async () => {
+    setCurrentPageNumber((prev) => prev + 1);
+    if (!query.trim() || currentPageNumber > totalPages) return;
+    const res = await getPhotosFromUnsplash(query, currentPageNumber);
+    if (res) {
+      const { results, total_pages } = res;
+      setImages((prev) => (prev ? [...prev, ...results] : results));
+      setTotalPages(total_pages);
+    }
+  };
+
+  const imageClickHandler = (imageObj: UnsplashImageResponse) => {
+    const url = `<div class="unsplash-caption">Photo by <a href="https://unsplash.com/@${imageObj.user.username}?utm_source=Low&utm_medium=referral">${imageObj.user.name}</a> on <a href="https://unsplash.com/?utm_source=Low&utm_medium=referral">Unsplash</a></div>`;
+    onClick({
+      altText: imageObj.alt_description,
+      src: imageObj.urls.regular,
+      unsplashCaption: url,
+    });
+  };
+
+  const onInputChangeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCurrentPageNumber(0);
+    setImages(null);
+    setQuery(e.target.value);
+  };
+
+  return (
+    <section className={classes.imageGridWrapper}>
+      <div className={classes.header}>
+        <input
+          className={classes.inputField}
+          type="text"
+          placeholder="Search Anything..."
+          value={query}
+          onChange={onInputChangeHandler}
+        />
+        <button className={classes.submitBtn} onClick={fetchQueryImages}>
+          submit
+        </button>
+      </div>
+      {images && (
+        <>
+          <div className={classes.imageGrid}>
+            {images.map((val: UnsplashImageResponse) => {
+              return (
+                <img
+                  key={val.id}
+                  className={classes.image}
+                  src={val.urls.small}
+                  alt={val.alt_description}
+                  onClick={() => imageClickHandler(val)}
+                />
+              );
+            })}
+          </div>
+          <div className={classes.actions}>
+            <button className={classes.submitBtn} onClick={fetchQueryImages}>
+              Load More
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
+};
+
 export function InsertImageDialog({
   activeEditor,
   onClose,
@@ -149,7 +270,7 @@ export function InsertImageDialog({
   activeEditor: LexicalEditor;
   onClose: () => void;
 }): JSX.Element {
-  const [mode, setMode] = useState<null | "url" | "file">(null);
+  const [mode, setMode] = useState<null | "url" | "file" | "unsplash">(null);
   const hasModifier = useRef(false);
 
   useEffect(() => {
@@ -174,25 +295,6 @@ export function InsertImageDialog({
       {!mode && (
         <DialogButtonsList>
           <Button
-            data-test-id="image-modal-option-sample"
-            onClick={() =>
-              onClick(
-                hasModifier.current
-                  ? {
-                      altText:
-                        "Daylight fir trees forest glacier green high ice landscape",
-                      src: landscapeImage,
-                    }
-                  : {
-                      altText: "Yellow flower in tilt shift lens",
-                      src: yellowFlowerImage,
-                    }
-              )
-            }
-          >
-            Sample
-          </Button>
-          <Button
             data-test-id="image-modal-option-url"
             onClick={() => setMode("url")}
           >
@@ -204,10 +306,17 @@ export function InsertImageDialog({
           >
             File
           </Button>
+          <Button
+            data-test-id="image-modal-option-file"
+            onClick={() => setMode("unsplash")}
+          >
+            Unsplash
+          </Button>
         </DialogButtonsList>
       )}
       {mode === "url" && <InsertImageUriDialogBody onClick={onClick} />}
       {mode === "file" && <InsertImageUploadedDialogBody onClick={onClick} />}
+      {mode === "unsplash" && <InsertImageFromUnsplash onClick={onClick} />}
     </>
   );
 }

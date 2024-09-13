@@ -38,11 +38,14 @@ export const AuthProvider = ({ children }: { children: null | ReactNode }) => {
   const initializeUser = async (firebaseUser: User) => {
     if (firebaseUser) {
       // User is signed in, fetch user details from Firestore
+      setCurrentUser(firebaseUser);
+      setUserLoggedIn(true);
       try {
         const userData = await getUserById(firebaseUser.uid);
 
         if (userData) {
-          setCurrentUser(userData as User);
+          const user = { ...firebaseUser, ...userData };
+          setCurrentUser(user as User);
           setUserLoggedIn(true);
         } else {
           // If the user does not exist in Firestore, handle this case

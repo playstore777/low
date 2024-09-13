@@ -39,3 +39,12 @@ export type Comment = {
 };
 
 export type fetchDataMethod = (postId: string) => Promise<Post | undefined>;
+
+export type ContextMenuOptions = {
+  url: string;
+  author?: string;
+  createdDate?: string;
+  updatedDate?: string;
+};
+
+export type NestedAuthors = Map<string, { authorName: string }>;

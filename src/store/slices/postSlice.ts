@@ -63,24 +63,40 @@ const PostSlice = createSlice({
     },
     uploadAllPosts: (state, action) => {
       // Avoid duplication
-      const newPostsId = action.payload.map((post: Post) => post.id);
-      const filteredPrevPosts = state.allPosts.filter(
-        (post) => !newPostsId.includes(post.id)
-      );
-      state.allPosts = [...filteredPrevPosts, ...action.payload];
+      // const newPostsId = action.payload.map((post: Post) => post.id);
+      // const filteredPrevPosts = state.allPosts.filter(
+      //   (post) => !newPostsId.includes(post.id)
+      // );
+      // state.allPosts = [...filteredPrevPosts, ...action.payload];
+      const array = [...state.allPosts, ...action.payload];
+
+      const key = "id";
+
+      const arrayUniqueByKey = [
+        ...new Map(array.map((item) => [item[key], item])).values(),
+      ];
+      state.allPosts = arrayUniqueByKey;
     },
     updateComments: (state, action) => {
       // Avoid duplication
-      const newCommentsId = action.payload.map(
-        (comment: Comment) => comment.id
-      );
-      const filteredPrevComments = state.activePost.comments?.filter(
-        (comment) => !newCommentsId.includes(comment.id)
-      );
-      state.activePost.comments = [
-        ...(filteredPrevComments ?? []),
-        ...action.payload,
+      // const newCommentsId = action.payload.map(
+      //   (comment: Comment) => comment.id
+      // );
+      // const filteredPrevComments = state.activePost.comments?.filter(
+      //   (comment) => !newCommentsId.includes(comment.id)
+      // );
+      // state.activePost.comments = [
+      //   ...(filteredPrevComments ?? []),
+      //   ...action.payload,
+      // ];
+      const array = [...(state.activePost.comments ?? []), ...action.payload];
+
+      const key = "id";
+
+      const arrayUniqueByKey = [
+        ...new Map(array.map((item) => [item[key], item])).values(),
       ];
+      state.activePost.comments = arrayUniqueByKey;
     },
     deleteComment: (state, action) => {
       state.activePost.comments = [

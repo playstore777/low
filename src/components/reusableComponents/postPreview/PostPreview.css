@@ -31,8 +31,9 @@
 
 .featured-image {
   max-width: 40%;
-  
+
   img {
     width: 100%;
+    height: 20vh;
   }
 }

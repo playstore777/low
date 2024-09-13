@@ -26,6 +26,7 @@ import {
   updateUserDetails,
   getUserById,
 } from "../../server/services";
+import { removeHTMLElements } from "../../utils/utils";
 
 const PostView = ({ post }: { post?: Post }) => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -115,7 +116,7 @@ const PostView = ({ post }: { post?: Post }) => {
       clearTimeout(timer);
 
       /**
-       * If this clean up function gets triggered before timeout, then API will not be called and that will cause the data to be unsycronised or in simple Backend data will not get updated.
+       * If this clean up function gets triggered before timeout, then API will not be called and that will cause the data to be unsynchronised or in simple Backend data will not get updated.
        *
        * So we are calling the API if timeout is cleared and also clapped, if new claps data is available to be updated in the backend.
        */
@@ -150,10 +151,17 @@ const PostView = ({ post }: { post?: Post }) => {
 
   const onEditHandler = () => {
     const content = document.querySelector(".content");
+    const editableContent = removeHTMLElements(
+      content as HTMLElement,
+      "unsplash-caption"
+    );
     dispatch(enableEditMode());
     navigate("edit", {
       state: {
-        post: { title: post?.title, content: content?.innerHTML },
+        post: {
+          title: postContent?.title,
+          content: editableContent?.innerHTML,
+        },
       },
     });
   };

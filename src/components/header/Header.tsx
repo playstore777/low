@@ -21,7 +21,10 @@ import Authentication from "../authentication/Authentication";
 import useScrollDirection from "../hooks/useScrollDirection";
 import MediumLogo from "../../assets/images/MediumLogo.svg";
 import SearchIcon from "../../assets/images/SearchIcon.svg";
-import { createElementFromHTML } from "../../utils/utils";
+import {
+  createElementFromHTML,
+  normalizeCollapsibles,
+} from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
 import Avatar from "../reusableComponents/avatar/Avatar";
 import PopUp from "../reusableComponents/popup/PopUp";
@@ -32,7 +35,6 @@ import useScreenSize from "../hooks/useScreenSize";
 import { updatePost } from "../../server/services";
 import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
-import FontType from "../fontType/fontType";
 import classes from "./Header.module.css";
 import { Post } from "../../types/types";
 
@@ -76,22 +78,10 @@ const Header = () => {
   };
 
   const handleUpdate = async () => {
-    const div = document.createElement("div");
-    div.innerHTML = state.activePost.content;
-    const collapsiblesTitles = div.querySelectorAll(".CollapsibleLink__title");
-    const collapsiblesContents = div.querySelectorAll(
-      ".CollapsibleLink__content"
-    );
-    collapsiblesTitles.forEach((title) => {
-      title.innerHTML = "<p><br/></p>";
-    });
-    collapsiblesContents.forEach((content) => {
-      content.innerHTML = "<p><br/></p>";
-    });
+    const div = normalizeCollapsibles(state.activePost.content);
     const htmlElement = createElementFromHTML(state.activePost.content);
     const imgElement = htmlElement.querySelector("img");
     const updatedPost = div.innerHTML;
-    // console.log(updatedPost);
     dispatch(createPost({ content: updatedPost }));
     const paths = pathname.split("/");
     const id = paths[paths.length - 2];
@@ -101,7 +91,6 @@ const Header = () => {
       content: updatedPost,
       featuredImage: imgElement?.src ?? "",
     };
-    // console.log(updatedData);
 
     try {
       await updatePost(documentId, updatedData);
@@ -299,6 +288,16 @@ const Header = () => {
                   <div className={classes.iconCaption}>Write</div>
                 </div>
               )}
+            {userLoggedIn && (
+              <div
+                className="dropdownItem"
+                onClick={() => {
+                  navigate(`/@${currentUser?.username}`);
+                }}
+              >
+                Profile
+              </div>
+            )}
             {userLoggedIn && (
               <div className="dropdownItem" onClick={() => {}}>
                 Settings

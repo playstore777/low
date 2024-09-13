@@ -31,7 +31,7 @@ import {
 const UserProfile = () => {
   const { allPosts } = useAppSelector((state) => state.post);
   const { name } = useParams();
-  const { currentUser } = useAuth();
+  const { currentUser, userLoggedIn } = useAuth();
   const dispatch = useAppDispatch();
 
   const [profile, setProfile] = useState<User | null>(null);
@@ -42,7 +42,7 @@ const UserProfile = () => {
   > | null>(null);
   const [hasMore, setHasMore] = useState(true);
   const [isFollowing, setIsFollowing] = useState(
-    currentUser?.following?.includes(profile?.uid ?? "")
+    profile?.uid && currentUser?.following?.includes(profile?.uid)
   );
 
   useEffect(() => {
@@ -65,6 +65,7 @@ const UserProfile = () => {
     const user = await getUserByUsername(username);
     if (user) {
       setProfile(user as User);
+      setIsFollowing(currentUser?.following?.includes(user?.uid));
     }
   };
 
@@ -88,7 +89,7 @@ const UserProfile = () => {
   };
 
   const onFollowHandler = async () => {
-    if (!profile) return;
+    if (!profile || isFollowing) return;
     const userFollowing = [...(currentUser?.following ?? [])];
     if (userFollowing.includes(profile?.uid)) {
       return;
@@ -100,6 +101,7 @@ const UserProfile = () => {
   };
 
   const onFollowingHandler = async () => {
+    if (!isFollowing) return;
     const userFollowing = currentUser?.following?.filter(
       (uid) => uid !== profile?.uid
     );
@@ -164,7 +166,7 @@ const UserProfile = () => {
             }}
           />
         )}
-        {profile?.uid !== currentUser?.uid && (
+        {userLoggedIn && profile?.uid !== currentUser?.uid && (
           <Button
             label={isFollowing ? "Following" : "Follow"}
             style={{
@@ -175,6 +177,19 @@ const UserProfile = () => {
               color: isFollowing ? "var(--primary-bg-color)" : "white",
             }}
             onClick={isFollowing ? onFollowingHandler : onFollowHandler}
+          />
+        )}
+        {!userLoggedIn && (
+          <Button
+            label="Sign In to follow"
+            style={{
+              border: "1px solid var(--primary-bg-color)",
+              backgroundColor: isFollowing
+                ? "transparent"
+                : "var(--primary-bg-color)",
+              color: isFollowing ? "var(--primary-bg-color)" : "white",
+            }}
+            onClick={() => {}}
           />
         )}
         <PopUp

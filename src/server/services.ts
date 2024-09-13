@@ -14,7 +14,7 @@ import {
 import { commentStoreRef, postStoreRef, userStoreRef } from "./firebase";
 import { Comment, Post, User } from "../types/types";
 
-const Access_Key = import.meta.env.UNSPLASH_ACCESS_KEY;
+const Access_Key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 
 //#region Post services
 export const fetchAllPosts = async (...options: QueryConstraint[]) => {
@@ -32,10 +32,6 @@ export const fetchAllPosts = async (...options: QueryConstraint[]) => {
           ...doc.data(),
         } as Post)
     );
-    console.log({
-      articlesList,
-      lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
-    });
     return {
       articlesList,
       lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
@@ -154,6 +150,7 @@ export const updateUserDetails = async (
   userId: string,
   updatedUserData: Partial<User>
 ) => {
+  if (!userId) return;
   try {
     const body = {
       username: updatedUserData.username ?? "",
@@ -166,8 +163,7 @@ export const updateUserDetails = async (
       displayName: updatedUserData.displayName ?? "",
     };
     const documentRef = doc(userStoreRef, userId);
-    const res = await updateDoc(documentRef, body);
-    return res;
+    await updateDoc(documentRef, body);
   } catch (error) {
     console.error("Error: failed to follow user. ", error);
     throw error;
@@ -348,12 +344,20 @@ export const getDefFromDict = async (word: string) => {
   return body;
 };
 
-export const getPhotosFromUnsplash = async (query: string) => {
+export const getPhotosFromUnsplash = async (
+  query: string,
+  pageNumber?: number
+) => {
+  // ): Promise<{ total: number; total_pages: number; results: [] }> => {
+  if (!Access_Key) return;
   try {
     const response = await fetch(
-      `https://api.unsplash.com/search?query=${query}&&client_id=${Access_Key}`
+      `https://api.unsplash.com/search/photos?page=${
+        pageNumber || 1
+      }&query=${query}&client_id=${Access_Key}`
     );
-    console.log(response);
+    const body = await response.json();
+    return body;
   } catch (error) {
     console.error("Error in fetching photos from Unsplash: ", error);
     throw error;
