@@ -2,17 +2,17 @@ import { FunctionComponent, SVGProps, useState } from "react";
 
 import { useNavigate } from "react-router";
 
+import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
+import GoogleG from "../../assets/images/MediumGoogleGLogo.svg";
+import PopUp from "../reusableComponents/popup/PopUp";
+import classes from "./Authentication.module.css";
+import EditUserProfile from "./EditUserProfile";
+import { User } from "../../types/types";
 import {
   doSignInWithGoogle,
   doSignOut,
   doSignUpWithGoogle,
 } from "../../server/auth";
-import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
-import GoogleG from "../../assets/images/MediumGoogleGLogo.svg";
-import classes from "./Authentication.module.css";
-import PopUp from "../reusableComponents/popup/PopUp";
-import EditUserProfile from "./EditUserProfile";
-import { User } from "../../types/types";
 
 const Authentication = ({
   isSignUp = false,

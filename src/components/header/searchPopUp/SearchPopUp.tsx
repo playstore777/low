@@ -27,7 +27,6 @@ const SearchPopUp = ({
           <div
             className={classes.backdrop}
             onClick={() => {
-              console.log("clicked");
               setIsSearchOpen(false);
             }}
           ></div>

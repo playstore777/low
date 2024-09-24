@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 
-import { getDefFromDict } from "../../server/services";
+import { ContextMenuOptions, NestedAuthors, Post } from "../../types/types";
 import AsideSection from "../../components/reusableComponents/asideSection/AsideSection";
 import Portal from "../../components/reusableComponents/portal/Portal";
+import { appendContent, getSelectedWord } from "../../utils/utils";
 import ContextMenu, {
   MenuItems,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
-import { appendContent, getSelectedWord } from "../../utils/utils";
-import { ContextMenuOptions, NestedAuthors, Post } from "../../types/types";
+import { getDefFromDict } from "../../server/services";
+import "./HtmlContentDisplay.css";
 
 type Definition = {
   partOfSpeech: string;
@@ -191,7 +192,7 @@ const HtmlContentDisplay = ({
     <>
       {postContent?.content && (
         <div
-          className={attr?.className?.content ?? "content"}
+          className={`${attr?.className?.content ?? ""} content`}
           style={attr?.style ?? {}}
           dangerouslySetInnerHTML={{
             __html:

@@ -1,3 +1,4 @@
+import Sidebar from "./components/sidebar/Sidebar";
 import Home from "./components/home/Home";
 import "./App.css";
 
@@ -6,7 +7,9 @@ function App() {
     <>
       <div className="main">
         <Home />
-        {/* <Sidebar /> */}
+        <Sidebar>
+          <>Side bar</>
+        </Sidebar>
       </div>
     </>
   );

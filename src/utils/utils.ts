@@ -66,8 +66,8 @@ export const appendContent = async (
   //   const button = document.createElement("button");
   //   button.setAttribute("data-post-url", url);
   //   button.textContent = "Show story";
-  //   element.addEventListener("click", click);
-  //   element.outerHTML = button.outerHTML;
+  //   button.onclick = click;
+  //   element.replaceWith(button);
   //   console.log(button.outerHTML);
   // }
   if (url) {

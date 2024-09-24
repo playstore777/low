@@ -217,7 +217,7 @@ const PostView = ({ post }: { post?: Post }) => {
   };
 
   return (
-    <>
+    <article className={classes.articleWrapper}>
       {postContent?.title && (
         <h1
           //   className={attr?.className?.title ?? "title"}
@@ -236,12 +236,12 @@ const PostView = ({ post }: { post?: Post }) => {
           <span className={classes.authorName}>
             <Link to={`/@${contentAuthor.username}`}>{contentAuthor.name}</Link>
           </span>
-          {currentUser?.uid !== contentAuthor.id && (
+          {userLoggedIn && currentUser?.uid !== contentAuthor.id && (
             <span style={{ color: "var(--text-color)" }}>
               {"  "}·{"  "}
             </span>
           )}
-          {currentUser?.uid !== contentAuthor.id && (
+          {userLoggedIn && currentUser?.uid !== contentAuthor.id && (
             <Button
               type="text"
               inlineButton={true}
@@ -352,7 +352,7 @@ const PostView = ({ post }: { post?: Post }) => {
         post={postContent}
         isOpen={commentsOpen}
       />
-    </>
+    </article>
   );
 };
 

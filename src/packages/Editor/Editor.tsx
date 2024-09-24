@@ -148,7 +148,7 @@ const Editor = ({
         <MyOnChangePlugin onChange={onChange} />
         <CollapsibleLinkPlugin />
         <EditorInitializer initialEditorState={initialEditorState} />
-        <TreeViewPlugin /> {/* just for testing purpose!! */}
+        {/*<TreeViewPlugin />*/} {/* just for testing purpose!! */}
       </LexicalComposer>
     </>
   );

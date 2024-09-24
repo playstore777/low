@@ -21,10 +21,6 @@ import Authentication from "../authentication/Authentication";
 import useScrollDirection from "../hooks/useScrollDirection";
 import MediumLogo from "../../assets/images/MediumLogo.svg";
 import SearchIcon from "../../assets/images/SearchIcon.svg";
-import {
-  createElementFromHTML,
-  normalizeCollapsibles,
-} from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
 import Avatar from "../reusableComponents/avatar/Avatar";
 import PopUp from "../reusableComponents/popup/PopUp";
@@ -37,6 +33,10 @@ import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
 import classes from "./Header.module.css";
 import { Post } from "../../types/types";
+import {
+  createElementFromHTML,
+  normalizeCollapsibles,
+} from "../../utils/utils";
 
 const Header = () => {
   const { userLoggedIn, currentUser } = useAuth();
@@ -313,7 +313,11 @@ const Header = () => {
         </Dropdown>
       </div>
       <PopUp isOpen={showModal} onClose={onCloseAuth}>
-        <Authentication isSignUp={isSignUp} onClose={onCloseAuth} />
+        <Authentication
+          key={isSignUp + Math.random().toString()}
+          isSignUp={isSignUp}
+          onClose={onCloseAuth}
+        />
       </PopUp>
       <PopUp isOpen={publishPost} onClose={onClosePublishPost}>
         <PublishPost onClose={onClosePublishPost} />
