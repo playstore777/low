@@ -136,7 +136,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     element.setAttribute("height", this.__height.toString());
     element.style.display = "block";
     element.style.margin = "auto";
-    element.style.maxWidth = "60vw";
+    element.style.maxWidth = "100%";
     this.__unsplashCaption &&
       element.setAttribute("data-caption", this.__unsplashCaption);
     return { element };
