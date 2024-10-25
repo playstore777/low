@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { userEvent } from "@testing-library/user-event";
 import { vi } from "vitest";
 
@@ -88,5 +88,34 @@ describe("<PopUp />", () => {
       await userEvent.click(closeBtn);
       expect(mockFn).toHaveBeenCalledTimes(1);
     });
+  });
+
+  test("should call handleCancel on cancel event", () => {
+    // Create a mock for the onClose function
+    const onCloseMock = vi.fn();
+
+    render(
+      <PopUp isOpen={false} onClose={onCloseMock}>
+        <section>
+          <h1>Testing Popup</h1>
+          <h3>
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta at
+            enim amet iure. Non consequatur dolore voluptatem natus ut quia
+            aperiam. Eaque veritatis distinctio tempora dolorum iusto! Officia,
+            fuga doloribus.
+          </h3>
+        </section>
+      </PopUp>
+    );
+    screen.debug();
+
+    // Select the dialog element
+    const dialog = screen.getByRole("dialog", { hidden: true }); // Adjust if there's no role or use a data-testid
+
+    // Trigger the 'cancel' event manually on the dialog element
+    fireEvent(dialog, new Event("cancel"));
+
+    // Assert that onClose was called
+    expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
 });

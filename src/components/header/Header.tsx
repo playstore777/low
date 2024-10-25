@@ -116,7 +116,7 @@ const Header = () => {
   };
 
   return (
-    <div
+    <header
       className={`${classes.headerWrapper} ${
         pathname.includes("new") && classes.paddingInlineHeader
       } ${
@@ -312,17 +312,21 @@ const Header = () => {
           </div>
         </Dropdown>
       </div>
-      <PopUp isOpen={showModal} onClose={onCloseAuth}>
-        <Authentication
-          key={isSignUp + Math.random().toString()}
-          isSignUp={isSignUp}
-          onClose={onCloseAuth}
-        />
-      </PopUp>
-      <PopUp isOpen={publishPost} onClose={onClosePublishPost}>
-        <PublishPost onClose={onClosePublishPost} />
-      </PopUp>
-    </div>
+      {showModal && (
+        <PopUp isOpen={showModal} onClose={onCloseAuth}>
+          <Authentication
+            key={isSignUp + Math.random().toString()}
+            isSignUp={isSignUp}
+            onClose={onCloseAuth}
+          />
+        </PopUp>
+      )}
+      {publishPost && (
+        <PopUp isOpen={publishPost} onClose={onClosePublishPost}>
+          <PublishPost onClose={onClosePublishPost} />
+        </PopUp>
+      )}
+    </header>
   );
 };
 

@@ -1,4 +1,6 @@
 import { fetchPost, getUserById } from "../server/services";
+import { AppDispatch } from "../store/configureStore";
+import { createPost } from "../store/slices/postSlice";
 import { ContextMenuOptions, NestedAuthors } from "../types/types";
 
 export const createElementFromHTML = (htmlString: string): HTMLElement => {
@@ -100,4 +102,25 @@ export const appendContent = async (
         },
       ]);
   }
+};
+
+export const debounceWithReduxState = <T extends (...args: unknown[]) => void>(
+  func: T,
+  delay: number,
+  dispatch: AppDispatch,
+  stateTimer?: NodeJS.Timeout
+): T => {
+  let timeoutId: NodeJS.Timeout | undefined = stateTimer;
+
+  return ((...args: Parameters<T>) => {
+    timeoutId && clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+    dispatch(createPost({ draftTimer: timeoutId }));
+  }) as T;
+};
+
+export const generateRandomId = () => {
+  return Math.random().toString(36).slice(2, 9);
 };

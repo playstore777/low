@@ -1,55 +1,30 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { RootState } from "../configureStore";
 import { Comment, Post } from "../../types/types";
 
 export type InitialState = {
   activePost: {
+    id?: string;
     title: string;
     content: string;
     isEditMode?: boolean;
     comments?: Comment[];
+    draftTimer?: NodeJS.Timeout;
   };
   allPosts: Post[];
 };
 
 const initialState: InitialState = {
   activePost: {
+    id: "",
     title: "",
     content: "",
     isEditMode: false,
     comments: [],
+    draftTimer: undefined,
   },
   allPosts: [],
 };
-
-// // Recursive function to update replies at any level
-// const updateRepliesRecursively = (
-//   comments: Comment[],
-//   targetCommentId: string,
-//   newReplies: Comment[]
-// ) => {
-//   return comments.map((comment) => {
-//     if (comment.id === targetCommentId) {
-//       // Avoid duplication in replies
-//       const newRepliesId = newReplies.map((reply) => reply.id);
-//       const filteredPrevReplies = comment.replies?.filter(
-//         (reply) => !newRepliesId.includes(reply.id)
-//       );
-
-//       // Update the replies of the comment
-//       comment.replies = [...(filteredPrevReplies ?? []), ...newReplies];
-//     } else if (comment.replies && comment.replies.length > 0) {
-//       // Recursively update replies in nested comments
-//       comment.replies = updateRepliesRecursively(
-//         comment.replies,
-//         targetCommentId,
-//         newReplies
-//       );
-//     }
-//     return comment;
-//   });
-// };
 
 const PostSlice = createSlice({
   name: "postSlice",
@@ -72,10 +47,10 @@ const PostSlice = createSlice({
 
       const key = "id";
 
-      const arrayUniqueByKey = [
+      const uniqueArrayByKey = [
         ...new Map(array.map((item) => [item[key], item])).values(),
       ];
-      state.allPosts = arrayUniqueByKey;
+      state.allPosts = uniqueArrayByKey;
     },
     updateComments: (state, action) => {
       // Avoid duplication
@@ -152,6 +127,5 @@ export const {
   enableEditMode,
   disableEditMode,
 } = PostSlice.actions;
-export const showPost = (state: RootState) => state.post;
 
 export default PostSlice;

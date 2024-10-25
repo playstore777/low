@@ -15,6 +15,5 @@ export default function useUser(uid: string) {
     getUser();
   }, []);
 
-  console.log("user: ", user);
   return user;
 }

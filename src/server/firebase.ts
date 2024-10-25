@@ -38,5 +38,13 @@ const firestore = initializeFirestore(app, firestoreSettings);
 const userStoreRef = collection(firestore, "users");
 const postStoreRef = collection(firestore, "posts");
 const commentStoreRef = collection(firestore, "comments");
+const draftStoreRef = collection(firestore, "drafts");
 
-export { auth, firestore, postStoreRef, commentStoreRef, userStoreRef };
+export {
+  auth,
+  firestore,
+  postStoreRef,
+  commentStoreRef,
+  userStoreRef,
+  draftStoreRef,
+};

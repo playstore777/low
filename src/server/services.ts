@@ -11,7 +11,12 @@ import {
   where,
 } from "firebase/firestore";
 
-import { commentStoreRef, postStoreRef, userStoreRef } from "./firebase";
+import {
+  commentStoreRef,
+  draftStoreRef,
+  postStoreRef,
+  userStoreRef,
+} from "./firebase";
 import { Comment, Post, User } from "../types/types";
 
 const Access_Key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
@@ -74,6 +79,28 @@ export const fetchPost = async (
     }
   } catch (error) {
     console.error("Error getting document: ", error);
+    throw error;
+  }
+};
+
+export const draftPost = async (postDoc: Partial<Post>) => {
+  const { id } = postDoc;
+
+  // don't add new & empty draft!
+  if (!id && !postDoc.title && !postDoc.content) return;
+
+  try {
+    if (id) {
+      delete postDoc.id;
+      const documentRef = doc(draftStoreRef, id);
+      const res = await updateDoc(documentRef, postDoc);
+      return res;
+    } else {
+      const response = await addDoc(draftStoreRef, postDoc);
+      return response;
+    }
+  } catch (error) {
+    console.error("Error saving draft: ", error);
     throw error;
   }
 };

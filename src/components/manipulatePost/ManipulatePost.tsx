@@ -2,12 +2,14 @@ import { ChangeEvent, useEffect, useState } from "react";
 
 import { useLocation } from "react-router";
 
+import { debounceWithReduxState } from "../../utils/utils";
 import { createPost } from "../../store/slices/postSlice";
-import { useAppDispatch } from "../../store/rootReducer";
+import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import Editor from "../../packages/Editor/Editor";
 import classes from "./ManipulatePost.module.css";
-import { fetchPost } from "../../server/services";
+import { draftPost, fetchPost } from "../../server/services";
 import { Post } from "../../types/types";
+import { useAuth } from "../../server/hooks/useAuth";
 
 const initialPostData = {
   title: "",
@@ -22,13 +24,16 @@ const ManipulatePost = ({
   post?: Post;
 }) => {
   const dispatch = useAppDispatch();
+  const { draftTimer } = useAppSelector((state) => state.post.activePost);
   const { state } = useLocation();
   post = state?.post;
+  const { currentUser } = useAuth();
 
   const [postData, setPostData] = useState<{
     title: string;
     content: string;
   }>(initialPostData);
+  const [draftId, setDraftId] = useState<string>("");
 
   useEffect(() => {
     if (!isNewPost) {
@@ -41,11 +46,40 @@ const ManipulatePost = ({
     }
   }, [isNewPost, post]);
 
+  const draftThePost = async (post: Partial<Post>) => {
+    const response = await draftPost(post);
+    if (response) {
+      setDraftId(response.id);
+      dispatch(createPost({ id: response.id }));
+    }
+  };
+
+  // Debounced version of the function to store data in local storage
+  const debouncedStoreInLocalStorage = debounceWithReduxState(
+    (data) => {
+      const draft = {
+        ...(data as { [key: string]: string }),
+        id: draftId || "",
+        authorId: currentUser?.uid,
+      };
+      draftThePost(draft);
+    },
+    5000,
+    dispatch,
+    draftTimer
+  );
+
   const onInputChange = (key: string, value: string) => {
     if (key) {
       dispatch(createPost({ [key]: value }));
       setPostData((prevData) => {
-        return { ...prevData, [key]: value };
+        if (!key) return prevData;
+
+        const newData = { ...prevData, [key]: value };
+
+        debouncedStoreInLocalStorage(newData);
+
+        return newData;
       });
     }
   };

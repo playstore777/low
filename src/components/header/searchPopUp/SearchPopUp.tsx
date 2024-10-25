@@ -26,6 +26,7 @@ const SearchPopUp = ({
         <Portal>
           <div
             className={classes.backdrop}
+            data-testid="backdrop"
             onClick={() => {
               setIsSearchOpen(false);
             }}

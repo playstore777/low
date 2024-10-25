@@ -21,8 +21,9 @@ describe("SearchPopUp Component", () => {
     let child1 = screen.getByText("child 1");
     expect(child1).toBeInTheDocument();
 
-    // Next time first element(search Input) is unfocused/clicked, the other child is hidden
-    await userEvent.click(child0);
+    // Close the portal by clicking on the backdrop
+    const backdrop = screen.getByTestId("backdrop");
+    await userEvent.click(backdrop);
 
     child1 = screen.queryByText("child 1") as HTMLElement;
     expect(child1).toBeNull();

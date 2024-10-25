@@ -21,7 +21,7 @@ import { CollapsibleLinkTitleNode } from "../plugins/CollapsibleLink/Collapsible
 import ToolbarPlugin from "../plugins/toolbarPlugin/toolbarplugin";
 import { MyOnChangePlugin } from "../plugins/MyOnChangePlugin";
 import CollapsibleLinkPlugin from "../plugins/CollapsibleLink";
-import TreeViewPlugin from "../plugins/ui/TreeViewPlugin";
+// import TreeViewPlugin from "../plugins/ui/TreeViewPlugin";
 import AutoLinkPlugin from "../plugins/AutoLinkPlugin";
 import { ImageNode } from "../plugins/nodes/ImageNode";
 import ImagesPlugin from "../plugins/ImagesPlugin";

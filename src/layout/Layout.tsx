@@ -13,6 +13,7 @@ const Layout = () => {
         <Outlet />
       </div>
       <ToastContainer
+        data-testid="toast-container"
         position="top-center"
         autoClose={3000}
         hideProgressBar

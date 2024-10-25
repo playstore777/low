@@ -19,9 +19,9 @@ const PopUp = ({
     const dialog = dialogRef.current;
 
     if (isOpen) {
-      dialog?.showModal();
+      dialog?.showModal && dialog?.showModal();
     } else {
-      dialog?.close();
+      dialog?.close && dialog?.close();
     }
 
     const handleCancel = (e: Event) => {
@@ -41,7 +41,11 @@ const PopUp = ({
       <div className={classes.dialogCloseWrapper}>
         <button className={classes.dialogClose} onClick={onClose}>
           <SvgWrapper
-            SvgComponent={MediumModalCross}
+            SvgComponent={
+              MediumModalCross as unknown as React.FunctionComponent<
+                React.SVGProps<string>
+              >
+            }
             className={classes.mediumCross}
             width="29px"
           />
