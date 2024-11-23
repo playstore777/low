@@ -1,13 +1,18 @@
+import { FunctionComponent, SVGProps, useState } from "react";
+
 import { Link } from "react-router-dom";
 
 import CommentInteractions from "../commentInteractions/CommentInteractions";
-import Dropdown from "../dropdown/Dropdown";
-import Button from "../button/Button";
+import ThreeDots from "../../../assets/images/MediumThreeDots.svg";
 import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
+import SvgWrapper from "../svgWrapper/SvgWrapper";
 import classes from "./CommentBody.module.css";
 import { Timestamp } from "firebase/firestore";
+import Dropdown from "../dropdown/Dropdown";
+import Button from "../button/Button";
 import Avatar from "../avatar/Avatar";
+import PopUp from "../popup/PopUp";
 
 const CommentBody = ({
   comment,
@@ -45,6 +50,12 @@ const CommentBody = ({
   const isAuthor = comment.authorUid === post.userId;
   const commentDate = commentTimestamp.toISOString();
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const updateShowDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
   return (
     <>
       <div className={classes.commentWrapper}>
@@ -70,10 +81,15 @@ const CommentBody = ({
           comment.authorUid === currentUser?.uid && (
             <Dropdown>
               {/* edit icon here */}
-              <>Edit Icon</>
+              <SvgWrapper
+                SvgComponent={
+                  ThreeDots as unknown as FunctionComponent<SVGProps<string>>
+                }
+                width="24px"
+              />
               <div className={classes.actions}>
                 <Button label="Edit this response" onClick={onEditComment} />
-                <Button label="Delete" onClick={onDeleteComment} />
+                <Button label="Delete" onClick={updateShowDeleteModal} />
               </div>
             </Dropdown>
           )
@@ -90,6 +106,34 @@ const CommentBody = ({
         isRepliesOpen={isRepliesOpen}
         replyCount={replies?.length || 0}
       />
+      <PopUp
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+        }}
+      >
+        <div className={classes.deleteConfirm}>
+          <header>Delete Comment</header>
+          <main>
+            Deletion is not reversible, and the comment will be completely
+            deleted.
+          </main>
+          <footer>
+            <Button
+              label="Cancel"
+              className={classes.cancelBtn}
+              onClick={() => {
+                setShowDeleteModal(false);
+              }}
+            />
+            <Button
+              label="Delete"
+              className={classes.deleteBtn}
+              onClick={onDeleteComment}
+            />
+          </footer>
+        </div>
+      </PopUp>
     </>
   );
 };

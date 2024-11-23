@@ -72,7 +72,6 @@ const PostComment = ({
       // if no more posts
       setHasMore(false);
     } else {
-      console.log("replies: ", comment.id, comments);
       dispatch(updateComments(comments));
       setLastDoc(lastComment);
     }
