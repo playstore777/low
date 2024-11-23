@@ -1,6 +1,19 @@
+/**
+ * @param {Props} props - The properties for rendering the post.
+ * @param {Position} [props.position] - The position in x and y cords.
+ * @param {MenuItems[]} [props.menuItems] - The menu items list.
+ * @param {Function} [props.onClose] - Method to trigger after close.
+ */
+
 import { CSSProperties } from "react";
 
 import classes from "./ContextMenu.module.css";
+
+interface props {
+  position: Position;
+  menuItems: MenuItems[];
+  onClose: () => void;
+}
 
 export type Position = {
   x: number;
@@ -13,15 +26,7 @@ export type MenuItems = {
   onClick?: () => void;
 };
 
-const ContextMenu = ({
-  position,
-  menuItems,
-  onClose,
-}: {
-  position: Position;
-  menuItems: MenuItems[];
-  onClose: () => void;
-}) => {
+const ContextMenu: React.FC<props> = ({ position, menuItems, onClose }) => {
   const { x, y } = position;
 
   return (

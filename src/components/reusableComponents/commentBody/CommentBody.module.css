@@ -37,7 +37,7 @@
   padding-top: 2rem;
   padding-bottom: 5px;
   word-break: break-all;
-  white-space: pre;
+  /* white-space: pre; */
   max-height: 96%;
   overflow-y: auto;
 }

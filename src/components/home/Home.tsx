@@ -1,4 +1,8 @@
-import { useEffect, useState } from "react";
+/**
+ * @param {null} props - Unused props
+ */
+
+import React, { useEffect, useState } from "react";
 
 import InfiniteScroll from "react-infinite-scroller";
 import {
@@ -8,14 +12,20 @@ import {
   DocumentData,
 } from "firebase/firestore";
 
-import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
+import { clearAllPosts, uploadAllPosts } from "../../store/slices/postSlice";
 import PostPreview from "../reusableComponents/postPreview/PostPreview";
-import { uploadAllPosts } from "../../store/slices/postSlice";
 import { fetchAllPosts } from "../../server/services";
+import {
+  selectAllPostsWithTimestamp,
+  useAppDispatch,
+  useAppSelector,
+} from "../../store/rootReducer";
 import "./Home.css";
 
-const Home = () => {
-  const { allPosts } = useAppSelector((state) => state.post);
+interface props {}
+
+const Home: React.FC<props> = () => {
+  const allPosts = useAppSelector(selectAllPostsWithTimestamp);
   const dispatch = useAppDispatch();
 
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
@@ -25,7 +35,6 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const fetchNewPosts = async () => {
-    // if reached bottom, fetch new posts.
     const { articlesList, lastArticle } = await fetchAllPosts(
       lastDoc ? startAfter(lastDoc) : limit(3)
     );
@@ -41,7 +50,7 @@ const Home = () => {
   useEffect(() => {
     fetchNewPosts();
     return () => {
-      dispatch(uploadAllPosts([]));
+      dispatch(clearAllPosts());
     };
   }, []);
 
@@ -58,16 +67,7 @@ const Home = () => {
         loader={<div key={0}>Loading...</div>}
       >
         {allPosts?.length > 0 &&
-          allPosts.map((post) => (
-            <PostPreview
-              key={post.id}
-              id={post.id}
-              title={post.title || ""}
-              content={post.content || ""}
-              description={post.description || ""}
-              featuredImage={post.featuredImage || ""}
-            />
-          ))}
+          allPosts.map((post) => <PostPreview key={post.id} post={post} />)}
       </InfiniteScroll>
 
       {!hasMore && <p className="end-of-list">You've reached the end</p>}

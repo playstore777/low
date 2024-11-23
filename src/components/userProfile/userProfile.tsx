@@ -1,3 +1,7 @@
+/**
+ * @param {null} props - Unused props
+ */
+
 import { useEffect, useState } from "react";
 
 import InfiniteScroll from "react-infinite-scroller";
@@ -12,10 +16,14 @@ import {
 } from "firebase/firestore";
 
 import LayoutWithSidebar from "../../layoutWithSidebar/LayoutWithSidebar";
-import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
+import {
+  selectAllPostsWithTimestamp,
+  useAppDispatch,
+  useAppSelector,
+} from "../../store/rootReducer";
 import PostPreview from "../reusableComponents/postPreview/PostPreview";
 import EditUserProfile from "../authentication/EditUserProfile";
-import { uploadAllPosts } from "../../store/slices/postSlice";
+import { clearAllPosts, uploadAllPosts } from "../../store/slices/postSlice";
 import Avatar from "../reusableComponents/avatar/Avatar";
 import Button from "../reusableComponents/button/Button";
 import PopUp from "../reusableComponents/popup/PopUp";
@@ -23,13 +31,21 @@ import { useAuth } from "../../server/hooks/useAuth";
 import classes from "./userProfile.module.css";
 import { User } from "../../types/types";
 import {
+  fetchAllDrafts,
   fetchAllPosts,
   getUserByUsername,
   updateUserDetails,
 } from "../../server/services";
 
-const UserProfile = () => {
-  const { allPosts } = useAppSelector((state) => state.post);
+interface props {}
+
+enum ActiveTabEnum {
+  DRAFTS = "drafts",
+  HOME = "home",
+}
+
+const UserProfile: React.FC<props> = () => {
+  const allPosts = useAppSelector(selectAllPostsWithTimestamp);
   const { name } = useParams();
   const { currentUser, userLoggedIn } = useAuth();
   const dispatch = useAppDispatch();
@@ -44,13 +60,15 @@ const UserProfile = () => {
   const [isFollowing, setIsFollowing] = useState(
     profile?.uid && currentUser?.following?.includes(profile?.uid)
   );
+  const [activeTab, setActiveTab] = useState(ActiveTabEnum.HOME);
 
   useEffect(() => {
+    dispatch(clearAllPosts());
     fetchAllPostsByUser();
     return () => {
-      dispatch(uploadAllPosts([]));
+      dispatch(clearAllPosts());
     };
-  }, []);
+  }, [activeTab]);
 
   useEffect(() => {
     const username = name!.slice(1);
@@ -70,11 +88,20 @@ const UserProfile = () => {
   };
 
   const fetchAllPostsByUser = async () => {
-    // if reached bottom, fetch new posts.
-    const { articlesList, lastArticle } = await fetchAllPosts(
-      where("userId", "==", profile?.uid),
-      lastDoc ? startAfter(lastDoc) : limit(3)
-    );
+    let response;
+    if (activeTab === ActiveTabEnum.DRAFTS) {
+      response = await fetchAllDrafts(
+        where("userId", "==", profile?.uid),
+        lastDoc ? startAfter(lastDoc) : limit(3)
+      );
+    } else {
+      response = await fetchAllPosts(
+        where("userId", "==", profile?.uid),
+        lastDoc ? startAfter(lastDoc) : limit(3)
+      );
+    }
+
+    const { articlesList, lastArticle } = response;
     // if no more posts
     if (!articlesList.length) {
       setHasMore(false);
@@ -110,6 +137,11 @@ const UserProfile = () => {
     setIsFollowing(false);
   };
 
+  const updateActiveTab = (tabname: ActiveTabEnum) => {
+    setActiveTab(tabname);
+    setLastDoc(null);
+  };
+
   return !profile ? (
     <>$0$ No user found with this username "{name?.slice(1)}"</>
   ) : (
@@ -122,11 +154,31 @@ const UserProfile = () => {
         <nav className={classes.tabs}>
           <div>
             <span>
-              <div className={`${classes.tab} ${classes.highlightTab}`}>
+              <div
+                className={`${classes.tab} ${
+                  activeTab === ActiveTabEnum.HOME && classes.highlightTab
+                }`}
+                onClick={() => updateActiveTab(ActiveTabEnum.HOME)}
+              >
                 <Link to={`/@${profile.username}`}>Home</Link>
               </div>
             </span>
           </div>
+          {/* DRAFT code will use later! */}
+          {/* {currentUser?.username === name?.slice(1) && (
+            <div>
+              <span>
+                <div
+                  className={`${classes.tab} ${
+                    activeTab === ActiveTabEnum.DRAFTS && classes.highlightTab
+                  }`}
+                  onClick={() => updateActiveTab(ActiveTabEnum.DRAFTS)}
+                >
+                  <Link to={`/@${profile.username}`}>Drafts</Link>
+                </div>
+              </span>
+            </div>
+          )} */}
         </nav>
         {/* tabs container */}
         <InfiniteScroll
@@ -140,11 +192,8 @@ const UserProfile = () => {
               .map((post) => (
                 <PostPreview
                   key={post.id}
-                  id={post.id}
-                  title={post.title || ""}
-                  content={post.content || ""}
-                  description={post.description || ""}
-                  featuredImage={post.featuredImage || ""}
+                  post={post}
+                  isDraft={activeTab === ActiveTabEnum.DRAFTS}
                 />
               ))}
         </InfiniteScroll>

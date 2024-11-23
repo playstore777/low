@@ -1,4 +1,8 @@
-import {
+/**
+ * @param {null} props - Unused props
+ */
+
+import React, {
   ChangeEvent,
   FunctionComponent,
   SVGProps,
@@ -15,11 +19,11 @@ import MediumWriteIcon from "../../assets/images/MediumWriteIcon.svg";
 import TextButton from "../reusableComponents/textButton/TextButton";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import MediumBellIcon from "../../assets/images/MediumBellIcon.svg";
-import ThreeDots from "../../assets/images/MediumThreeDots.svg";
+import ThreeDotsIcon from "../../assets/images/MediumThreeDots.svg";
+import MediumLogoIcon from "../../assets/images/MediumLogo.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
 import Authentication from "../authentication/Authentication";
 import useScrollDirection from "../hooks/useScrollDirection";
-import MediumLogo from "../../assets/images/MediumLogo.svg";
 import SearchIcon from "../../assets/images/SearchIcon.svg";
 import Button from "../reusableComponents/button/Button";
 import Avatar from "../reusableComponents/avatar/Avatar";
@@ -35,10 +39,13 @@ import classes from "./Header.module.css";
 import { Post } from "../../types/types";
 import {
   createElementFromHTML,
+  getFirstImageFromHTML,
   normalizeCollapsibles,
 } from "../../utils/utils";
 
-const Header = () => {
+interface props {}
+
+const Header: React.FC<props> = () => {
   const { userLoggedIn, currentUser } = useAuth();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -80,7 +87,7 @@ const Header = () => {
   const handleUpdate = async () => {
     const div = normalizeCollapsibles(state.activePost.content);
     const htmlElement = createElementFromHTML(state.activePost.content);
-    const imgElement = htmlElement.querySelector("img");
+    const imgElement = getFirstImageFromHTML(htmlElement);
     const updatedPost = div.innerHTML;
     dispatch(createPost({ content: updatedPost }));
     const paths = pathname.split("/");
@@ -95,14 +102,26 @@ const Header = () => {
     try {
       await updatePost(documentId, updatedData);
       toast("Story has been updated!");
+      navigate(`post/${documentId}`);
+      navigate(0); // Manually refreshing the page, as it is not updating the UI!
     } catch (e) {
       console.error(e);
       toast("Error updating the Story!");
     } finally {
       dispatch(disableEditMode());
-      window.location.href = `http://localhost:5173/post/${documentId}`; // work around for navigate(`post/${documentId}`);
+      //   /**
+      //    * let currUrl = window.location.href.split("/");
+      //    * currUrl = currUrl.splice(0, currUrl.length - 1);
+      //    * window.location.href = currUrl.join("/");
+      //    *
+      //    * window.location.href = `http://localhost:5173/post/${documentId}`;
+      //    * work around for navigate(`post/${documentId}`);
+      //    * this will not work once hosted :(
+      //    *
+      //    * [Now this might work but this is still a work around, need to fix it
+      //    * ASAP]
+      //    * */
     }
-    // navigate(`post/${documentId}`); // Not working!
   };
 
   const onSearchHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +149,7 @@ const Header = () => {
           <a href="/">
             <SvgWrapper
               SvgComponent={
-                MediumLogo as unknown as FunctionComponent<SVGProps<string>>
+                MediumLogoIcon as unknown as FunctionComponent<SVGProps<string>>
               }
             />
           </a>{" "}
@@ -217,7 +236,9 @@ const Header = () => {
             <Dropdown buttonStyles={classes.buttonStyles}>
               <SvgWrapper
                 SvgComponent={
-                  ThreeDots as unknown as FunctionComponent<SVGProps<string>>
+                  ThreeDotsIcon as unknown as FunctionComponent<
+                    SVGProps<string>
+                  >
                 }
                 width="24px"
               />

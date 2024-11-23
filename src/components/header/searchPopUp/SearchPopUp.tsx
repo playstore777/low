@@ -1,16 +1,19 @@
-import { ReactNode, useRef, useState } from "react";
+/**
+ * @param {ReactNode} [props.children] - The children to render.
+ * @param {string} [props.searchWidth] - The width of the component.
+ */
+
+import { ReactNode, useState } from "react";
 
 import Portal from "../../reusableComponents/portal/Portal";
 import classes from "./SearchPopUp.module.css";
 
-const SearchPopUp = ({
-  children,
-  searchWidth,
-}: {
+interface props {
   children: ReactNode[];
   searchWidth: string;
-}) => {
-  const searchRef = useRef<HTMLDivElement>(null);
+}
+
+const SearchPopUp: React.FC<props> = ({ children, searchWidth }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
     <div className={classes.searchWrapper}>
@@ -36,10 +39,10 @@ const SearchPopUp = ({
             <hr />
             <div></div>
             <div
-              ref={searchRef}
               style={{
                 width: searchWidth,
               }}
+              onClick={() => setIsSearchOpen(false)}
             >
               {children[1]}
             </div>

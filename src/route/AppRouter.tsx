@@ -20,19 +20,18 @@ const AppRouter = () => {
         },
         {
           path: "new",
-          element: <ManipulatePost isNewPost={activePost.isEditMode} />,
+          element: (
+            <ManipulatePost key={"new"} isNewPost={activePost.isEditMode} />
+          ),
         },
         {
           path: "post/:postId",
-          element: <PostView key={location.pathname} />,
+          element: <PostView key={location.pathname + "view-post"} />,
         },
         {
-          path: "post/:postId/edit",
+          path: "post/:postId/edit", // maybe change it to ?edit later!
           element: (
-            <ManipulatePost
-              key={location.pathname}
-              isNewPost={!activePost.isEditMode}
-            />
+            <ManipulatePost key={"edit"} isNewPost={!activePost.isEditMode} />
           ),
         },
       ],

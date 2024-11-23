@@ -1,3 +1,10 @@
+/**
+ * @param {Props} props - The properties for rendering the post.
+ * @param {Function} [props.onCancel] - Method to trigger after cancel.
+ * @param {Function} [props.onSave] - Method to trigger after save.
+ * @param {User} [props.userData] - The user data.
+ */
+
 import { useEffect, useState } from "react";
 
 import { getUserByUsername, updateUserDetails } from "../../server/services";
@@ -6,6 +13,12 @@ import Button from "../reusableComponents/button/Button";
 import { useAuth } from "../../server/hooks/useAuth";
 import { User } from "../../types/types";
 import "./EditUserProfile.css";
+
+interface props {
+  onCancel?: () => void;
+  onSave?: () => void;
+  userData?: User;
+}
 
 type Errors = {
   unsupportedFile: boolean;
@@ -16,15 +29,7 @@ type Errors = {
   usernameInvalid: boolean;
 };
 
-const EditUserProfile = ({
-  onCancel,
-  onSave,
-  userData,
-}: {
-  onCancel?: () => void;
-  onSave?: () => void;
-  userData?: User;
-}) => {
+const EditUserProfile: React.FC<props> = ({ onCancel, onSave, userData }) => {
   const { currentUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [isEdited, setIsEdited] = useState(false);

@@ -1,21 +1,25 @@
+/**
+ * Renders a button component with various configuration options.
+ *
+ * @param {Props} props - The properties for rendering.
+ * @param {"button" | "submit" | "reset" | "text"} [props.type] - The button type, defaulting to "button".
+ * @param {boolean} [props.inlineButton] - Whether the button is inline-styled.
+ * @param {string} [props.className] - Additional CSS class names for styling.
+ * @param {boolean} [props.disabled] - Indicates if the button is disabled.
+ * @param {boolean} [props.disabledWithMessage] - If true, displays a message when the button is disabled.
+ * @param {string} props.label - The text label displayed on the button.
+ * @param {CSSProperties} [props.style] - Inline styles for custom styling.
+ * @param {number} [props.tabIndex] - Specifies the tab order of the button.
+ * @param {string} [props.tooltipMessage] - Message displayed as a tooltip on hover.
+ * @param {string} [props.tooltipType] - The type or style of tooltip (e.g., "info" or "warning").
+ * @param {Function} [props.onClick] - Callback function triggered on button click.
+ */
 import { CSSProperties, useState } from "react";
 
 import OnClickTooltip from "../onClickTooltip/onClickTooltip";
 import classes from "./Button.module.css";
 
-const Button = ({
-  type = "button",
-  inlineButton,
-  className,
-  disabled,
-  disabledWithMessage,
-  label,
-  style,
-  onClick,
-  tabIndex,
-  tooltipMessage,
-  tooltipType = "hover",
-}: {
+interface props {
   type?: "button" | "submit" | "reset" | "text";
   inlineButton?: boolean;
   className?: string;
@@ -27,6 +31,20 @@ const Button = ({
   tooltipMessage?: string;
   tooltipType?: string;
   onClick?: () => void;
+}
+
+const Button: React.FC<props> = ({
+  type = "button",
+  inlineButton,
+  className,
+  disabled,
+  disabledWithMessage,
+  label,
+  style,
+  onClick,
+  tabIndex,
+  tooltipMessage,
+  tooltipType = "hover",
 }) => {
   const [tooltip, setTooltip] = useState(false);
   const hoverCondition = tooltipType === "hover";

@@ -1,3 +1,7 @@
+/**
+ * @param {Function} [props.onClose] - Method to trigger after close.
+ */
+
 import { useEffect, useRef, useState } from "react";
 
 import { serverTimestamp } from "firebase/firestore";
@@ -11,8 +15,13 @@ import { useAppSelector } from "../../../store/rootReducer";
 import { useAuth } from "../../../server/hooks/useAuth";
 import { addPost } from "../../../server/services";
 import classes from "./PublishPost.module.css";
+import { Post } from "../../../types/types";
 
-const PublishPost = ({ onClose }: { onClose: () => void }) => {
+interface props {
+  onClose: () => void;
+}
+
+const PublishPost: React.FC<props> = ({ onClose }) => {
   const post = useAppSelector((state) => state.post);
   const navigate = useNavigate();
   const { currentUser: user } = useAuth();
@@ -78,7 +87,7 @@ const PublishPost = ({ onClose }: { onClose: () => void }) => {
       tags: topics,
     };
 
-    const response = await addPost(document);
+    const response = await addPost(document as Post);
     if (response) {
       toast("Story has been published!");
       onClose();

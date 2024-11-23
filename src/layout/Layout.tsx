@@ -1,3 +1,7 @@
+/**
+ * @param {null} props - Unused props
+ */
+
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Outlet } from "react-router";
@@ -5,7 +9,9 @@ import { Outlet } from "react-router";
 import Header from "../components/header/Header";
 import "./Layout.css";
 
-const Layout = () => {
+interface props {}
+
+const Layout: React.FC<props> = () => {
   return (
     <>
       <Header />

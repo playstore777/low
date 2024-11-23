@@ -203,7 +203,15 @@ export const InsertImageFromUnsplash = ({
     const res = await getPhotosFromUnsplash(query, currentPageNumber);
     if (res) {
       const { results, total_pages } = res;
-      setImages((prev) => (prev ? [...prev, ...results] : results));
+      setImages((prev) => {
+        const temp = [...(prev ?? []), ...results];
+        const seen = new Set();
+        return temp.filter((item) => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
+      });
       setTotalPages(total_pages);
     }
   };

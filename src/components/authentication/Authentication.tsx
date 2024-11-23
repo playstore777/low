@@ -1,3 +1,8 @@
+/**
+ * @param {Props} props - The properties for rendering the post.
+ * @param {boolean} [props.isSignUp] - Indicates if the post is new.
+ * @param {Function} [props.onClose] - method to trigger at the end(closing).
+ */
 import { FunctionComponent, SVGProps, useState } from "react";
 
 import { useNavigate } from "react-router";
@@ -14,13 +19,12 @@ import {
   doSignUpWithGoogle,
 } from "../../server/auth";
 
-const Authentication = ({
-  isSignUp = false,
-  onClose,
-}: {
+interface props {
   isSignUp: boolean;
   onClose: () => void;
-}) => {
+}
+
+const Authentication: React.FC<props> = ({ isSignUp = false, onClose }) => {
   const navigate = useNavigate();
 
   const [isSignUpPage, setIsSignUpPage] = useState(isSignUp);
@@ -28,10 +32,14 @@ const Authentication = ({
   const [userData, setUserData] = useState<User | null>(null);
 
   const signInHandler = async () => {
-    const response = await doSignInWithGoogle();
-    if (response) {
-      onClose();
-      navigate("/");
+    try {
+      const response = await doSignInWithGoogle();
+      if (response) {
+        onClose();
+        navigate("/");
+      }
+    } catch (e) {
+      console.error("error signing in: ", e);
     }
   };
 

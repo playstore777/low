@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 
 import { auth } from "./firebase";
+import { toast } from "react-toastify";
 
 const getUser = async (userId: string) =>
   await getDoc(doc(getFirestore(), "users", userId));
@@ -60,11 +61,13 @@ export async function addNewUser(user: User) {
 export const doSignInWithGoogle = async () => {
   const provider = new GoogleAuthProvider();
   provider.addScope("email");
+  provider.setCustomParameters({ prompt: "select_account" });
   const userCredential: UserCredential = await signInWithPopup(auth, provider);
   const isUserExists = await userExists(userCredential.user.uid);
   if (!isUserExists) {
     // await addNewUser(userCredential.user);
     console.error("User does not exists");
+    toast("User does not exists, please sign up before!");
     doSignOut();
   }
   return { user: userCredential.user, userExists: isUserExists };

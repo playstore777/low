@@ -1,18 +1,23 @@
-import Sidebar from "./components/sidebar/Sidebar";
+/**
+ * @param {null} props - Unused props
+ */
+// import Sidebar from "./components/sidebar/Sidebar";
 import Home from "./components/home/Home";
 import "./App.css";
 
-function App() {
+interface props {}
+
+const App: React.FC<props> = () => {
   return (
     <>
       <div className="main">
         <Home />
-        <Sidebar>
+        {/* <Sidebar>
           <>Side bar</>
-        </Sidebar>
+        </Sidebar> */}
       </div>
     </>
   );
-}
+};
 
 export default App;

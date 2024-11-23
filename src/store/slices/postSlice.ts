@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 import { Comment, Post } from "../../types/types";
 
+type AllPosts = Post & { createdAt?: number };
+
 export type InitialState = {
   activePost: {
     id?: string;
@@ -11,7 +13,7 @@ export type InitialState = {
     comments?: Comment[];
     draftTimer?: NodeJS.Timeout;
   };
-  allPosts: Post[];
+  allPosts: AllPosts[];
 };
 
 const initialState: InitialState = {
@@ -43,6 +45,11 @@ const PostSlice = createSlice({
       //   (post) => !newPostsId.includes(post.id)
       // );
       // state.allPosts = [...filteredPrevPosts, ...action.payload];
+      action.payload = action.payload.map((post: Post) => ({
+        ...post,
+        createdAt:
+          post?.createdAt!.seconds * 1000 + post?.createdAt!.nanoseconds / 1e6, // Store as milliseconds
+      }));
       const array = [...state.allPosts, ...action.payload];
 
       const key = "id";
@@ -51,6 +58,9 @@ const PostSlice = createSlice({
         ...new Map(array.map((item) => [item[key], item])).values(),
       ];
       state.allPosts = uniqueArrayByKey;
+    },
+    clearAllPosts: (state) => {
+      state.allPosts = [];
     },
     updateComments: (state, action) => {
       // Avoid duplication
@@ -121,6 +131,7 @@ export const {
   createPost,
   deletePost,
   uploadAllPosts,
+  clearAllPosts,
   updateComments,
   deleteComment,
   // updateReplies,

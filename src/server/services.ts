@@ -47,6 +47,31 @@ export const fetchAllPosts = async (...options: QueryConstraint[]) => {
   }
 };
 
+export const fetchAllDrafts = async (...options: QueryConstraint[]) => {
+  try {
+    const postQuery = query(
+      draftStoreRef,
+      orderBy("createdAt", "desc"),
+      ...options
+    );
+    const querySnapshot = await getDocs(postQuery);
+    const articlesList = querySnapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        } as Post)
+    );
+    return {
+      articlesList,
+      lastArticle: querySnapshot.docs[querySnapshot.docs.length - 1],
+    };
+  } catch (e) {
+    console.error("error in fetching all the drafts: ", e);
+    throw e;
+  }
+};
+
 export const fetchPost = async (
   url: string | null
 ): Promise<Post | undefined> => {
@@ -83,17 +108,53 @@ export const fetchPost = async (
   }
 };
 
-export const draftPost = async (postDoc: Partial<Post>) => {
-  const { id } = postDoc;
+export const fetchDraft = async (
+  url: string | null
+): Promise<Post | undefined> => {
+  if (!url) {
+    return;
+  }
+  const urlSegments = url.split("/");
+  const postId = urlSegments.slice(-1)[0];
+
+  try {
+    const postDocRef = doc(draftStoreRef, postId);
+    const postDoc = await getDoc(postDocRef);
+
+    if (postDoc.exists()) {
+      const data = postDoc.data();
+      // // console.log(data);
+      return {
+        id: postId,
+        title: data.title,
+        content: data.content,
+        userId: data.userId,
+        claps: data.claps,
+        clappers: data.clappers,
+        createdAt: data.createdAt,
+        tags: data?.tags,
+      };
+    } else {
+      // console.log("No such document!");
+      return undefined;
+    }
+  } catch (error) {
+    console.error("Error getting document: ", error);
+    throw error;
+  }
+};
+
+export const draftPost = async (id: string, postDoc: Partial<Post>) => {
+  console.log("draft id: ", id);
 
   // don't add new & empty draft!
   if (!id && !postDoc.title && !postDoc.content) return;
 
   try {
     if (id) {
-      delete postDoc.id;
       const documentRef = doc(draftStoreRef, id);
       const res = await updateDoc(documentRef, postDoc);
+      console.log("res: ", res);
       return res;
     } else {
       const response = await addDoc(draftStoreRef, postDoc);
@@ -105,9 +166,22 @@ export const draftPost = async (postDoc: Partial<Post>) => {
   }
 };
 
-export const addPost = async (postDoc: unknown) => {
+export const deleteDraftPost = async (documentId: string) => {
+  try {
+    const documentRef = doc(draftStoreRef, documentId);
+    await deleteDoc(documentRef);
+  } catch (error) {
+    console.error("Error deleting document from drafts: ", error);
+    throw error;
+  }
+};
+
+export const addPost = async (postDoc: Partial<Post>) => {
   try {
     const res = await addDoc(postStoreRef, postDoc);
+    // if (postDoc.id) {
+    //   await deleteDraftPost(postDoc.id!);
+    // }
     return res;
   } catch (error) {
     console.error("Error writing document: ", error);
@@ -122,8 +196,13 @@ export const updatePost = async (
   try {
     // console.log("updatePost body: ", updatedData);
     const documentRef = doc(postStoreRef, documentId);
+    // if (!(await getDoc(documentRef)).exists()) {
+    //   // when the post is Draft
+    //   await addPost(updatedData);
+    // } else {
     const res = await updateDoc(documentRef, updatedData);
     return res;
+    // }
   } catch (error) {
     console.error("Error updating document: ", error);
     throw error;
@@ -132,10 +211,17 @@ export const updatePost = async (
 
 export const deletePost = async (documentId: string): Promise<void> => {
   try {
+    // const documentRef = doc(postStoreRef, documentId);
+    // const draft = await getDoc(documentRef);
+    // if (!draft.exists()) {
+    //   // when the post is Draft
+    //   await deleteDraftPost(documentId);
+    // } else {
     const documentRef = doc(postStoreRef, documentId);
     await deleteDoc(documentRef);
+    // }
   } catch (error) {
-    console.error("Error deleting document: ", error);
+    console.error("Error deleting document from posts: ", error);
     throw error;
   }
 };

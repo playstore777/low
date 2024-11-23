@@ -1,3 +1,10 @@
+/**
+ * @param {Props} props - The properties for rendering the post.
+ * @param {boolean} [props.isOpen] - Indicates if the comments section is open.
+ * @param {Post} [props.post] - The post data.
+ * @param {Function} [props.onClose] - Method triggered on close.
+ */
+
 import InfiniteScroll from "react-infinite-scroller";
 import {
   DocumentData,
@@ -27,15 +34,13 @@ import {
   fetchPaginatedCommentsAndReplies,
 } from "../../../../server/services";
 
-const CommentsSection = ({
-  isOpen,
-  post,
-  onClose,
-}: {
+interface props {
   isOpen: boolean;
   post: Post;
   onClose: () => void;
-}) => {
+}
+
+const CommentsSection: React.FC<props> = ({ isOpen, post, onClose }) => {
   const commentModalRef = useRef(null);
   const dispatch = useAppDispatch();
   const comments = useAppSelector((state) =>

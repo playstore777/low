@@ -24,7 +24,7 @@ const FontType = () => {
   useEffect(() => {
     fontType === "live" && document.body.classList.add("live-text");
     fontType === "normal" && document.body.classList.remove("live-text");
-    localStorage.setItem("ls-font-type", fontType); // ls -> less work (thought to name as LessWork.com)
+    localStorage.setItem("low-font-type", fontType); // ls -> less work (thought to name as LessWork.com)
   }, [fontType]);
 
   return <Button label={`Font Type: ${fontType}`} onClick={toggleFontType} />;

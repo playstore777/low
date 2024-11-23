@@ -2,41 +2,33 @@ import { useNavigate } from "react-router";
 
 import "./PostPreview.css";
 import { useEffect, useState } from "react";
+import { Post } from "../../../types/types";
 
 interface PostProps {
-  id: string;
-  title: string;
-  content: string;
-  description?: string;
-  featuredImage?: string;
+  post: Post;
+  isDraft?: boolean;
 }
 
-const PostPreview: React.FC<PostProps> = ({
-  id,
-  title,
-  content,
-  description,
-  featuredImage,
-}) => {
+const PostPreview: React.FC<PostProps> = ({ post, isDraft }) => {
   /*
    * missing Author details and Post creation etc meta info.
    */
   const navigate = useNavigate();
 
-  const [shortDesc, setShortDesc] = useState(description);
+  const [shortDesc, setShortDesc] = useState(post?.description);
 
   useEffect(() => {
-    if (!description?.trim()) {
+    if (!post?.description?.trim()) {
       const div = document.createElement("div");
-      div.innerHTML = content;
+      div.innerHTML = post?.content ?? "";
       const { textContent } = div;
       setShortDesc(textContent?.slice(0, 300));
     }
-  }, [description, content]);
+  }, [post]);
 
   const goTo = () => {
-    navigate(`/post/${id}`, {
-      state: { post: { title, content } },
+    navigate(`/post/${post?.id}`, {
+      state: { post, isDraft },
     });
     if (typeof window !== "undefined" && window?.scrollTo) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -46,11 +38,11 @@ const PostPreview: React.FC<PostProps> = ({
   return (
     <div className="post" onClick={goTo}>
       <div className="text-content">
-        <div className="post-title">{title}</div>
+        <div className="post-title">{post?.title}</div>
         <div className="post-description">{shortDesc}</div>
       </div>
       <div className="featured-image">
-        {featuredImage && <img src={featuredImage} />}
+        {post?.featuredImage && <img src={post?.featuredImage} />}
       </div>
     </div>
   );

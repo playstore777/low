@@ -1,5 +1,7 @@
 .left {
   .tabs {
+    display: flex;
+    gap: 1rem;
     box-shadow: rgb(242, 242, 242) 0px -1px 0px inset;
 
     .tab {

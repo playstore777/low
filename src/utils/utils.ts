@@ -44,9 +44,9 @@ export const normalizeCollapsibles = (element: HTMLElement | string) => {
 
 export const removeHTMLElements = (
   htmlElement: HTMLElement,
-  classname: string
+  selector: string
 ) => {
-  const elementsToRemove = htmlElement.querySelectorAll(`.${classname}`);
+  const elementsToRemove = htmlElement.querySelectorAll(`${selector}`);
   elementsToRemove.forEach((element) => {
     element && element.remove();
   });
@@ -121,6 +121,7 @@ export const debounceWithReduxState = <T extends (...args: unknown[]) => void>(
   }) as T;
 };
 
-export const generateRandomId = () => {
-  return Math.random().toString(36).slice(2, 9);
-};
+export const generateRandomId = () => Math.random().toString(36).slice(2, 9);
+
+export const getFirstImageFromHTML = (htmlElement: HTMLElement) =>
+  htmlElement.querySelector("img");

@@ -1,3 +1,7 @@
+/**
+ * @param {Props} props - The properties for rendering the post.
+ * @param {Post} [props.post] - The post data.
+ */
 import { FunctionComponent, SVGProps, useEffect, useState } from "react";
 
 import { useLocation, useNavigate, useParams } from "react-router";
@@ -28,13 +32,18 @@ import {
 } from "../../server/services";
 import { removeHTMLElements } from "../../utils/utils";
 
-const PostView = ({ post }: { post?: Post }) => {
+interface props {
+  post?: Post;
+}
+
+const PostView: React.FC<props> = ({ post }) => {
   const { userLoggedIn, currentUser } = useAuth();
   const { postId } = useParams();
   const { state } = useLocation();
   post = state?.post;
-  const navigate = useNavigate();
+  // const isDraft = state?.isDraft;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [postContent, setPostContent] = useState<Post>({
     id: postId!,
@@ -66,7 +75,11 @@ const PostView = ({ post }: { post?: Post }) => {
   useEffect(() => {
     const getPost = async () => {
       try {
-        const post = await fetchPost(postId!);
+        const post =
+          // isDraft
+          //   ? await fetchDraft(postId!)
+          //   :
+          await fetchPost(postId!);
         if (post) {
           if (post.userId) {
             const authorDetails = await getUserById(post.userId);
@@ -153,15 +166,16 @@ const PostView = ({ post }: { post?: Post }) => {
     const content = document.querySelector(".content");
     const editableContent = removeHTMLElements(
       content as HTMLElement,
-      "unsplash-caption"
+      ".unsplash-caption" // selector(classname)!
     );
     dispatch(enableEditMode());
     navigate("edit", {
       state: {
         post: {
-          title: postContent?.title,
+          ...postContent,
           content: editableContent?.innerHTML,
         },
+        // isDraft,
       },
     });
   };
@@ -170,7 +184,7 @@ const PostView = ({ post }: { post?: Post }) => {
     setShowDeleteModal(true);
   };
 
-  const onClapHandler = () => {
+  const onClapHandler = async () => {
     !isClapped && setIsClapped(true);
     setPostContent((prev) => ({
       ...prev,
@@ -180,6 +194,12 @@ const PostView = ({ post }: { post?: Post }) => {
           (prev.clappers ? prev?.clappers[currentUser!.uid] : 0) + 1,
       },
     }));
+    const body = {
+      claps: postContent.claps,
+      clappers: postContent.clappers,
+    };
+    await clapPost(postContent.id, body);
+    setIsClapped(false);
   };
 
   const onCommentHandler = () => {
@@ -190,7 +210,7 @@ const PostView = ({ post }: { post?: Post }) => {
     try {
       await deletePost(postId!);
       toast("Story has been deleted!");
-      navigate("/");
+      navigate(-1); // go one step behind!
     } catch (e) {
       toast("Error deleting the Story!");
     }
@@ -217,7 +237,7 @@ const PostView = ({ post }: { post?: Post }) => {
   };
 
   return (
-    <article className={classes.articleWrapper}>
+    <article className={classes.postWrapper}>
       {postContent?.title && (
         <h1
           //   className={attr?.className?.title ?? "title"}
@@ -252,7 +272,8 @@ const PostView = ({ post }: { post?: Post }) => {
           )}
           <div className="createdDate">
             {postContent.createdAt &&
-              postContent.createdAt.toDate().toDateString()}
+              postContent.createdAt?.toDate &&
+              postContent.createdAt?.toDate()?.toDateString()}
           </div>
         </div>
       </div>
@@ -265,6 +286,7 @@ const PostView = ({ post }: { post?: Post }) => {
           />
           <CommentIcon onClick={onCommentHandler} />
         </div>
+
         <Dropdown buttonStyles={classes.buttonStyles}>
           <SvgWrapper
             SvgComponent={
@@ -291,12 +313,6 @@ const PostView = ({ post }: { post?: Post }) => {
                 Delete
               </div>
             )}
-            <div className="dropdownItem" tabIndex={0}>
-              3
-            </div>
-            <div className="dropdownItem" tabIndex={0}>
-              4
-            </div>
           </div>
         </Dropdown>
       </div>

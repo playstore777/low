@@ -1,10 +1,15 @@
+/**
+ * @param {null} props - Unused props
+ */
 import { useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import { changeTheme } from "../../store/slices/themeSlice";
 import Button from "../reusableComponents/button/Button";
 
-const ThemeToggle = () => {
+interface props {}
+
+const ThemeToggle: React.FC<props> = () => {
   const dispatch = useAppDispatch();
   const { theme } = useAppSelector((state) => state.theme);
 
@@ -22,7 +27,7 @@ const ThemeToggle = () => {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("ls-theme", theme); // ls -> less work
+    localStorage.setItem("low-theme", theme);
   }, [theme]);
 
   return <Button label={`Theme: ${theme}`} onClick={toggleTheme} />;

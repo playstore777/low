@@ -21,6 +21,7 @@ import { CollapsibleLinkTitleNode } from "../plugins/CollapsibleLink/Collapsible
 import ToolbarPlugin from "../plugins/toolbarPlugin/toolbarplugin";
 import { MyOnChangePlugin } from "../plugins/MyOnChangePlugin";
 import CollapsibleLinkPlugin from "../plugins/CollapsibleLink";
+import DragDropPaste from "../plugins/DragAndDropPastePlugin";
 // import TreeViewPlugin from "../plugins/ui/TreeViewPlugin";
 import AutoLinkPlugin from "../plugins/AutoLinkPlugin";
 import { ImageNode } from "../plugins/nodes/ImageNode";
@@ -28,7 +29,6 @@ import ImagesPlugin from "../plugins/ImagesPlugin";
 import { fetchDataMethod } from "../plugins/types";
 import LinkPlugin from "../plugins/LinkPlugin";
 import "./Editor.css";
-import DragDropPaste from "../plugins/DragAndDropPastePlugin";
 
 const onError = (error: unknown) => {
   console.error("Custom error from Lexical Editor: ", error);
@@ -46,7 +46,6 @@ const EditorInitializer = ({
       editor.update(() => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(initialEditorState, "text/html");
-        // console.log(doc);
         const nodes = $generateNodesFromDOM(editor, doc);
 
         const root = $getRoot();

@@ -1,16 +1,21 @@
+/**
+ * @param {Props} props - The properties for rendering.
+ * @param {ReactNode} [props.children] - The children to render.
+ * @param {Function} [props.onClose] - Method to trigger after close.
+ */
+
 import { FunctionComponent, ReactNode, SVGProps } from "react";
 
 import MediumModalCross from "../../../assets/images/MediumModalCross.svg";
 import SvgWrapper from "../svgWrapper/SvgWrapper";
 import classes from "./AsideSection.module.css";
 
-const AsideSection = ({
-  children,
-  onClose,
-}: {
+interface props {
   children: ReactNode;
   onClose: () => void;
-}) => {
+}
+
+const AsideSection: React.FC<props> = ({ children, onClose }) => {
   const onClickAsideHandler = (event: React.MouseEvent<HTMLElement>) => {
     event.stopPropagation();
   };
