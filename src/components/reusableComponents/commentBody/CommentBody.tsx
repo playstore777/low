@@ -60,7 +60,7 @@ const CommentBody = ({
     <>
       <div className={classes.commentWrapper}>
         <div className={classes.user}>
-          <Avatar imgSrc={currentUser?.photoURL as string} imgTitle="user" />
+          <Avatar imgSrc={author?.photoURL as string} imgTitle="user" />
           <div className={classes.username}>
             <div>
               <Link to={`/u/${author.username}`}>{author.displayName}</Link>

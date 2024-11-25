@@ -118,7 +118,7 @@ const PostComment = ({
     }
   };
 
-  async function onClapHandler() {
+  const onClapHandler = async () => {
     const commentDoc = {
       ...comment,
       claps: (comment.claps || 0) + 1,
@@ -130,7 +130,7 @@ const PostComment = ({
     await clapComment(comment.id, commentDoc);
     await getReplies();
     dispatch(updateComments([commentDoc]));
-  }
+  };
 
   if (commentAuthor == null) return null;
 
