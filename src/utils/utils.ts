@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { fetchPost, getUserById } from "../server/services";
 import { AppDispatch } from "../store/configureStore";
 import { createPost } from "../store/slices/postSlice";
@@ -125,3 +126,20 @@ export const generateRandomId = () => Math.random().toString(36).slice(2, 9);
 
 export const getFirstImageFromHTML = (htmlElement: HTMLElement) =>
   htmlElement.querySelector("img");
+
+export const generateShareableLink = (postId: string) => {
+  return `${window.location.origin}/post/${postId}`;
+};
+
+export const handleCopyLink = (shareableLink: string) => {
+  navigator.clipboard
+    .writeText(shareableLink)
+    .then(() => toast("Link copied to clipboard!"))
+    .catch((err) => console.error("Failed to copy: ", err));
+};
+
+export const getPreferredColorScheme = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};

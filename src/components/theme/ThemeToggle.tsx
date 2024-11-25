@@ -5,6 +5,7 @@ import { useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import { changeTheme } from "../../store/slices/themeSlice";
+import { getPreferredColorScheme } from "../../utils/utils";
 import Button from "../reusableComponents/button/Button";
 
 interface props {}
@@ -19,7 +20,8 @@ const ThemeToggle: React.FC<props> = () => {
   };
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("ls-theme") ?? "light";
+    const savedTheme =
+      localStorage.getItem("low-theme") ?? getPreferredColorScheme() ?? "light";
     if (savedTheme) {
       dispatch(changeTheme(savedTheme));
     }

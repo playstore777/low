@@ -12,6 +12,7 @@ import CommentsSection from "./comments/commentsSection/CommentsSection";
 import CommentIcon from "../reusableComponents/commentIcon/commentIcon";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import HtmlContentDisplay from "../../packages/HtmlContentDisplay/HtmlContentDisplay";
+import ShareStory from "../../assets/images/MediumShareStory.svg";
 import ThreeDots from "../../assets/images/MediumThreeDots.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
 import ClapIcon from "../reusableComponents/clapIcon/ClapIcon";
@@ -19,10 +20,12 @@ import { enableEditMode } from "../../store/slices/postSlice";
 import Button from "../reusableComponents/button/Button";
 import { useAppDispatch } from "../../store/rootReducer";
 import Avatar from "../reusableComponents/avatar/Avatar";
+import LinkedIn from "../../assets/images/linkedin.svg";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
 import { Post, User } from "../../types/types";
 import classes from "./PostView.module.css";
+import X from "../../assets/images/x.svg";
 import {
   clapPost,
   deletePost,
@@ -30,7 +33,11 @@ import {
   updateUserDetails,
   getUserById,
 } from "../../server/services";
-import { removeHTMLElements } from "../../utils/utils";
+import {
+  generateShareableLink,
+  handleCopyLink,
+  removeHTMLElements,
+} from "../../utils/utils";
 
 interface props {
   post?: Post;
@@ -70,6 +77,7 @@ const PostView: React.FC<props> = ({ post }) => {
   );
   const [isClapped, setIsClapped] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
+  const shareableLink = generateShareableLink(postId!);
 
   //#region main/root post fetch using id
   useEffect(() => {
@@ -120,7 +128,11 @@ const PostView: React.FC<props> = ({ post }) => {
           claps: postContent.claps,
           clappers: postContent.clappers,
         };
-        await clapPost(postContent.id, body);
+        try {
+          await clapPost(postContent.id, body);
+        } catch (error) {
+          toast("Something went wrong, clap was not count!");
+        }
         setIsClapped(false);
       }, 3000);
     }
@@ -134,18 +146,9 @@ const PostView: React.FC<props> = ({ post }) => {
        * So we are calling the API if timeout is cleared and also clapped, if new claps data is available to be updated in the backend.
        */
       if (isClapped) {
-        const currUserClapCount = postContent.clappers![
-          currentUser?.uid as string
-        ]
-          ? postContent.clappers![currentUser?.uid as string]
-          : 0;
-        const clappers = {
-          ...postContent.clappers,
-          [currentUser?.uid as string]: currUserClapCount,
-        };
         const body = {
-          claps: postContent.claps!,
-          clappers: clappers,
+          claps: postContent.claps,
+          clappers: postContent.clappers,
         };
         clapPost(postContent.id, body);
       }
@@ -184,7 +187,7 @@ const PostView: React.FC<props> = ({ post }) => {
     setShowDeleteModal(true);
   };
 
-  const onClapHandler = async () => {
+  const onClapHandler = () => {
     !isClapped && setIsClapped(true);
     setPostContent((prev) => ({
       ...prev,
@@ -194,12 +197,6 @@ const PostView: React.FC<props> = ({ post }) => {
           (prev.clappers ? prev?.clappers[currentUser!.uid] : 0) + 1,
       },
     }));
-    const body = {
-      claps: postContent.claps,
-      clappers: postContent.clappers,
-    };
-    await clapPost(postContent.id, body);
-    setIsClapped(false);
   };
 
   const onCommentHandler = () => {
@@ -235,6 +232,8 @@ const PostView: React.FC<props> = ({ post }) => {
     await updateUserDetails(currentUser?.uid as string, updatedUser as User);
     setIsFollowing(false);
   };
+
+  const copyLink = () => handleCopyLink(shareableLink);
 
   return (
     <article className={classes.postWrapper}>
@@ -287,34 +286,97 @@ const PostView: React.FC<props> = ({ post }) => {
           <CommentIcon onClick={onCommentHandler} />
         </div>
 
-        <Dropdown buttonStyles={classes.buttonStyles}>
-          <SvgWrapper
-            SvgComponent={
-              ThreeDots as unknown as FunctionComponent<SVGProps<string>>
-            }
-            width="24px"
-          />
-          <div className="dropdownItems">
-            {userLoggedIn && isAuthorUser && (
-              <div
-                className="dropdownItem"
-                onClick={onEditHandler}
-                tabIndex={0}
-              >
-                Edit
+        <div className={classes.rightInteractions}>
+          {postId && (
+            <Dropdown buttonStyles={classes.buttonStyles}>
+              <SvgWrapper
+                SvgComponent={
+                  ShareStory as unknown as FunctionComponent<SVGProps<string>>
+                }
+                width="24px"
+              />
+              <div className="dropdownItems">
+                <div className="dropdownItem" tabIndex={0} onClick={copyLink}>
+                  Copy Link
+                </div>
+                <a
+                  className="dropdownItem"
+                  tabIndex={0}
+                  href={`https://x.com/intent/tweet?url=${encodeURIComponent(
+                    shareableLink
+                  )}&text=Check out this article!`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Share on{" "}
+                  <SvgWrapper
+                    width="25"
+                    height="25"
+                    SvgComponent={
+                      X as unknown as FunctionComponent<SVGProps<string>>
+                    }
+                  />
+                </a>
+                <a
+                  className="dropdownItem"
+                  tabIndex={0}
+                  href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+                    shareableLink
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Share on{" "}
+                  <SvgWrapper
+                    width="25"
+                    height="25"
+                    SvgComponent={
+                      LinkedIn as unknown as FunctionComponent<SVGProps<string>>
+                    }
+                  />
+                </a>
+                <a
+                  className="dropdownItem"
+                  tabIndex={0}
+                  href={`mailto:?subject=Check out this article&body=${shareableLink}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Share via Email
+                </a>
               </div>
-            )}
-            {userLoggedIn && isAuthorUser && (
-              <div
-                className="dropdownItem"
-                tabIndex={0}
-                onClick={onDeleteHandler}
-              >
-                Delete
-              </div>
-            )}
-          </div>
-        </Dropdown>
+            </Dropdown>
+          )}
+
+          <Dropdown buttonStyles={classes.buttonStyles}>
+            <SvgWrapper
+              SvgComponent={
+                ThreeDots as unknown as FunctionComponent<SVGProps<string>>
+              }
+              width="24px"
+            />
+            <div className="dropdownItems">
+              {userLoggedIn && isAuthorUser && (
+                <div
+                  className="dropdownItem"
+                  onClick={onEditHandler}
+                  tabIndex={0}
+                >
+                  Edit
+                </div>
+              )}
+              {userLoggedIn && isAuthorUser && (
+                <div
+                  className="dropdownItem"
+                  tabIndex={0}
+                  onClick={onDeleteHandler}
+                >
+                  Delete
+                </div>
+              )}
+            </div>
+          </Dropdown>
+        </div>
       </div>
       {postContent?.content && <HtmlContentDisplay post={postContent} />}
       <div className={classes.tags}>
