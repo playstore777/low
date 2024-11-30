@@ -20,7 +20,6 @@ import TextButton from "../reusableComponents/textButton/TextButton";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import MediumBellIcon from "../../assets/images/MediumBellIcon.svg";
 import ThreeDotsIcon from "../../assets/images/MediumThreeDots.svg";
-import MediumLogoIcon from "../../assets/images/MediumLogo.svg";
 import Dropdown from "../reusableComponents/dropdown/Dropdown";
 import Authentication from "../authentication/Authentication";
 import useScrollDirection from "../hooks/useScrollDirection";
@@ -33,6 +32,7 @@ import PublishPost from "./publishPost/PublishPost";
 import SearchPopUp from "./searchPopUp/SearchPopUp";
 import useScreenSize from "../hooks/useScreenSize";
 import { updatePost } from "../../server/services";
+import LowLogo from "../../assets/images/low.svg";
 import ThemeToggle from "../theme/ThemeToggle";
 import { doSignOut } from "../../server/auth";
 import classes from "./Header.module.css";
@@ -149,11 +149,11 @@ const Header: React.FC<props> = () => {
           <a href="/">
             <SvgWrapper
               SvgComponent={
-                MediumLogoIcon as unknown as FunctionComponent<SVGProps<string>>
+                LowLogo as unknown as FunctionComponent<SVGProps<string>>
               }
+              width="48px"
             />
-          </a>{" "}
-          {/** Medium logo used only for testing */}
+          </a>
         </div>
         {!pathname.includes("new") && !isMobile && (
           <SearchPopUp searchWidth="200px">

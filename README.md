@@ -1,4 +1,8 @@
-# **Low**
+<picture>
+<source srcset="public/low-dark.svg" media="(prefers-color-scheme: dark)" />
+<source srcset="public/low-light.svg" media="(prefers-color-scheme: light)" />
+<img src="public/low.svg" alt="Low logo">
+</picture>
 
 Think Medium.com, but with a twist that makes life easier for both writers and readers. The main idea is simple: write something once, then remix and reuse it however you want. No more starting from scratch every time.
 
