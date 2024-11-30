@@ -1,5 +1,6 @@
-import InfiniteScroll from "react-infinite-scroller";
 import { useEffect, useState } from "react";
+
+import InfiniteScroll from "react-infinite-scroller";
 import { toast } from "react-toastify";
 import {
   DocumentData,
@@ -9,10 +10,6 @@ import {
   startAfter,
 } from "firebase/firestore";
 
-import {
-  updateComments,
-  deleteComment as deleteCommentFromRedux,
-} from "../../../store/slices/postSlice";
 import { useAppDispatch, useAppSelector } from "../../../store/rootReducer";
 import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
@@ -20,6 +17,10 @@ import CommentBody from "../commentBody/CommentBody";
 import NewComment from "../newComment/NewComment";
 import classes from "./postComment.module.css";
 import useUser from "../../hooks/useUser";
+import {
+  updateComments,
+  deleteComment as deleteCommentFromRedux,
+} from "../../../store/slices/postSlice";
 import {
   addCommentOrReply,
   clapComment,
