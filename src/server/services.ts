@@ -17,7 +17,7 @@ import {
   postStoreRef,
   userStoreRef,
 } from "./firebase";
-import { Comment, Post, User } from "../types/types";
+import { ClapPostComment, Comment, Post, User } from "../types/types";
 
 const Access_Key = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 
@@ -226,7 +226,7 @@ export const deletePost = async (documentId: string): Promise<void> => {
   }
 };
 
-export const clapPost = async (postId: string, post: Partial<Post>) => {
+export const clapPost = async (postId: string, post: ClapPostComment) => {
   try {
     const documentRef = doc(postStoreRef, postId);
     const res = await updateDoc(documentRef, post);
@@ -432,10 +432,7 @@ export const deleteComment = async (commentId: string) => {
   }
 };
 
-export const clapComment = async (
-  commentId: string,
-  post: Partial<Comment>
-) => {
+export const clapComment = async (commentId: string, post: ClapPostComment) => {
   try {
     const documentRef = doc(commentStoreRef, commentId);
     const res = await updateDoc(documentRef, post);

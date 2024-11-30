@@ -38,6 +38,11 @@ export type Comment = {
   replies?: Comment[];
 };
 
+export type ClapPostComment = {
+  claps?: number;
+  clappers?: { [userId: string]: number };
+};
+
 export type fetchDataMethod = (postId: string) => Promise<Post | undefined>;
 
 export type ContextMenuOptions = {

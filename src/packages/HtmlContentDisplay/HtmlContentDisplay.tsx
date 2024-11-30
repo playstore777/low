@@ -90,16 +90,17 @@ const HtmlContentDisplay = ({
     const dictionaryRes = await getDefFromDict(selectedWord ?? "");
     setShowAsideSection(true);
     const defs: Definition[] = [];
-    dictionaryRes.forEach((res: { meanings: Definition[] }) => {
-      res.meanings?.forEach((meaning: Definition) => {
-        const means = {
-          partOfSpeech: meaning.partOfSpeech,
-          definitions: meaning.definitions,
-        };
-        defs.push(means);
+    dictionaryRes.length &&
+      dictionaryRes?.forEach((res: { meanings: Definition[] }) => {
+        res.meanings?.forEach((meaning: Definition) => {
+          const means = {
+            partOfSpeech: meaning.partOfSpeech,
+            definitions: meaning.definitions,
+          };
+          defs.push(means);
+        });
       });
-    });
-    setDefinitions(defs);
+    dictionaryRes.length && setDefinitions(defs);
   };
 
   const handleDoubleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
@@ -238,7 +239,7 @@ const HtmlContentDisplay = ({
               </div>
             ))
           ) : (
-            <>Sorry, we are also unaware of this word!</>
+            <>Sorry, we are unaware of this word!</>
           )}
         </AsideSection>
       )}

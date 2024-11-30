@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Comment, Post } from "../../types/types";
 
 type AllPosts = Post & { createdAt?: number };
+type CommentToStore = Comment & { timestamp: number };
 
 export type InitialState = {
   activePost: {
@@ -10,7 +11,7 @@ export type InitialState = {
     title: string;
     content: string;
     isEditMode?: boolean;
-    comments?: Comment[];
+    comments?: CommentToStore[];
     draftTimer?: NodeJS.Timeout;
   };
   allPosts: AllPosts[];
@@ -74,6 +75,12 @@ const PostSlice = createSlice({
       //   ...(filteredPrevComments ?? []),
       //   ...action.payload,
       // ];
+      action.payload = action.payload.map((comment: Comment) => ({
+        ...comment,
+        timestamp:
+          comment?.timestamp!.seconds * 1000 +
+          comment?.timestamp!.nanoseconds / 1e6,
+      }));
       const array = [...(state.activePost.comments ?? []), ...action.payload];
 
       const key = "id";
@@ -81,6 +88,7 @@ const PostSlice = createSlice({
       const arrayUniqueByKey = [
         ...new Map(array.map((item) => [item[key], item])).values(),
       ];
+
       state.activePost.comments = arrayUniqueByKey;
     },
     deleteComment: (state, action) => {

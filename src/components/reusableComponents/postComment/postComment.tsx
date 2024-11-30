@@ -10,7 +10,11 @@ import {
   startAfter,
 } from "firebase/firestore";
 
-import { useAppDispatch, useAppSelector } from "../../../store/rootReducer";
+import {
+  selectAllCommentsWithTimestamp,
+  useAppDispatch,
+  useAppSelector,
+} from "../../../store/rootReducer";
 import { Comment, Post, User } from "../../../types/types";
 import { useAuth } from "../../../server/hooks/useAuth";
 import CommentBody from "../commentBody/CommentBody";
@@ -42,7 +46,9 @@ const PostComment = ({
   const dispatch = useAppDispatch();
   const replies =
     useAppSelector((state) =>
-      state.post.activePost.comments?.filter((x) => x.parentId === comment.id)
+      selectAllCommentsWithTimestamp(state, (commentsList) =>
+        commentsList.filter((x) => x.parentId === comment.id)
+      )
     ) ?? [];
 
   const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<
@@ -121,16 +127,18 @@ const PostComment = ({
 
   const onClapHandler = async () => {
     const commentDoc = {
-      ...comment,
       claps: (comment.claps || 0) + 1,
       clappers: {
         [currentUser!.uid]:
-          (comment.clappers ? comment?.clappers[currentUser!.uid] : 0) + 1,
+          (comment?.clappers && comment?.clappers[currentUser!.uid]
+            ? comment?.clappers[currentUser!.uid]
+            : 0) + 1,
       },
     };
+
     await clapComment(comment.id, commentDoc);
     await getReplies();
-    dispatch(updateComments([commentDoc]));
+    dispatch(updateComments([{ ...comment, ...commentDoc }]));
   };
 
   if (commentAuthor == null) return null;
@@ -147,6 +155,7 @@ const PostComment = ({
           />
         ) : (
           <CommentBody
+            key={comment.id}
             comment={comment}
             replies={replies as Comment[]}
             post={post}

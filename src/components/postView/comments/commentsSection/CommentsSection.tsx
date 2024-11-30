@@ -21,7 +21,11 @@ import {
   useState,
 } from "react";
 
-import { useAppDispatch, useAppSelector } from "../../../../store/rootReducer";
+import {
+  selectAllCommentsWithTimestamp,
+  useAppDispatch,
+  useAppSelector,
+} from "../../../../store/rootReducer";
 import MediumModalCross from "../../../../assets/images/MediumModalCross.svg";
 import PostComment from "../../../reusableComponents/postComment/postComment";
 import SvgWrapper from "../../../reusableComponents/svgWrapper/SvgWrapper";
@@ -44,7 +48,9 @@ const CommentsSection: React.FC<props> = ({ isOpen, post, onClose }) => {
   const commentModalRef = useRef(null);
   const dispatch = useAppDispatch();
   const comments = useAppSelector((state) =>
-    state.post.activePost.comments?.filter((comment) => comment.parentId === "")
+    selectAllCommentsWithTimestamp(state, (commentsList) =>
+      commentsList.filter((comment) => comment.parentId === "")
+    )
   ) as Comment[];
 
   // const [comments, setComments] = useState<Comment[]>([]);
@@ -132,7 +138,7 @@ const CommentsSection: React.FC<props> = ({ isOpen, post, onClose }) => {
             {comments.length ? (
               <div className={classes.comments}>
                 {comments.map((comment) => (
-                  <PostComment post={post} comment={comment} key={comment.id} />
+                  <PostComment key={comment.id} post={post} comment={comment} />
                 ))}
               </div>
             ) : (
