@@ -10,7 +10,9 @@ describe("SvgWrapper Component", () => {
     const handleClick = vi.fn();
     const { container } = render(
       <SvgWrapper
-        SvgComponent={TestSvg}
+        SvgComponent={
+          TestSvg as unknown as React.FunctionComponent<React.SVGProps<string>>
+        }
         fillColor="rgb(255, 0, 0)"
         width="50px"
         height="50px"
@@ -30,7 +32,12 @@ describe("SvgWrapper Component", () => {
 
   test("is disabled?", () => {
     const { container } = render(
-      <SvgWrapper SvgComponent={TestSvg} disabled />
+      <SvgWrapper
+        SvgComponent={
+          TestSvg as unknown as React.FunctionComponent<React.SVGProps<string>>
+        }
+        disabled
+      />
     );
 
     const svgElement = container.querySelector("svg");
@@ -40,7 +47,12 @@ describe("SvgWrapper Component", () => {
   test("is clickable?", async () => {
     const handleClick = vi.fn();
     const { container } = render(
-      <SvgWrapper SvgComponent={TestSvg} onClick={handleClick} />
+      <SvgWrapper
+        SvgComponent={
+          TestSvg as unknown as React.FunctionComponent<React.SVGProps<string>>
+        }
+        onClick={handleClick}
+      />
     );
 
     const svgElement = container.querySelector("svg") as Element;

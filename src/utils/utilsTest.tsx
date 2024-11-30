@@ -1,13 +1,13 @@
-// utils/utils-test.js
+import { ReactNode } from "react";
+
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { Provider } from "react-redux";
-import { ReactNode } from "react";
 
 import { RootState, setupStore } from "../store/configureStore";
 import { AuthProvider } from "../server/context/authContext";
 import { fetchAllPostsResponse } from "./mockedData";
-import { Post } from "../types/types";
+import { AllPosts } from "../store/slices/postSlice";
 
 interface RenderWithProvidersOptions {
   preloadedState?: Partial<RootState>;
@@ -27,7 +27,7 @@ export const renderWithProviders = (
           content: "",
           isEditMode: false,
         },
-        allPosts: fetchAllPostsResponse.articlesList as Post[],
+        allPosts: fetchAllPostsResponse.articlesList as AllPosts[],
       },
     },
     store = setupStore(preloadedState),

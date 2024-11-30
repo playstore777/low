@@ -240,7 +240,7 @@ export default function ToolbarPlugin({
   const [modal, showModal] = useModal();
   const [codeLanguage, setCodeLanguage] = useState<string>("");
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const [isImageCaption, setIsImageCaption] = useState(false);
+  const [, setIsImageCaption] = useState(false);
 
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
@@ -409,7 +409,7 @@ export default function ToolbarPlugin({
   //   activeEditor.dispatchCommand(INSERT_IMAGE_COMMAND, payload);
   // };
 
-  const canViewerSeeInsertCodeButton = !isImageCaption;
+  // const canViewerSeeInsertCodeButton = !isImageCaption;
 
   return (
     <div className="toolbar">

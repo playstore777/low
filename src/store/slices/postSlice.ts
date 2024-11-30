@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 import { Comment, Post } from "../../types/types";
 
-type AllPosts = Post & { createdAt?: number };
+export type AllPosts = Post & { createdAt?: number };
 type CommentToStore = Comment & { timestamp: number };
 
 export type InitialState = {

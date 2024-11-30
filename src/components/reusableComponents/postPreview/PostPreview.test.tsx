@@ -33,7 +33,7 @@ describe("PostPreview Component", () => {
   }));
 
   test("is correct text rendered?", () => {
-    renderWithProviders(<PostPreview {...post} />, {
+    renderWithProviders(<PostPreview post={{ ...post, userId: "" }} />, {
       isAuthProvider: false,
       withRouter: true,
     });
@@ -43,10 +43,13 @@ describe("PostPreview Component", () => {
 
   //#region not working :(
   test.skip("does navigate to post details on click?", async () => {
-    const renderResult = renderWithProviders(<PostPreview {...post} />, {
-      isAuthProvider: false,
-      withRouter: true,
-    });
+    const renderResult = renderWithProviders(
+      <PostPreview post={{ ...post, userId: "" }} />,
+      {
+        isAuthProvider: false,
+        withRouter: true,
+      }
+    );
     const postPreview = renderResult.container.querySelector(".post");
     await userEvent.click(postPreview as Element);
     expect(mockPush?.mock.calls[0]).toEqual("/");

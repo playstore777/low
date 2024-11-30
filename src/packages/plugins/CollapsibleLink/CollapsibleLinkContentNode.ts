@@ -20,7 +20,6 @@ import {
   LexicalNode,
   NodeKey,
   SerializedElementNode,
-  Spread,
 } from "lexical";
 import { IS_CHROME } from "../utils/environment";
 import invariant from "invariant";
