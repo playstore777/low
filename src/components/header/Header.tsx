@@ -248,15 +248,12 @@ const Header: React.FC<props> = () => {
                   // onClick={onEditHandler}
                   tabIndex={0}
                 >
-                  Change Feature Image
-                </div>
-                <div className="dropdownItem" tabIndex={0}>
-                  4
+                  Change Featured Image
                 </div>
               </div>
             </Dropdown>
           )}
-        {userLoggedIn && (
+        {userLoggedIn && !isMobile && (
           <div>
             <SvgWrapper
               SvgComponent={
@@ -317,6 +314,31 @@ const Header: React.FC<props> = () => {
                 }}
               >
                 Profile
+              </div>
+            )}
+            {userLoggedIn && isMobile && (
+              <div className="dropdownItem">Notifications</div>
+            )}
+            {!userLoggedIn && isMobile && (
+              <div
+                className="dropdownItem"
+                onClick={() => {
+                  setIsSignUp(true);
+                  setShowModal(true);
+                }}
+              >
+                Sign up
+              </div>
+            )}
+            {!userLoggedIn && isMobile && (
+              <div
+                className="dropdownItem"
+                onClick={() => {
+                  setIsSignUp(false);
+                  setShowModal(true);
+                }}
+              >
+                Sign in
               </div>
             )}
             {userLoggedIn && (

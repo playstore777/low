@@ -114,3 +114,9 @@
     margin: 2rem 0;
   }
 }
+
+@media (max-width: 768px) {
+  .postWrapper {
+    max-width: 90%;
+  }
+}

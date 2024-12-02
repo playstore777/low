@@ -12,6 +12,7 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
 import { HorizontalRulePlugin } from "@lexical/react/LexicalHorizontalRulePlugin";
+import { TabIndentationPlugin } from "@lexical/react/LexicalTabIndentationPlugin";
 import { CodeNode } from "@lexical/code";
 
 import FloatingLinkEditorPlugin from "../plugins/FloatingLinkEditorPlugin";
@@ -147,6 +148,7 @@ const Editor = ({
         <MyOnChangePlugin onChange={onChange} />
         <CollapsibleLinkPlugin />
         <EditorInitializer initialEditorState={initialEditorState} />
+        <TabIndentationPlugin />
         {/*<TreeViewPlugin />*/} {/* just for testing purpose!! */}
       </LexicalComposer>
     </>

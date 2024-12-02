@@ -9,3 +9,9 @@
     color: grey;
   }
 }
+
+@media (max-width: 768px) {
+  .mainWrapper {
+    padding: 0;
+  }
+}

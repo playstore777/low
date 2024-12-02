@@ -1,5 +1,6 @@
 .content {
   /* max-width: 70%; */
+  padding-block: 1rem;
   margin: auto;
 
   p {

@@ -25,6 +25,12 @@
   padding-inline: 7rem;
 }
 
+@media (max-width: 768px) {
+  .paddingInlineHeader {
+    padding-inline: 0.5rem;
+  }
+}
+
 .left {
   display: flex;
   align-items: center;
