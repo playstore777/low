@@ -1,7 +1,7 @@
 /**
  * @param {Props} props - The properties for rendering the post.
  * @param {Position} [props.position] - The position in x and y cords.
- * @param {MenuItems[]} [props.menuItems] - The menu items list.
+ * @param {MenuItem[]} [props.menuItems] - The menu items list.
  * @param {Function} [props.onClose] - Method to trigger after close.
  */
 
@@ -11,7 +11,7 @@ import classes from "./ContextMenu.module.css";
 
 interface props {
   position: Position;
-  menuItems: MenuItems[];
+  menuItems: MenuItem[];
   onClose: () => void;
 }
 
@@ -20,7 +20,7 @@ export type Position = {
   y: number;
 };
 
-export type MenuItems = {
+export type MenuItem = {
   label: string;
   styles?: CSSProperties;
   onClick?: () => void;

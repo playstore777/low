@@ -1,8 +1,11 @@
+import { MouseEvent, TouchEvent } from "react";
+
 import { toast } from "react-toastify";
-import { fetchPost, getUserById } from "../server/services";
-import { AppDispatch } from "../store/configureStore";
-import { createPost } from "../store/slices/postSlice";
+
 import { ContextMenuOptions, NestedAuthors } from "../types/types";
+import { fetchPost, getUserById } from "../server/services";
+import { createPost } from "../store/slices/postSlice";
+import { AppDispatch } from "../store/configureStore";
 
 export const createElementFromHTML = (htmlString: string): HTMLElement => {
   const div = document.createElement("div");
@@ -12,7 +15,9 @@ export const createElementFromHTML = (htmlString: string): HTMLElement => {
   return div;
 };
 
-export const getSelectedWord = (e: React.MouseEvent<HTMLDivElement>) => {
+export const getSelectedWord = (
+  e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>
+) => {
   const selectedLine = (e.target as HTMLElement).textContent;
   const selectedData = window.getSelection();
   const selectedContent = selectedLine?.slice(
@@ -60,8 +65,15 @@ export const removeHTMLElements = (
 
 export const appendContent = async (
   element: HTMLElement,
-  handleRightClick: (event: MouseEvent, options?: ContextMenuOptions[]) => void,
-  setNestedAuthors: (value: NestedAuthors) => void
+  events: {
+    handleRightClick: (
+      event: MouseEvent<HTMLDivElement>,
+      options?: ContextMenuOptions[]
+    ) => void;
+    handleTouchStart: (event: TouchEvent<HTMLDivElement>, url?: string) => void;
+    handleTouchEnd: () => void;
+  },
+  setNestedAuthors: React.Dispatch<React.SetStateAction<NestedAuthors>>
 ) => {
   const url = element.getAttribute("data-post-url");
   // if (url) {
@@ -78,9 +90,10 @@ export const appendContent = async (
     if (res?.userId) {
       const author = await getUserById(res?.userId as string);
       if (author) {
-        const map = new Map();
-        map.set(url, { authorName: author?.displayName });
-        setNestedAuthors(map);
+        setNestedAuthors((map: NestedAuthors) => {
+          map.set(url, { authorName: author?.displayName ?? "" });
+          return map;
+        });
       }
     }
 
@@ -96,8 +109,18 @@ export const appendContent = async (
 
     const content = res?.content;
     contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
+
+    contentElement.ontouchstart = (event) => {
+      event.stopPropagation();
+      events.handleTouchStart(
+        event as unknown as TouchEvent<HTMLDivElement>,
+        url
+      );
+    };
+    contentElement.ontouchend = events.handleTouchEnd;
+
     contentElement.oncontextmenu = (e) =>
-      handleRightClick(e, [
+      events.handleRightClick(e as unknown as MouseEvent<HTMLDivElement>, [
         {
           url: url,
         },
@@ -142,4 +165,26 @@ export const getPreferredColorScheme = () => {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
     : "light";
+};
+
+export const isMobileDevice = () =>
+  /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(
+    navigator.userAgent
+  );
+
+export const getWordMenuItems = (
+  event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
+  getDefinition: (value?: string) => void
+) => {
+  const selectedWord = getSelectedWord(event);
+
+  const menuItems = [
+    { label: `Selected word is: ${selectedWord}` },
+    {
+      label: "Find the definition in dictionary",
+      onClick: () => getDefinition(selectedWord),
+    },
+  ];
+
+  return menuItems;
 };

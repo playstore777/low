@@ -1,11 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, MouseEvent, TouchEvent } from "react";
 
 import { ContextMenuOptions, NestedAuthors, Post } from "../../types/types";
 import AsideSection from "../../components/reusableComponents/asideSection/AsideSection";
 import Portal from "../../components/reusableComponents/portal/Portal";
-import { appendContent, getSelectedWord } from "../../utils/utils";
+import {
+  appendContent,
+  getWordMenuItems,
+  isMobileDevice,
+} from "../../utils/utils";
 import ContextMenu, {
-  MenuItems,
+  MenuItem,
   Position,
 } from "../../components/header/contextMenu/ContextMenu";
 import { getDefFromDict } from "../../server/services";
@@ -42,14 +46,17 @@ const HtmlContentDisplay = ({
   );
   const [contextMenu, setContextMenu] = useState<null | {
     position: Position;
-    menuItems: MenuItems[];
+    menuItems: MenuItem[];
   }>(null);
   const [showAsideSection, setShowAsideSection] = useState(false);
   const [definitions, setDefinitions] = useState<Definition[] | null>(null);
 
+  const isLongPressRef = useRef(false);
+  const longPressTimerRef = useRef<number | null>(null);
+
   const handleRightClick = (
-    event: MouseEvent,
-    options?: ContextMenuOptions[]
+    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
+    options?: ContextMenuOptions[] // in future we can add as many options as we want!
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -64,22 +71,41 @@ const HtmlContentDisplay = ({
       }
     }
 
-    setContextMenu({
-      position: {
-        x: event.clientX,
-        y: event.clientY,
+    const menuItems = [
+      {
+        label:
+          "Post Url: " + options?.[0]?.url ||
+          "Sorry, something's wrong with URL",
+        onClick: () => (window.location.href = options?.[0]?.url || "#"),
       },
-      menuItems: [
-        {
-          label: "Post Url: " + options?.[0]?.url || "Unable to show URL",
-          onClick: () => (window.location.href = options?.[0]?.url || "#"),
-        },
-        menuItem && {
-          label: "Author: " + menuItem.label,
-          onClick: menuItem.onClick,
-        },
-      ],
-    });
+      menuItem && {
+        label: "Author: " + menuItem.label,
+        onClick: menuItem.onClick,
+      },
+    ];
+
+    setContext(event, menuItems);
+    // const { clientX } = "clientX" in event ? event : event.touches[0];
+    // const { clientY } = "clientY" in event ? event : event.touches[0];
+
+    // setContextMenu({
+    //   position: {
+    //     x: clientX,
+    //     y: clientY,
+    //   },
+    //   menuItems: [
+    //     {
+    //       label:
+    //         "Post Url: " + options?.[0]?.url ||
+    //         "Sorry, something's wrong with URL",
+    //       onClick: () => (window.location.href = options?.[0]?.url || "#"),
+    //     },
+    //     menuItem && {
+    //       label: "Author: " + menuItem.label,
+    //       onClick: menuItem.onClick,
+    //     },
+    //   ],
+    // });
   };
 
   const handleCloseContextMenu = () => {
@@ -103,26 +129,69 @@ const HtmlContentDisplay = ({
     dictionaryRes.length && setDefinitions(defs);
   };
 
-  const handleDoubleClick = async (event: React.MouseEvent<HTMLDivElement>) => {
-    const x = event.clientX;
-    const y = event.clientY;
+  const setContext = (
+    event: MouseEvent<HTMLDivElement> | TouchEvent<HTMLDivElement>,
+    menuItems: MenuItem[]
+  ) => {
+    const { clientX } = "clientX" in event ? event : event.touches[0];
+    const { clientY } = "clientY" in event ? event : event.touches[0];
 
-    const selectedWord = getSelectedWord(event);
+    setContextMenu({
+      position: { x: isMobileDevice() ? 0 : clientX, y: clientY },
+      menuItems,
+    });
+  };
 
-    const menuItems = [
-      { label: `Selected word is: ${selectedWord}` },
-      {
-        label: "Find the definition in dictionary",
-        onClick: () => getDefinition(selectedWord),
-      },
-    ];
-
-    setContextMenu({ position: { x, y }, menuItems });
+  const handleDoubleClick = async (event: MouseEvent<HTMLDivElement>) => {
+    if (isLongPressRef.current || isMobileDevice()) return; // Ignore double-click if it's a long-press
+    const menuItems = getWordMenuItems(event, getDefinition);
+    setContext(event, menuItems);
   };
 
   const closeDefinitionSection = () => {
     setShowAsideSection(false);
     setDefinitions(null);
+  };
+
+  const handleTouchStart = (
+    event: TouchEvent<HTMLDivElement>,
+    url?: string
+  ) => {
+    isLongPressRef.current = false;
+
+    longPressTimerRef.current = window.setTimeout(() => {
+      isLongPressRef.current = true;
+      let menuItems = getWordMenuItems(event, getDefinition);
+      if (url) {
+        const menuItem = { label: "", onClick: () => {} };
+
+        if (nestedAuthors.has(url)) {
+          const authorDetails = nestedAuthors.get(url);
+          if (authorDetails) {
+            menuItem.label = authorDetails.authorName;
+          }
+        }
+
+        menuItems = menuItems.concat([
+          {
+            label: "Post Url: " + url || "Sorry, something's wrong with URL",
+            onClick: () => (window.location.href = url || "#"),
+          },
+          menuItem && {
+            label: "Author: " + menuItem.label,
+            onClick: menuItem.onClick,
+          },
+        ]);
+      }
+      setContext(event, menuItems);
+    }, 500); // 500ms of wait!
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
   };
 
   // //#region main/root post fetch using id
@@ -152,7 +221,11 @@ const HtmlContentDisplay = ({
         const element = queue.shift();
         await appendContent(
           element as HTMLElement,
-          handleRightClick,
+          {
+            handleRightClick,
+            handleTouchStart,
+            handleTouchEnd,
+          },
           setNestedAuthors
         );
 
@@ -200,6 +273,8 @@ const HtmlContentDisplay = ({
               postContent.content || "<h1>Error: content not provided</h1>",
           }}
           onDoubleClick={handleDoubleClick}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         ></div>
       )}
       {contextMenu && (
