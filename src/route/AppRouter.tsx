@@ -1,4 +1,8 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider,
+} from "react-router-dom";
 
 import ManipulatePost from "../components/manipulatePost/ManipulatePost";
 import PageNotFound from "../components/reusableComponents/pageNotFound/PageNotFound";
@@ -40,6 +44,10 @@ const AppRouter = () => {
     {
       path: "/pageNotFound", // not working ;(
       element: <PageNotFound />,
+    },
+    {
+      path: "*", // not working ;(
+      element: <Navigate to="/pageNotFound" replace />,
     },
     {
       path: "/:name",

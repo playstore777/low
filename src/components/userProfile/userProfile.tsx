@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 
 import InfiniteScroll from "react-infinite-scroller";
-import { useNavigate, useParams } from "react-router";
+import { Navigate, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import {
   startAfter,
@@ -15,28 +15,28 @@ import {
   QueryDocumentSnapshot,
 } from "firebase/firestore";
 
+import { clearAllPosts, uploadAllPosts } from "../../store/slices/postSlice";
 import LayoutWithSidebar from "../../layoutWithSidebar/LayoutWithSidebar";
-import {
-  selectAllPostsWithTimestamp,
-  useAppDispatch,
-  useAppSelector,
-} from "../../store/rootReducer";
 import PostPreview from "../reusableComponents/postPreview/PostPreview";
 import EditUserProfile from "../authentication/EditUserProfile";
-import { clearAllPosts, uploadAllPosts } from "../../store/slices/postSlice";
 import Avatar from "../reusableComponents/avatar/Avatar";
 import Button from "../reusableComponents/button/Button";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
 import classes from "./userProfile.module.css";
 import { User } from "../../types/types";
+import Header from "../header/Header";
+import {
+  selectAllPostsWithTimestamp,
+  useAppDispatch,
+  useAppSelector,
+} from "../../store/rootReducer";
 import {
   fetchAllDrafts,
   fetchAllPosts,
   getUserByUsername,
   updateUserDetails,
 } from "../../server/services";
-import Header from "../header/Header";
 
 interface props {}
 
@@ -50,7 +50,6 @@ const UserProfile: React.FC<props> = () => {
   const { name } = useParams();
   const { currentUser, userLoggedIn } = useAuth();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   const [profile, setProfile] = useState<User | null>(null);
   const [isEditingUser, setIsEditingUser] = useState(false);
@@ -73,15 +72,11 @@ const UserProfile: React.FC<props> = () => {
   }, [activeTab]);
 
   useEffect(() => {
-    if (name![0] === "@") {
-      const username = name!.slice(1);
-      if (username !== currentUser?.username) {
-        getUser(username);
-      } else {
-        setProfile(currentUser);
-      }
+    const username = name!.slice(1);
+    if (username !== currentUser?.username) {
+      getUser(username);
     } else {
-      navigate("/pageNotFound");
+      setProfile(currentUser);
     }
   }, [currentUser, name]);
 
@@ -149,10 +144,14 @@ const UserProfile: React.FC<props> = () => {
   };
 
   return !profile ? (
-    <>
-      <Header />
-      <div>$0$ No user found with this username "{name?.slice(1)}"</div>
-    </>
+    name && name[0] !== "@" ? (
+      <Navigate to="/pageNotFound" replace />
+    ) : (
+      <>
+        <Header />
+        <div>$0$ No user found with this username "{name?.slice(1)}"</div>
+      </>
+    )
   ) : (
     <LayoutWithSidebar>
       <div className={classes.left}>
