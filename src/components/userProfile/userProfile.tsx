@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 
 import InfiniteScroll from "react-infinite-scroller";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Link } from "react-router-dom";
 import {
   startAfter,
@@ -36,6 +36,7 @@ import {
   getUserByUsername,
   updateUserDetails,
 } from "../../server/services";
+import Header from "../header/Header";
 
 interface props {}
 
@@ -49,6 +50,7 @@ const UserProfile: React.FC<props> = () => {
   const { name } = useParams();
   const { currentUser, userLoggedIn } = useAuth();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const [profile, setProfile] = useState<User | null>(null);
   const [isEditingUser, setIsEditingUser] = useState(false);
@@ -71,11 +73,15 @@ const UserProfile: React.FC<props> = () => {
   }, [activeTab]);
 
   useEffect(() => {
-    const username = name!.slice(1);
-    if (username !== currentUser?.username) {
-      getUser(username);
+    if (name![0] === "@") {
+      const username = name!.slice(1);
+      if (username !== currentUser?.username) {
+        getUser(username);
+      } else {
+        setProfile(currentUser);
+      }
     } else {
-      setProfile(currentUser);
+      navigate("/pageNotFound");
     }
   }, [currentUser, name]);
 
@@ -143,7 +149,10 @@ const UserProfile: React.FC<props> = () => {
   };
 
   return !profile ? (
-    <>$0$ No user found with this username "{name?.slice(1)}"</>
+    <>
+      <Header />
+      <div>$0$ No user found with this username "{name?.slice(1)}"</div>
+    </>
   ) : (
     <LayoutWithSidebar>
       <div className={classes.left}>

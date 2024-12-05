@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import ManipulatePost from "../components/manipulatePost/ManipulatePost";
+import PageNotFound from "../components/reusableComponents/pageNotFound/PageNotFound";
 import UserProfile from "../components/userProfile/userProfile";
 import PostView from "../components/postView/PostView";
 import { useAppSelector } from "../store/rootReducer";
@@ -35,6 +36,10 @@ const AppRouter = () => {
           ),
         },
       ],
+    },
+    {
+      path: "/pageNotFound", // not working ;(
+      element: <PageNotFound />,
     },
     {
       path: "/:name",
