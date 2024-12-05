@@ -76,15 +76,6 @@ export const appendContent = async (
   setNestedAuthors: React.Dispatch<React.SetStateAction<NestedAuthors>>
 ) => {
   const url = element.getAttribute("data-post-url");
-  // if (url) {
-  //   // trying for on-demand for better performance!!
-  //   const button = document.createElement("button");
-  //   button.setAttribute("data-post-url", url);
-  //   button.textContent = "Show story";
-  //   button.onclick = click;
-  //   element.replaceWith(button);
-  //   console.log(button.outerHTML);
-  // }
   if (url) {
     const res = await fetchPost(url);
     if (res?.userId) {
@@ -105,10 +96,17 @@ export const appendContent = async (
     ) as HTMLDivElement;
 
     const title = res?.title;
-    titleElement.innerHTML = `<p><h3>${title}</h3></p>`; // .CollapsibleLink__title (child of .Collapisble__title class)
+    if (title) {
+      titleElement.innerHTML = `<p><h3>${
+        title ?? "Sorry, story not available"
+      }</h3></p>`; // .CollapsibleLink__title (child of .Collapisble__title class)
+    }
 
     const content = res?.content;
-    contentElement.innerHTML = `<p>${content}</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
+    contentElement.innerHTML = `<p>${
+      content ??
+      "<i>Maybe something's wrong with URL or this Story was deleted</i>"
+    }</p>`; // .CollapsibleLink__content (child of .Collapisble__content class)
 
     contentElement.ontouchstart = (event) => {
       event.stopPropagation();
