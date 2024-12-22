@@ -40,12 +40,6 @@ const PostSlice = createSlice({
       state.activePost = { ...initialState.activePost };
     },
     uploadAllPosts: (state, action) => {
-      // Avoid duplication
-      // const newPostsId = action.payload.map((post: Post) => post.id);
-      // const filteredPrevPosts = state.allPosts.filter(
-      //   (post) => !newPostsId.includes(post.id)
-      // );
-      // state.allPosts = [...filteredPrevPosts, ...action.payload];
       action.payload = action.payload.map((post: Post) => ({
         ...post,
         createdAt:

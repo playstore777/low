@@ -2,9 +2,8 @@
  * @param {null} props - Unused props
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import InfiniteScroll from "react-infinite-scroller";
 import {
   startAfter,
   limit,
@@ -34,6 +33,8 @@ const Home: React.FC<props> = () => {
   > | null>(null);
   const [hasMore, setHasMore] = useState(true);
 
+  const observer = useRef<IntersectionObserver | undefined>();
+
   const fetchNewPosts = async () => {
     const { articlesList, lastArticle } = await fetchAllPosts(
       lastDoc ? startAfter(lastDoc) : limit(3)
@@ -44,6 +45,22 @@ const Home: React.FC<props> = () => {
     } else {
       setLastDoc(lastArticle);
       dispatch(uploadAllPosts(articlesList));
+    }
+  };
+
+  const lastElementRef = (element: HTMLDivElement | null) => {
+    if (hasMore) {
+      if (observer.current) {
+        observer.current.disconnect();
+      }
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          fetchNewPosts();
+        }
+      });
+      if (element) {
+        observer.current.observe(element);
+      }
     }
   };
 
@@ -59,16 +76,17 @@ const Home: React.FC<props> = () => {
   }
 
   if (allPosts.length === 0) return null;
+
   return (
     <main className="mainWrapper">
-      <InfiniteScroll
-        loadMore={fetchNewPosts}
-        hasMore={hasMore}
-        loader={<div key={0}>Loading...</div>}
-      >
-        {allPosts?.length > 0 &&
-          allPosts.map((post) => <PostPreview key={post.id} post={post} />)}
-      </InfiniteScroll>
+      {allPosts?.length > 0 &&
+        allPosts.map((post, index) => (
+          <PostPreview
+            key={post.id}
+            ref={index + 1 === allPosts.length ? lastElementRef : null}
+            post={post}
+          />
+        ))}
 
       {!hasMore && <p className="end-of-list">You've reached the end</p>}
     </main>

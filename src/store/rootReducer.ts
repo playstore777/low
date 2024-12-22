@@ -13,12 +13,21 @@ let lastPostResult: Post[] = [];
 let lastAllComments: (Comment & { timestamp?: number })[] = [];
 let lastCommentResult: Comment[] = [];
 
+const objectsEqual = (o1: Post, o2: Post & { createdAt?: number }) =>
+  Object.keys(o1).length === Object.keys(o2).length &&
+  Object.keys(o1).every((p) => o1[p as keyof Post] === o2[p as keyof Post]);
+
+const arraysEqual = (
+  a1: (Post & { createdAt?: number })[],
+  a2: (Post & { createdAt?: number })[]
+) => a1.length === a2.length && a1.every((o, idx) => objectsEqual(o, a2[idx]));
+
 // Memoized selector
 export const selectAllPostsWithTimestamp = (state: RootState) => {
   const allPosts = state.post.allPosts;
 
   // Check if allPosts has changed
-  if (allPosts !== lastAllPosts) {
+  if (!arraysEqual(allPosts, lastAllPosts)) {
     // Update the cached result
     lastAllPosts = allPosts;
     lastPostResult = allPosts.map((post) => ({
