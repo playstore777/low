@@ -18,13 +18,21 @@
   background: var(--primary-bg-color);
   border-color: var(--background-color);
   border-radius: 6px;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .imageGrid {
   column-count: 3;
+  -webkit-column-count: 3;
+  -moz-column-count: 3;
   width: 77vw;
 }
 
 .actions {
   text-align: center;
+  display: flex;
+  justify-content: space-around;
 }

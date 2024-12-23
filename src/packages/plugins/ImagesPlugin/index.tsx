@@ -196,6 +196,7 @@ export const InsertImageFromUnsplash = ({
   const [query, setQuery] = useState("");
   const [currentPageNumber, setCurrentPageNumber] = useState<number>(0);
   const [totalPages, setTotalPages] = useState<number>(0);
+  const gridImagesCount = 10;
 
   const fetchQueryImages = async () => {
     setCurrentPageNumber((prev) => prev + 1);
@@ -203,15 +204,7 @@ export const InsertImageFromUnsplash = ({
     const res = await getPhotosFromUnsplash(query, currentPageNumber);
     if (res) {
       const { results, total_pages } = res;
-      setImages((prev) => {
-        const temp = [...(prev ?? []), ...results];
-        const seen = new Set();
-        return temp.filter((item) => {
-          if (seen.has(item.id)) return false;
-          seen.add(item.id);
-          return true;
-        });
-      });
+      setImages((prev) => [...(prev ?? []), ...results]);
       setTotalPages(total_pages);
     }
   };
@@ -245,27 +238,50 @@ export const InsertImageFromUnsplash = ({
           submit
         </button>
       </div>
-      {images && (
+      {images?.slice(
+        (currentPageNumber - 1) * gridImagesCount,
+        (currentPageNumber - 1) * gridImagesCount + gridImagesCount
+      )?.length ? (
         <>
           <div className={classes.imageGrid}>
-            {images.map((val: UnsplashImageResponse) => {
-              return (
-                <img
-                  key={val.id}
-                  className={classes.image}
-                  src={val.urls.small}
-                  alt={val.alt_description}
-                  onClick={() => imageClickHandler(val)}
-                />
-              );
-            })}
+            {images
+              ?.slice(
+                (currentPageNumber - 1) * gridImagesCount,
+                (currentPageNumber - 1) * gridImagesCount + gridImagesCount
+              )
+              .map((val: UnsplashImageResponse) => {
+                return (
+                  <img
+                    key={val.id}
+                    className={classes.image}
+                    src={val.urls.small}
+                    alt={val.alt_description}
+                    onClick={() => imageClickHandler(val)}
+                  />
+                );
+              })}
           </div>
+
           <div className={classes.actions}>
-            <button className={classes.submitBtn} onClick={fetchQueryImages}>
-              Load More
-            </button>
+            {currentPageNumber > 1 && (
+              <button
+                className={classes.submitBtn}
+                onClick={() =>
+                  setCurrentPageNumber((prev) => (prev > 0 ? prev - 1 : 0))
+                }
+              >
+                Prev
+              </button>
+            )}
+            {currentPageNumber < totalPages && (
+              <button className={classes.submitBtn} onClick={fetchQueryImages}>
+                Next
+              </button>
+            )}
           </div>
         </>
+      ) : (
+        <div>No images to display</div>
       )}
     </section>
   );
