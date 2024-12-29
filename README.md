@@ -18,16 +18,18 @@ The big difference from Medium? We're all about keeping things low-effort. Inste
 
 - **User Authentication**:
   - Google Sign-In for secure and streamlined authentication.
-  
 - **Post Management**:
+
   - Create, read, update, and delete (CRUD) operations for posts (stories).
   - Detailed story pages with content rendering.
 
 - **Comment System**:
+
   - Add, read, and manage comments on stories.
   - Nested commenting for in-depth discussions.
 
 - **Clap System**:
+
   - Clap functionality for stories and comments to engage with content.
 
 - **User Profile**:
@@ -47,9 +49,11 @@ The big difference from Medium? We're all about keeping things low-effort. Inste
 ### **Backend**
 
 - **Firebase**:
+
   - **Authentication**: Google Sign-In integration for user management.
   - **Firestore Database**: Firestore NoSQL database for storing posts, comments, and claps.
-  - **Firebase Hosting**: For seamless deployment.
+
+- **Vercel**: For seamless deployment.
 
 ---
 
