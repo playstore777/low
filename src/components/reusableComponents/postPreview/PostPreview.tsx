@@ -43,7 +43,9 @@ const PostPreview = forwardRef<HTMLDivElement, PostProps>(
           <div className="post-description">{shortDesc}</div>
         </div>
         <div className="featured-image">
-          {post?.featuredImage && <img src={post?.featuredImage} />}
+          {post?.featuredImage && (
+            <img src={post?.featuredImage} alt={post.title} loading="lazy" />
+          )}
         </div>
       </div>
     );

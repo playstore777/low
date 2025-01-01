@@ -17,9 +17,14 @@ interface props {
 
 const Avatar: React.FC<props> = ({ imgSrc, imgTitle, width, height }) => {
   return (
-    <div className={classes.avatar} style={{ width: width, height: height }}>
+    <div
+      className={classes.avatar}
+      style={{ width: width, height: height }}
+      role="button"
+      aria-label="avatar"
+    >
       {!imgSrc && <div className={classes.avatarPlaceholder}></div>}
-      {imgSrc && <img title={imgTitle} alt="" src={imgSrc} loading="lazy" />}
+      {imgSrc && <img alt={imgTitle} src={imgSrc} />}
     </div>
   );
 };

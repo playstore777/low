@@ -8,6 +8,8 @@ import React, {
   SVGProps,
   useEffect,
   useState,
+  Suspense,
+  lazy,
 } from "react";
 
 import { useLocation, useNavigate } from "react-router";
@@ -20,16 +22,12 @@ import TextButton from "../reusableComponents/textButton/TextButton";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
 import MediumBellIcon from "../../assets/images/MediumBellIcon.svg";
 import ThreeDotsIcon from "../../assets/images/MediumThreeDots.svg";
-import Dropdown from "../reusableComponents/dropdown/Dropdown";
-import Authentication from "../authentication/Authentication";
 import useScrollDirection from "../hooks/useScrollDirection";
 import SearchIcon from "../../assets/images/SearchIcon.svg";
 import Button from "../reusableComponents/button/Button";
 import Avatar from "../reusableComponents/avatar/Avatar";
 import PopUp from "../reusableComponents/popup/PopUp";
 import { useAuth } from "../../server/hooks/useAuth";
-import PublishPost from "./publishPost/PublishPost";
-import SearchPopUp from "./searchPopUp/SearchPopUp";
 import useScreenSize from "../hooks/useScreenSize";
 import { updatePost } from "../../server/services";
 import LowLogo from "../../assets/images/low.svg";
@@ -42,6 +40,11 @@ import {
   getFirstImageFromHTML,
   normalizeCollapsibles,
 } from "../../utils/utils";
+
+const Authentication = lazy(() => import("../authentication/Authentication"));
+const PublishPost = lazy(() => import("./publishPost/PublishPost"));
+const SearchPopUp = lazy(() => import("./searchPopUp/SearchPopUp"));
+const Dropdown = lazy(() => import("../reusableComponents/dropdown/Dropdown"));
 
 interface props {}
 
@@ -146,7 +149,11 @@ const Header: React.FC<props> = () => {
     >
       <div className={classes.left}>
         <div id={classes.logo}>
-          <a href="/">
+          <a
+            href="/"
+            aria-label="Logo"
+            aria-description="Logo of the website, takes you to the home page."
+          >
             <SvgWrapper
               SvgComponent={
                 LowLogo as unknown as FunctionComponent<SVGProps<string>>
@@ -156,40 +163,44 @@ const Header: React.FC<props> = () => {
           </a>
         </div>
         {!pathname.includes("new") && !isMobile && (
-          <SearchPopUp searchWidth="200px">
-            <div className={classes.searchBar}>
-              <SvgWrapper
-                SvgComponent={
-                  SearchIcon as unknown as FunctionComponent<SVGProps<string>>
-                }
-                width="24px"
-                height="24px"
-              />
-              <input
-                type="text"
-                placeholder="Search"
-                onChange={onSearchHandler}
-              />
-            </div>
-            <div>
-              {filteredPost.map((match: Post) => (
-                <div
-                  style={{
-                    cursor: "pointer",
-                  }}
-                  onClick={() => {
-                    navigate(`post/${match.id}`, {
-                      state: {
-                        post: { title: match.title, content: match.content },
-                      },
-                    });
-                  }}
-                >
-                  {match.title}
-                </div>
-              ))}
-            </div>
-          </SearchPopUp>
+          <Suspense fallback={<div>Loading search...</div>}>
+            <SearchPopUp searchWidth="200px">
+              <div className={classes.searchBar}>
+                <SvgWrapper
+                  SvgComponent={
+                    SearchIcon as unknown as FunctionComponent<SVGProps<string>>
+                  }
+                  width="24px"
+                  height="24px"
+                />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  id="search"
+                  onChange={onSearchHandler}
+                />
+              </div>
+              <div>
+                {filteredPost.map((match: Post) => (
+                  <div
+                    key={match.id}
+                    style={{
+                      cursor: "pointer",
+                    }}
+                    onClick={() => {
+                      navigate(`post/${match.id}`, {
+                        state: {
+                          post: { title: match.title, content: match.content },
+                        },
+                      });
+                    }}
+                  >
+                    {match.title}
+                  </div>
+                ))}
+              </div>
+            </SearchPopUp>
+          </Suspense>
         )}
       </div>
       <div className={classes.right}>
@@ -233,25 +244,27 @@ const Header: React.FC<props> = () => {
           )}
         {userLoggedIn &&
           (pathname.includes("new") || pathname.includes("edit")) && (
-            <Dropdown buttonStyles={classes.buttonStyles}>
-              <SvgWrapper
-                SvgComponent={
-                  ThreeDotsIcon as unknown as FunctionComponent<
-                    SVGProps<string>
+            <Suspense fallback={<div>Loading dropdown...</div>}>
+              <Dropdown buttonStyles={classes.buttonStyles}>
+                <SvgWrapper
+                  SvgComponent={
+                    ThreeDotsIcon as unknown as FunctionComponent<
+                      SVGProps<string>
+                    >
+                  }
+                  width="24px"
+                />
+                <div className="dropdownItems">
+                  <div
+                    className="dropdownItem"
+                    // onClick={onEditHandler}
+                    tabIndex={0}
                   >
-                }
-                width="24px"
-              />
-              <div className="dropdownItems">
-                <div
-                  className="dropdownItem"
-                  // onClick={onEditHandler}
-                  tabIndex={0}
-                >
-                  Change Featured Image
+                    Change Featured Image
+                  </div>
                 </div>
-              </div>
-            </Dropdown>
+              </Dropdown>
+            </Suspense>
           )}
         {userLoggedIn && !isMobile && (
           <div>
@@ -280,94 +293,99 @@ const Header: React.FC<props> = () => {
             }}
           />
         )}
-        <Dropdown buttonStyles={classes.buttonStyles}>
-          <Avatar
-            imgSrc={currentUser?.photoURL?.toString()}
-            imgTitle={currentUser?.displayName?.toString()}
-          />
-          <div className="dropdownItems">
-            {userLoggedIn &&
-              !pathname.includes("new") &&
-              !pathname.includes("edit") &&
-              isMobile && (
+        <Suspense fallback={<div>Loading avatar...</div>}>
+          <Dropdown buttonStyles={classes.buttonStyles}>
+            <Avatar
+              imgSrc={currentUser?.photoURL?.toString()}
+              imgTitle={currentUser?.displayName?.toString()}
+            />
+            <div className="dropdownItems">
+              {userLoggedIn &&
+                !pathname.includes("new") &&
+                !pathname.includes("edit") &&
+                isMobile && (
+                  <div
+                    className={`${classes.postButton} dropdownItem`}
+                    onClick={() => {
+                      goTo("/new");
+                    }}
+                  >
+                    <SvgWrapper
+                      SvgComponent={
+                        MediumWriteIcon as unknown as FunctionComponent<
+                          SVGProps<string>
+                        >
+                      }
+                    />
+                    <div className={classes.iconCaption}>Write</div>
+                  </div>
+                )}
+              {userLoggedIn && (
                 <div
-                  className={`${classes.postButton} dropdownItem`}
+                  className="dropdownItem"
                   onClick={() => {
-                    goTo("/new");
+                    navigate(`/@${currentUser?.username}`);
                   }}
                 >
-                  <SvgWrapper
-                    SvgComponent={
-                      MediumWriteIcon as unknown as FunctionComponent<
-                        SVGProps<string>
-                      >
-                    }
-                  />
-                  <div className={classes.iconCaption}>Write</div>
+                  Profile
                 </div>
               )}
-            {userLoggedIn && (
-              <div
-                className="dropdownItem"
-                onClick={() => {
-                  navigate(`/@${currentUser?.username}`);
-                }}
-              >
-                Profile
-              </div>
-            )}
-            {userLoggedIn && isMobile && (
-              <div className="dropdownItem">Notifications</div>
-            )}
-            {!userLoggedIn && isMobile && (
-              <div
-                className="dropdownItem"
-                onClick={() => {
-                  setIsSignUp(true);
-                  setShowModal(true);
-                }}
-              >
-                Sign up
-              </div>
-            )}
-            {!userLoggedIn && isMobile && (
-              <div
-                className="dropdownItem"
-                onClick={() => {
-                  setIsSignUp(false);
-                  setShowModal(true);
-                }}
-              >
-                Sign in
-              </div>
-            )}
-            {userLoggedIn && (
-              <div className="dropdownItem" onClick={() => {}}>
-                Settings
-              </div>
-            )}
-            {/* <FontType /> */} {/* has bug with Header, can't use */}
-            {userLoggedIn && (
-              <div className="dropdownItem" onClick={doSignOut}>
-                Sign Out
-              </div>
-            )}
-          </div>
-        </Dropdown>
+              {userLoggedIn && isMobile && (
+                <div className="dropdownItem">Notifications</div>
+              )}
+              {!userLoggedIn && isMobile && (
+                <div
+                  className="dropdownItem"
+                  onClick={() => {
+                    setIsSignUp(true);
+                    setShowModal(true);
+                  }}
+                >
+                  Sign up
+                </div>
+              )}
+              {!userLoggedIn && isMobile && (
+                <div
+                  className="dropdownItem"
+                  onClick={() => {
+                    setIsSignUp(false);
+                    setShowModal(true);
+                  }}
+                >
+                  Sign in
+                </div>
+              )}
+              {userLoggedIn && (
+                <div className="dropdownItem" onClick={() => {}}>
+                  Settings
+                </div>
+              )}
+              {userLoggedIn && (
+                <div className="dropdownItem" onClick={doSignOut}>
+                  Sign Out
+                </div>
+              )}
+            </div>
+          </Dropdown>
+        </Suspense>
       </div>
       {showModal && (
-        <PopUp isOpen={showModal} onClose={onCloseAuth}>
-          <Authentication
-            key={isSignUp + Math.random().toString()}
-            isSignUp={isSignUp}
-            onClose={onCloseAuth}
-          />
-        </PopUp>
+        <Suspense fallback={<div>Loading authentication...</div>}>
+          <PopUp isOpen={showModal} onClose={onCloseAuth}>
+            <Authentication
+              key={isSignUp + Math.random().toString()}
+              isSignUp={isSignUp}
+              onClose={onCloseAuth}
+            />
+          </PopUp>
+        </Suspense>
       )}
       {publishPost && (
-        <PopUp isOpen={publishPost} onClose={onClosePublishPost}>
-          <PublishPost onClose={onClosePublishPost} />
-        </PopUp>
+        <Suspense fallback={<div>Loading publish post...</div>}>
+          <PopUp isOpen={publishPost} onClose={onClosePublishPost}>
+            <PublishPost onClose={onClosePublishPost} />
+          </PopUp>
+        </Suspense>
       )}
     </header>
   );

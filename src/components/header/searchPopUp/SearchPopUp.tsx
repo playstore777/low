@@ -16,15 +16,14 @@ interface props {
 const SearchPopUp: React.FC<props> = ({ children, searchWidth }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
-    <div className={classes.searchWrapper}>
-      <div
-        onClick={(e) => {
-          e.nativeEvent.stopImmediatePropagation();
-          setIsSearchOpen(true);
-        }}
-      >
-        {children[0]}
-      </div>
+    <div
+      className={classes.searchWrapper}
+      onFocus={(e) => {
+        e.nativeEvent.stopImmediatePropagation();
+        setIsSearchOpen(true);
+      }}
+    >
+      <div>{children[0]}</div>
       {isSearchOpen && (
         <Portal>
           <div

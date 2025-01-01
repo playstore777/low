@@ -17,6 +17,10 @@
   outline: 0;
   color: white;
   cursor: pointer;
+
+  &:focus {
+    outline: 2px solid var(--text-color);
+  }
 }
 
 .textBtn {
