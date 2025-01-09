@@ -1,0 +1,16 @@
+.postButton {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+
+  & > .iconCaption {
+    font-size: small;
+  }
+
+  &:hover > .iconCaption {
+    color: var(--text-color);
+  }
+}

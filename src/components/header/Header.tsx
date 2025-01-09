@@ -20,6 +20,7 @@ import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import MediumWriteIcon from "../../assets/images/MediumWriteIcon.svg";
 import TextButton from "../reusableComponents/textButton/TextButton";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
+import IconButton from "../reusableComponents/iconButton/iconButton";
 import MediumBellIcon from "../../assets/images/MediumBellIcon.svg";
 import ThreeDotsIcon from "../../assets/images/MediumThreeDots.svg";
 import useScrollDirection from "../hooks/useScrollDirection";
@@ -137,6 +138,14 @@ const Header: React.FC<props> = () => {
       : setFilteredPost([]);
   };
 
+  const onOptionClickHandler = (match: Post) => {
+    navigate(`post/${match.id}`, {
+      state: {
+        post: { title: match.title, content: match.content },
+      },
+    });
+  };
+
   return (
     <header
       className={`${classes.headerWrapper} ${
@@ -164,7 +173,7 @@ const Header: React.FC<props> = () => {
         </div>
         {!pathname.includes("new") && !isMobile && (
           <Suspense fallback={<div>Loading search...</div>}>
-            <SearchPopUp searchWidth="200px">
+            <SearchPopUp searchWidth="200px" popupId="search-popup">
               <div className={classes.searchBar}>
                 <SvgWrapper
                   SvgComponent={
@@ -178,9 +187,12 @@ const Header: React.FC<props> = () => {
                   placeholder="Search"
                   id="search"
                   onChange={onSearchHandler}
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="search-popup"
                 />
               </div>
-              <div>
+              <div role="listbox">
                 {filteredPost.map((match: Post) => (
                   <div
                     key={match.id}
@@ -188,12 +200,16 @@ const Header: React.FC<props> = () => {
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      navigate(`post/${match.id}`, {
-                        state: {
-                          post: { title: match.title, content: match.content },
-                        },
-                      });
+                      onOptionClickHandler(match);
                     }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault(); // Prevent scrolling when pressing Space
+                        onOptionClickHandler(match);
+                      }
+                    }}
+                    role="option"
+                    tabIndex={0}
                   >
                     {match.title}
                   </div>
@@ -205,25 +221,22 @@ const Header: React.FC<props> = () => {
       </div>
       <div className={classes.right}>
         <ThemeToggle />
+
         {userLoggedIn &&
           !pathname.includes("new") &&
           !pathname.includes("edit") &&
           !isMobile && (
-            <div
-              className={classes.postButton}
-              onClick={() => {
+            <IconButton
+              onClickHandler={() => {
                 goTo("/new");
               }}
-            >
-              <SvgWrapper
-                SvgComponent={
-                  MediumWriteIcon as unknown as FunctionComponent<
-                    SVGProps<string>
-                  >
-                }
-              />
-              <div className={classes.iconCaption}>Write</div>
-            </div>
+              caption="Write"
+              SvgComponent={
+                MediumWriteIcon as unknown as FunctionComponent<
+                  SVGProps<string>
+                >
+              }
+            />
           )}
         {userLoggedIn &&
           (pathname.includes("new") || pathname.includes("edit")) && (
@@ -267,13 +280,12 @@ const Header: React.FC<props> = () => {
             </Suspense>
           )}
         {userLoggedIn && !isMobile && (
-          <div>
-            <SvgWrapper
-              SvgComponent={
-                MediumBellIcon as unknown as FunctionComponent<SVGProps<string>>
-              }
-            />
-          </div>
+          <IconButton
+            SvgComponent={
+              MediumBellIcon as unknown as FunctionComponent<SVGProps<string>>
+            }
+            onClickHandler={() => {}}
+          />
         )}
         {!userLoggedIn && !isMobile && (
           <Button

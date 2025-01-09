@@ -11,9 +11,14 @@ import classes from "./SearchPopUp.module.css";
 interface props {
   children: ReactNode[];
   searchWidth: string;
+  popupId?: string;
 }
 
-const SearchPopUp: React.FC<props> = ({ children, searchWidth }) => {
+const SearchPopUp: React.FC<props> = ({
+  children,
+  searchWidth,
+  popupId = "popup",
+}) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   return (
     <div
@@ -33,7 +38,7 @@ const SearchPopUp: React.FC<props> = ({ children, searchWidth }) => {
               setIsSearchOpen(false);
             }}
           ></div>
-          <div className={classes.search}>
+          <div className={classes.search} id={popupId}>
             <h3>Search</h3>
             <hr />
             <div></div>
@@ -42,6 +47,12 @@ const SearchPopUp: React.FC<props> = ({ children, searchWidth }) => {
                 width: searchWidth,
               }}
               onClick={() => setIsSearchOpen(false)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault(); // Prevent scrolling when pressing Space
+                  setIsSearchOpen(false);
+                }
+              }}
             >
               {children[1]}
             </div>
