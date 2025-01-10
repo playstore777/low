@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from "../../store/rootReducer";
 import MediumWriteIcon from "../../assets/images/MediumWriteIcon.svg";
 import TextButton from "../reusableComponents/textButton/TextButton";
 import SvgWrapper from "../reusableComponents/svgWrapper/SvgWrapper";
-import IconButton from "../reusableComponents/iconButton/iconButton";
+import IconButton from "../reusableComponents/iconButton/IconButton";
 import MediumBellIcon from "../../assets/images/MediumBellIcon.svg";
 import ThreeDotsIcon from "../../assets/images/MediumThreeDots.svg";
 import useScrollDirection from "../hooks/useScrollDirection";
