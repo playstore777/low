@@ -36,6 +36,7 @@
     "reselect": "^5.1.1"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.0",
     "@types/invariant": "^2.2.37",
     "@types/jest": "^29.5.12",
