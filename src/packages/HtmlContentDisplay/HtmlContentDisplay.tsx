@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, MouseEvent, TouchEvent } from "react";
 
+import parser from "html-react-parser";
+import DOMPurify from "dompurify";
+
 import { ContextMenuOptions, NestedAuthors, Post } from "../../types/types";
 import AsideSection from "../../components/reusableComponents/asideSection/AsideSection";
 import Portal from "../../components/reusableComponents/portal/Portal";
@@ -37,7 +40,7 @@ const HtmlContentDisplay = ({
     };
   };
 }) => {
-  const [postContent] = useState({
+  const [postContent, setPostContent] = useState({
     title: post?.title,
     content: post?.content,
   });
@@ -85,27 +88,6 @@ const HtmlContentDisplay = ({
     ];
 
     setContext(event, menuItems);
-    // const { clientX } = "clientX" in event ? event : event.touches[0];
-    // const { clientY } = "clientY" in event ? event : event.touches[0];
-
-    // setContextMenu({
-    //   position: {
-    //     x: clientX,
-    //     y: clientY,
-    //   },
-    //   menuItems: [
-    //     {
-    //       label:
-    //         "Post Url: " + options?.[0]?.url ||
-    //         "Sorry, something's wrong with URL",
-    //       onClick: () => (window.location.href = options?.[0]?.url || "#"),
-    //     },
-    //     menuItem && {
-    //       label: "Author: " + menuItem.label,
-    //       onClick: menuItem.onClick,
-    //     },
-    //   ],
-    // });
   };
 
   const handleCloseContextMenu = () => {
@@ -194,23 +176,6 @@ const HtmlContentDisplay = ({
     }
   };
 
-  // //#region main/root post fetch using id
-  // useEffect(() => {
-  //   const fetchPost = async () => {
-  //     try {
-  //       const post = await fetchData(postId!);
-  //       setPostContent({ title: post.title, content: post.content });
-  //     } catch (error) {
-  //       console.error("Error fetching post:", error);
-  //     }
-  //   };
-
-  //   if (!post?.title) {
-  //     fetchPost();
-  //   }
-  // }, [postId]);
-  // //#endregion
-
   //#region nested/child post fetch
   useEffect(() => {
     const processElements = async () => {
@@ -253,13 +218,16 @@ const HtmlContentDisplay = ({
         img.insertAdjacentElement("afterend", captionDiv);
       });
     };
-    // // console.log(postContent.content);
     if (postContent.content) {
       processElements();
       processImages();
+      setPostContent((prev) => ({
+        ...prev,
+        content: DOMPurify.sanitize(prev.content!),
+      }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postContent.content]); // adding handleRightClick as deps causing infinite re-rendering!
+  }, []); // adding handleRightClick as deps causing infinite re-rendering!
   //#endregion
 
   return (
@@ -268,14 +236,13 @@ const HtmlContentDisplay = ({
         <div
           className={`${attr?.className?.content ?? ""} content`}
           style={attr?.style ?? {}}
-          dangerouslySetInnerHTML={{
-            __html:
-              postContent.content || "<h1>Error: content not provided</h1>",
-          }}
           onDoubleClick={handleDoubleClick}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-        ></div>
+        >
+          {parser(postContent.content) ||
+            "<h1>Error: content not provided</h1>"}
+        </div>
       )}
       {contextMenu && (
         <Portal>
