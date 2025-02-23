@@ -59,7 +59,7 @@ The big difference from Medium? We're all about keeping things low-effort. Inste
 
 ## **Lighthouse results for Performance, Accessibility, Best Practices and SEO:**
 
-## ![Lighthouse_results](src\assets\images\lighthouse-results.png)
+## ![Lighthouse_results](src/assets/images/lighthouse-results.png)
 
 ## **Setup Instructions**
 
